@@ -1,0 +1,76 @@
+{
+  "routines": {
+    "R01": {
+      "name": "爆发扭胯",
+      "description": "左扭胯→右扭胯→下蹲→站起",
+      "difficulty_level": 2,
+      "bpm_range": [120, 140],
+      "duration": 8,
+      "usable_range": [1, 9],
+      "beat_map": "routine_R01_beat_map.json"
+    },
+    "R02": {
+      "name": "水蛇后背摇",
+      "description": "背对镜头→脊柱波浪→转身回头",
+      "difficulty_level": 3,
+      "bpm_range": [90, 110],
+      "duration": 7,
+      "usable_range": [1, 8],
+      "beat_map": "routine_R02_beat_map.json"
+    },
+    "R03": {
+      "name": "力量HipHop",
+      "description": "胸部震动→滑步→极速定格",
+      "difficulty_level": 3,
+      "bpm_range": [140, 160],
+      "duration": 9,
+      "usable_range": [1, 10],
+      "beat_map": "routine_R03_beat_map.json"
+    },
+    "R04": {
+      "name": "甜美手势舞",
+      "description": "比心→指向镜头→双手框脸→wink",
+      "difficulty_level": 1,
+      "bpm_range": [100, 120],
+      "duration": 6,
+      "usable_range": [1, 7],
+      "beat_map": "routine_R04_beat_map.json"
+    },
+    "R05": {
+      "name": "慵懒摇摆",
+      "description": "左右慵懒摇摆→手臂自然垂荡→微笑",
+      "difficulty_level": 1,
+      "bpm_range": [80, 100],
+      "duration": 8,
+      "usable_range": [1, 9],
+      "beat_map": "routine_R05_beat_map.json"
+    },
+    "R06": {
+      "name": "拉丁扭腰",
+      "description": "快速 8 字扭腰→提膝→甩发",
+      "difficulty_level": 2,
+      "bpm_range": [110, 130],
+      "duration": 7,
+      "usable_range": [1, 8],
+      "beat_map": "routine_R06_beat_map.json"
+    },
+    "R07": {
+      "name": "韩舞精华",
+      "description": "Wave→Body Roll→定点 Pose",
+      "difficulty_level": 2,
+      "bpm_range": [120, 130],
+      "duration": 8,
+      "usable_range": [1, 9],
+      "beat_map": "routine_R07_beat_map.json"
+    },
+    "R08": {
+      "name": "街头 Bounce",
+      "description": "弹跳律动→左右交叉步→收势比耶",
+      "difficulty_level": 2,
+      "bpm_range": [130, 150],
+      "duration": 7,
+      "usable_range": [1, 8],
+      "beat_map": "routine_R08_beat_map.json"
+    }
+  }
+}

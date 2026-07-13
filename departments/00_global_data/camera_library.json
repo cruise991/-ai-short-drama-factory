@@ -1,0 +1,33 @@
+{
+  "camera_moves": {
+    "C1_low_angle_pan": {
+      "name": "低角度环绕",
+      "prompt": "low angle shot, camera slowly panning around the subject, dramatic perspective",
+      "energy_level": "medium"
+    },
+    "C2_dutch_angle_zoom": {
+      "name": "荷兰角急推",
+      "prompt": "dutch angle, fast snap zoom into subject face, shaky cam effect",
+      "energy_level": "high"
+    },
+    "C3_static_locked": {
+      "name": "固定机位",
+      "prompt": "static locked-off camera, tripod shot, no movement",
+      "energy_level": "low"
+    }
+  },
+  "transitions": {
+    "T1_kick_camera": {
+      "name": "踢碎镜头转场",
+      "prompt": "subject kicks directly at camera lens, screen shatters transition",
+      "duration": "0.5s",
+      "energy_level": "high"
+    },
+    "T2_whip_pan": {
+      "name": "快速甩镜头",
+      "prompt": "whip pan blur transition, seamless match-cut",
+      "duration": "0.3s",
+      "energy_level": "medium"
+    }
+  }
+}

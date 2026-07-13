@@ -1,0 +1,56 @@
+{
+  "characters": {
+    "A1_pure_girl": {
+      "name": "纯欲小白花",
+      "age": 20,
+      "nationality": "Asian",
+      "hair": "Long straight black hair, soft bangs",
+      "eyes": "Big doe eyes, light innocent makeup",
+      "clothing": "White oversized shirt, soft aesthetic",
+      "personality": "Innocent, sweet, slightly shy but playful",
+      "appearance_prompt": "1girl, pure aesthetic, long straight black hair, soft bangs, big doe eyes, light innocent makeup, innocent smile, cute",
+      "negative_prompt": "heavy makeup, aggressive expression, gothic",
+      "micro_expression": "soft bite lip, shy downward glance, gentle smile",
+      "target_audience": {"gender": "male_18_30", "interest": "anime_gaming"}
+    },
+    "A2_cyber_sister": {
+      "name": "赛博御姐",
+      "age": 25,
+      "nationality": "Asian",
+      "hair": "Sleek silver bob cut",
+      "eyes": "Sharp cat eyes, bold red eyeliner",
+      "clothing": "Techwear, dark edgy style",
+      "personality": "Cool, confident, dominant, mysterious",
+      "appearance_prompt": "1girl, cyber aesthetic, sleek silver bob cut, sharp cat eyes, bold red eyeliner, cool confident smirk, mature, techwear",
+      "negative_prompt": "cute, child-like, messy hair, floral",
+      "micro_expression": "raised eyebrow, confident smirk, piercing intense stare",
+      "target_audience": {"gender": "gender_neutral_20_35", "interest": "fashion_tech"}
+    },
+    "A3_fitness_energy": {
+      "name": "运动元气",
+      "age": 23,
+      "nationality": "Asian",
+      "hair": "High sporty ponytail",
+      "eyes": "Bright energetic eyes, sweat-glowing skin",
+      "clothing": "Sportswear, athletic",
+      "personality": "High energy, motivating, sunny",
+      "appearance_prompt": "1girl, athletic build, high sporty ponytail, bright energetic eyes, sweat-glowing skin, sunny wide smile, sportswear",
+      "negative_prompt": "depressed, sleepy, formal wear",
+      "micro_expression": "wide energetic smile, heavy breathing, playful wink",
+      "target_audience": {"gender": "female_18_28", "interest": "fitness_lifestyle"}
+    },
+    "D1_dance_idol": {
+      "name": "K-Pop Idol Dancer",
+      "age": 22,
+      "nationality": "Asian",
+      "hair": "Long wavy brown hair",
+      "eyes": "Sharp almond eyes, idol makeup",
+      "clothing": "K-pop stage outfit",
+      "personality": "Charismatic, professional dancer",
+      "appearance_prompt": "photorealistic 1girl, 22yo slim East Asian woman, long wavy brown hair, sharp almond eyes, idol makeup, athletic build, charismatic expression",
+      "negative_prompt": "messy, casual, sleepy",
+      "micro_expression": "confident smile, intense gaze",
+      "target_audience": {"gender": "all", "interest": "dance_kpop"}
+    }
+  }
+}

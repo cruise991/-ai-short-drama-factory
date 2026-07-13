@@ -1,0 +1,29 @@
+{
+  "setup_scenes": {
+    "D1_messy_bedroom": {
+      "name": "杂乱卧室",
+      "prompt": "messy unmade bed, clothes scattered, dim desk lamp, mundane room background",
+      "color_grade": "desaturated, low contrast, cool gray tones",
+      "lighting_setup": "overcast lighting, single dim top light",
+      "weight": 1.0
+    }
+  },
+  "dance_scenes": {
+    "D2_neon_studio": {
+      "name": "赛博霓虹舞蹈室",
+      "prompt": "modern dance studio, mirror walls, glowing neon LED strips in purple and cyan, dark floor",
+      "color_grade": "vibrant, high contrast, neon colors",
+      "lighting_setup": "bottom light, strong colored side rim lights",
+      "weight": 1.2
+    }
+  },
+  "cinematic_scenes": {
+    "D3_rainy_street": {
+      "name": "电影感夜雨街头",
+      "prompt": "wet asphalt reflecting neon signs, dark city street at night, cinematic bokeh background",
+      "color_grade": "teal and orange, moody",
+      "lighting_setup": "strong backlighting, rim light from street lamps",
+      "weight": 1.0
+    }
+  }
+}

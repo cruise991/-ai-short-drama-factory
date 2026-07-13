@@ -1,0 +1,71 @@
+{
+  "combos": {
+    "1b3d0ff8": {
+      "features": {
+        "timeline": [
+          {
+            "id": "shot_01",
+            "phase": "Setup",
+            "time_range": "0:00 - 0:05",
+            "visual_prompt": "1girl, pure aesthetic, wearing B1_slouchy_home outfit in D1_messy_bedroom, leave safe margins for text, do not crop head",
+            "camera": "static",
+            "base_motion_source": "static",
+            "bgm_id": "BGM_001",
+            "hook_text_overlay": "你以为的学妹"
+          },
+          {
+            "id": "shot_02",
+            "phase": "Transition",
+            "time_range": "0:05 - 0:07",
+            "visual_prompt": "1girl, cyber aesthetic, wearing C1_yoga_queen in D2_neon_studio, dynamic flash, leave safe margins for text",
+            "camera": "zoom_in",
+            "base_motion_source": "static",
+            "bgm_id": "同上",
+            "hook_text_overlay": ""
+          },
+          {
+            "id": "shot_03",
+            "phase": "Main_Dance",
+            "time_range": "0:07 - 0:25",
+            "visual_prompt": "1girl, cyber aesthetic, wearing C1_yoga_queen in D2_neon_studio, dancing, leave safe margins for text",
+            "camera": "follow",
+            "base_motion_source": "R02",
+            "bgm_id": "同上",
+            "hook_text_overlay": ""
+          },
+          {
+            "id": "shot_04",
+            "phase": "Outro",
+            "time_range": "0:25 - 0:35",
+            "visual_prompt": "1girl, cyber aesthetic, smiling and pointing, leave safe margins for text",
+            "camera": "static",
+            "base_motion_source": "static",
+            "bgm_id": "同上",
+            "hook_text_overlay": "点赞关注！"
+          }
+        ],
+        "distribution": {
+          "title_options": [
+            "反差绝了！",
+            "看到最后"
+          ],
+          "hashtags": [
+            "#变身",
+            "#舞蹈"
+          ],
+          "cover_frame_sec": 7.5,
+          "recommended_publish_time": "19:00-22:00"
+        }
+      },
+      "weight": 2.0,
+      "history": [
+        {
+          "views": 1576593,
+          "completion_rate": 34.16,
+          "is_hit": true,
+          "is_flop": false
+        }
+      ]
+    }
+  }
+}

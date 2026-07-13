@@ -1,0 +1,51 @@
+{
+  "setup_outfits": {
+    "B1_slouchy_home": {
+      "name": "邋遢居家",
+      "prompt": "oversized stained grey hoodie, messy hair bun, thick black-framed glasses, no makeup, baggy sweatpants",
+      "concealment_level": 5,
+      "mood": "boring, tired",
+      "weight": 1.0
+    },
+    "B2_winter_bulk": {
+      "name": "臃肿过冬",
+      "prompt": "huge puffy oversized winter coat, chunky scarf covering half face, baggy sweatpants, snow boots",
+      "concealment_level": 5,
+      "mood": "cold, bundled",
+      "weight": 1.0
+    },
+    "B3_office_drone": {
+      "name": "上班摸鱼",
+      "prompt": "ill-fitting grey blazer, wrinkled white shirt, messy low ponytail, tired eyes, holding coffee cup",
+      "concealment_level": 3,
+      "mood": "exhausted, corporate",
+      "weight": 0.8
+    }
+  },
+  "hook_outfits": {
+    "C1_yoga_queen": {
+      "name": "经典流量密码",
+      "prompt": "tight high-waisted seamless yoga pants (black), tight athletic crop top, showing midriff, toned abs, confident posture",
+      "reveal_level": 5,
+      "mood": "powerful, confident",
+      "compliance_rating": "safe",
+      "weight": 1.5
+    },
+    "C2_cyberpunk_techwear": {
+      "name": "赛博机能",
+      "prompt": "techwear crop jacket, tactical straps, cargo pants with glowing neon accents, cyberpunk visor, slick hair",
+      "reveal_level": 3,
+      "mood": "edgy, futuristic",
+      "compliance_rating": "safe",
+      "weight": 1.2
+    },
+    "C3_kpop_idol": {
+      "name": "女团打歌服",
+      "prompt": "sparkly sequin mini skirt, matching crop top, knee-high boots, perfect stage makeup, glamorous hair",
+      "reveal_level": 4,
+      "mood": "glamorous, energetic",
+      "compliance_rating": "safe",
+      "weight": 1.3
+    }
+  }
+}

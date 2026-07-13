@@ -1,0 +1,28 @@
+{
+  "bgm_library": {
+    "BGM_001": {
+      "name": "Phonk Heavy Drop",
+      "file": "bgm/phonk_heavy_drop.mp3",
+      "bpm": 130,
+      "genre": "Phonk",
+      "mood": "aggressive, dark",
+      "drop_timestamp_sec": 3.2,
+      "key_beats_sec": [0, 0.46, 0.92, 1.38, 1.84, 2.30, 2.76, 3.2, 3.66],
+      "total_duration_sec": 15,
+      "license": "royalty_free",
+      "weight": 1.0
+    },
+    "BGM_002": {
+      "name": "K-Pop Upbeat",
+      "file": "bgm/kpop_upbeat.mp3",
+      "bpm": 125,
+      "genre": "K-Pop",
+      "mood": "energetic, bright",
+      "drop_timestamp_sec": 4.0,
+      "key_beats_sec": [0, 0.48, 0.96, 1.44, 1.92, 2.4, 2.88, 3.36, 3.84, 4.32],
+      "total_duration_sec": 20,
+      "license": "royalty_free",
+      "weight": 1.0
+    }
+  }
+}

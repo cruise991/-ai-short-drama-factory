@@ -1,133 +1,101 @@
-# AI Short Drama Agent Company
+# AI Short Drama Factory
 
 > 🌐 English | [中文](./README_CN.md)
 
-A complete **Matrix department template pack** for running an AI short-drama production company — from market research to script generation, video production, YouTube publishing, and analytics.
+An end-to-end, autonomous **AI Content Production Factory** for short dramas. 
 
-> Built for [Matrix](https://matrix.build) — the AI Company OS. Import these departments to instantly build your own AI short-drama studio.
+This is not just a collection of scripts; it is a fully automated digital studio that manages the entire lifecycle of a short video—from market research and script generation to video production, automated QA, post-production, and market feedback.
 
 ---
 
-## What this gives you
+## 🚀 Key Highlights
 
-- 🎬 **End-to-end short-drama pipeline** — From theme to 20-episode season to published YouTube Shorts
-- 📝 **Script generation** — Original scripts with 4×15s beat structure per episode, bilingual support
-- 🎨 **Storyboard prompts** — Seedance 2.0 prompt packages ready for AI video generation
-- 📊 **Analytics & strategy** — Dashboard tracking, retention analysis, content strategy review
-- 🔬 **Market research** — Trend capture, viral mechanism analysis, creative signal processing
-- 📺 **YouTube publishing** — Automated upload, playlist management, publish proof tracking
+- 🎬 **Autonomous Agentic Pipeline** — Complete workflow orchestrated by an automated system, replacing human intervention in drafting, prompt generation, QA, and editing.
+- 🎭 **3 Specialized Creative Branches** — Optimized production logic for Voiceovers, Live-Action, and AI Dance hooks.
+- 🤖 **Global Quality Assurance (QA)** — Enforces strict physical consistency and text rules, rejecting logic errors and visually distorted outputs.
+- 🧬 **Growth Loop Engine** — Simulates market performance to automatically adjust character motion weights (e.g., dynamically prioritizing high-converting dance moves).
+- 🧩 **IP Asset Management** — Built-in `character_bible.json` and `motion_library.json` for consistent character generation and reusable visual hooks.
 
-## Real results
+---
 
-This exact system produced the **Empire of Dust** YouTube Shorts series — 700k+ total views.
+## 🎥 3 Core Creative Branches
 
-Watch it live: https://www.youtube.com/@BreakDu-f6b/shorts
+The Planning Agent supports three deeply customized generation paths based on your content strategy:
 
-## Department structure
+### 1. Voiceover Branch (Strict Physics)
+- **Focus**: Delivery of information, reviews, or storytelling driven by a narrator.
+- **Rules**: Extremely strict QA on physical logic (e.g., character actions must match the real world, no weird limbs).
+- **Execution**: Automatically matches the pacing with a TTS (Text-to-Speech) voiceover track.
+
+### 2. Live-Action Branch (Advanced Interactions)
+- **Focus**: Dramatic conflicts, plot twists, and multi-character interactions (Mini-series format).
+- **Rules**: Enforces dialogue consistency, dynamic camera angles, and character interaction logic.
+- **Execution**: Uses synchronized lip-sync/TTS and complex scene building.
+
+### 3. Dance Factory Branch (Visual & Motion Hooks)
+- **Focus**: High-impact visual hooks, AI dance trends, and conversion-driven aesthetics.
+- **Rules**: *Exempt from strict physical limitations*. This branch skips restrictive QA rules to allow for exaggerated, highly dynamic dancing motions.
+- **Execution**: Completely bypasses TTS narration generation. Relies purely on visual hooks (e.g., `Dance001` motion), BGM pacing, and high-contrast text overlays to grab viewer attention in the first 3 seconds.
+
+---
+
+## 🏭 Factory Pipeline Architecture
+
+```mermaid
+graph TD
+    A[CEO / Human Input] -->|Define Goal| B(Orchestrator)
+    B --> C[02. Planning Dept]
+    C -->|Choose Branch & Draft Script| D[03. Production Dept]
+    D -->|Generate Visuals| E[04. QA & Evolution Dept]
+    E -->|Reject/Approve| D
+    E -->|Approved Assets| F[06. Post-Production Dept]
+    F -->|Final Video| G[07. Market Feedback Dept]
+    G -->|Simulated Views/Conversions| H((Growth Loop))
+    H -->|Update Motion Weights| C
+```
+
+## 📁 Project Structure
 
 ```
 ai-short-drama-agent-company/
-├── skills/                          # Reusable workspace-level skills
-│   ├── short-drama-meta-os/         # Theme → 20-episode season package
-│   ├── short-drama-production-pipeline/  # Production execution & QA
-│   ├── short-drama-research-intake/ # Research → creative fuel
-│   ├── seedance-prompt-splitter/    # Script → Seedance 2.0 beat prompts
-│   └── empire-of-dust-youtube-pipeline/  # Full YouTube publish pipeline
-├── departments/
-│   ├── content-generation-and-distribution/
-│   │   └── memory/knowledge/        # Production, QA, publishing memory
-│   ├── data-analysis-and-content-strategy/
-│   │   └── memory/knowledge/        # Analytics, dashboard, strategy memory
-│   └── short-drama-research/
-│       └── memory/knowledge/        # Market research, trend analysis memory
-└── demo/
-    └── empire-of-dust/              # Real production demo
-        ├── MANIFEST.md
-        ├── EPISODE_ARTIFACT_INDEX.md
-        ├── episode-01/              # 4 beat prompt files
-        ├── episode-02/              # 4 beat prompt files
-        └── episode-03/              # 4 beat prompt files
+├── config/                          # Global configurations and requirements
+├── docs/                            # Improvement logs and SOPs
+├── scripts/                         # Utility scripts (skills downloaders, mocks)
+├── tests/                           # Unit and evolution tests
+├── departments/                     # Core Agentic Departments
+│   ├── 00_global_data/              # Global Assets: character_bible.json, motion_library.json
+│   ├── 01_orchestration/            # Sub-pipeline routing
+│   ├── 02_planning/                 # Scripting & Branch selection (Planning Agent)
+│   ├── 03_production/               # Video and Image generation execution
+│   ├── 04_qa_evolution/             # Rule enforcement & Quality Assurance (QA Agent)
+│   ├── 05_supervisor/               # Background daemon 
+│   ├── 06_post_production/          # Assembly, TTS (if applicable), and FFmpeg rendering
+│   └── 07_market_feedback/          # Market simulation and Growth Loop Engine
+├── orchestrator.py                  # Main CLI Entry Point (The Factory Manager)
+├── pipeline.py                      # Legacy batch pipeline processor
+├── main.py                          # Daemon and Web UI Entry Point
+├── web_ui/                          # Streamlit CEO Dashboard
+├── skills/                          # Reusable agent skills
+├── projects/                        # Active task workspaces (Logs & Intermediate assets)
+├── out/                             # Final rendered master outputs
+└── demo/                            # Real production demo outputs
 ```
 
-## Skills included
+## 🛠 Getting Started
 
-### `short-drama-meta-os`
-Develop any user theme into an original blockbuster short-drama project package with a 20-episode season, 4×15s beat structure, Seedance 2.0 prompt-folder plan, and social distribution CSV draft.
+### 1. Requirements
+- Python 3.10+
+- FFmpeg installed (`brew install ffmpeg` or `apt-get install ffmpeg`)
+- Required Python libraries: `pip install -r requirements.txt`
 
-### `short-drama-production-pipeline`
-Turn an approved project package into production execution: validate Seedance 2.0 beat prompts, prepare reference-image needs, coordinate video generation handoff, assembly, subtitles, QA, and distribution handoff.
+### 2. Run the Factory
+Trigger the orchestrator to start the automated pipeline:
 
-### `short-drama-research-intake`
-Convert stored short-drama research signals into safe creative fuel for the meta system, production, packaging, or analytics.
+```bash
+python3 orchestrator.py
+```
 
-### `seedance-prompt-splitter`
-Convert episode script folders into per-episode Seedance 2.0 storyboard prompt folders.
-
-### `empire-of-dust-youtube-pipeline`
-Full pipeline: split scripts into Seedance 2.0 prompts → generate 4 clips per episode → stitch into 1080×1920 final video with subtitles → publish to YouTube Shorts → update playlist → generate season report.
-
-## Department memory included
-
-### Content Generation & Distribution
-Owns end-to-end video generation and distribution. Memory covers:
-- Empire of Dust pipeline state and recovery
-- Short-form drama factory method
-- Media QA evidence requirements
-- Audio/subtitle boundary rules
-- Local audio pipeline on Apple Silicon
-- YouTube and TikTok publish evidence gates
-- Seedance quota error handling
-- Production dispatch and prerequisite rules
-
-### Data Analysis & Content Strategy
-Owns dashboard updates, analytics review, and content strategy. Memory covers:
-- Empire of Dust analytics patterns
-- Idle rekick discipline
-- Crystallize gate rekick blindness
-- Harness inbox counter patterns
-
-### Short-Drama Research
-Owns market research and creative signal capture. Memory covers:
-- Four-beat vertical episode engine
-- Branded shorts market reference bundles
-- Product-as-mechanism patterns
-- Overseas viral shorts references
-- North American sci-fi everyday ethics
-- Research source boundaries and storage contracts
-
-## Demo: Empire of Dust
-
-The `demo/empire-of-dust/` folder contains real production artifacts from the first 3 episodes of the Empire of Dust YouTube Shorts series:
-
-- `MANIFEST.md` — Project manifest
-- `EPISODE_ARTIFACT_INDEX.md` — Full episode index
-- `episode-01/` through `episode-03/` — Each contains 4 Seedance 2.0 beat prompt files (Beat1-Beat4)
-
-Each beat is a 15-second video segment prompt designed for Seedance 2.0 generation at 480p, 9:16 vertical. Four beats per episode = 60 seconds of content.
-
-**Watch the real results:** https://www.youtube.com/@BreakDu-f6b/shorts
-
-## How to use
-
-### Import into Matrix
-
-1. Open [Matrix](https://matrix.build)
-2. Create a new workspace or use an existing one
-3. Create three departments matching the structure above
-4. Copy the `skills/` to your workspace skills directory
-5. Copy each department's `memory/knowledge/` into the corresponding department root
-6. Start producing short dramas
-
-### Standalone reference
-
-Use the skills, memory, and demo artifacts as reference material for building your own AI short-drama production system.
-
-## Requirements
-
-- [Matrix](https://matrix.build) account (for full agent company integration)
-- Seedance 2.0 or compatible AI video generation tool
-- YouTube integration connected in Matrix (for publishing)
-
-## License
-
-MIT — use it, fork it, ship it.
+1. Enter your **Marketing Goal** (e.g., "Sell female swimming goggles").
+2. The **Planning Agent** will ask you to confirm your audience and pick one of the **3 Creative Branches**.
+3. Let the agents handle storyboard drafting, prompt engineering, generation, QA auditing, and final video assembly.
+4. Final generated videos will be saved directly to the `out/` directory.

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  ai-short-drama-factory:
+    build: .
+    container_name: short_drama_factory
+    ports:
+      - "8501:8501" # Expose Streamlit Web UI
+    volumes:
+      # Mount the configuration file so API keys can be edited without rebuilding
+      - ./company_config.yaml:/app/company_config.yaml
+      # Mount the working projects directory for persistent state
+      - ./projects:/app/projects
+      # [DELIVERY] Mount the isolated OUT directory so host can directly view audited finals
+      - ../out:/out
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
