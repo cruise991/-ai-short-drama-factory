@@ -2,9 +2,19 @@
 
 > 🌐 English | [中文](./README_CN.md)
 
-An end-to-end, autonomous **AI Content Production Factory** for short dramas. 
+This is an end-to-end, fully automated **AI Short Drama Content Production Factory**.
 
-This is not just a collection of scripts; it is a fully automated digital studio that manages the entire lifecycle of a short video—from market research and script generation to video production, automated QA, post-production, and market feedback.
+It is not just a collection of scripts, but a fully automated digital studio that manages the entire lifecycle of short videos—from market research and script generation to video/image asset generation, automated QA inspection, post-production synthesis, and market feedback with self-evolution.
+
+> **[Latest Progress]**: The system has completed all core business logic orchestration and CLI prototype validation (Agentic QA Orchestrator). We are currently initiating a comprehensive **Web Architecture Refactoring (Vite+React + FastAPI)** to provide a commercial-grade, interactive SaaS delivery experience.
+
+---
+
+## 📺 Demo Showcase
+
+We have selected an "AI Dance and Visual Hook" case completely driven by AI for your reference. This video was entirely automated by the Orchestrator (after rigorous physical consistency reinforcement and limb distortion interception):
+
+- [▶️ Watch Demo Video: C006_Yumi_dance](./demo/demo_C006_Yumi_dance.mp4)
 
 ---
 
