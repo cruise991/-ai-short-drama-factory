@@ -14,7 +14,10 @@
 
 我们精选了一个纯由 AI 驱动完成的“AI舞蹈与视觉钩子”案例供您参考。该视频全程由 Orchestrator 全自动完成（经过严格的物理一致性强化与肢体崩坏拦截）：
 
-- [▶️ 观看演示视频: C006_Yumi_dance](./demo/demo_C006_Yumi_dance.mp4)
+- [▶️ 观看演示视频: C006_Yumi_dance](https://github.com/cruise991/-ai-short-drama-factory/raw/main/demo/demo_C006_Yumi_dance.mp4)
+
+可以直接在下方观看（GitHub原生播放器）：
+https://github.com/cruise991/-ai-short-drama-factory/raw/main/demo/demo_C006_Yumi_dance.mp4
 
 ---
 

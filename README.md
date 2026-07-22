@@ -14,7 +14,10 @@ It is not just a collection of scripts, but a fully automated digital studio tha
 
 We have selected an "AI Dance and Visual Hook" case completely driven by AI for your reference. This video was entirely automated by the Orchestrator (after rigorous physical consistency reinforcement and limb distortion interception):
 
-- [▶️ Watch Demo Video: C006_Yumi_dance](./demo/demo_C006_Yumi_dance.mp4)
+- [▶️ Watch Demo Video: C006_Yumi_dance](https://github.com/cruise991/-ai-short-drama-factory/raw/main/demo/demo_C006_Yumi_dance.mp4)
+
+You can watch it directly below (GitHub native player):
+https://github.com/cruise991/-ai-short-drama-factory/raw/main/demo/demo_C006_Yumi_dance.mp4
 
 ---
 
