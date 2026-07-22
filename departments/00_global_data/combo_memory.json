@@ -66,6 +66,202 @@
           "is_flop": false
         }
       ]
+    },
+    "f6b2306b": {
+      "features": {
+        "character": "Luna",
+        "setup_outfit": "white crop hoodie",
+        "hook_outfit": "white crop hoodie",
+        "routine": "standing pose, dynamic dance move, fast spin, final pose",
+        "scene": "modern dance studio with neon lights",
+        "bgm_id": ""
+      },
+      "weight": 2.0,
+      "history": [
+        {
+          "views": 1189587,
+          "completion_rate": 38.19,
+          "is_hit": true,
+          "is_flop": false
+        }
+      ]
+    },
+    "9849b494": {
+      "features": {
+        "character": "24yo gorgeous East Asian woman, 170cm tall, voluptuous hourglass figure, chestnut brown long wavy hair half up half down, fair matte skin, sweet smiling expression, confident",
+        "setup_outfit": "tight black short-sleeve mock-neck top, tight light-blue yoga leggings, white sneakers, clover necklace, casual athletic street fashion vibe",
+        "hook_outfit": "tight fitted crop t-shirt, form-fitting pleated miniskirt, thigh-length chunky sneakers, streetwear style, silver chain necklace",
+        "routine": [
+          "hand_block_reveal",
+          "shoulder_roll",
+          "hip_sway",
+          "body_wave",
+          "chest_pop"
+        ],
+        "scene": "commercial gym, fitness equipment, smith machine, weights, wall mirrors, gym floor, bright cinematic studio lighting",
+        "bgm_id": ""
+      },
+      "weight": 2.0,
+      "history": [
+        {
+          "views": 2869005,
+          "completion_rate": 58.33,
+          "is_hit": true,
+          "is_flop": false
+        }
+      ]
+    },
+    "722faea6": {
+      "features": {
+        "character": "23yo gorgeous East Asian woman, 168cm tall, voluptuous hourglass figure, chestnut brown medium-long wavy hair",
+        "setup_outfit": "loose taupe camisole and white athletic shorts, white chunky sneakers, casual athletic vibe",
+        "hook_outfit": "loose taupe camisole, white athletic shorts, white chunky sneakers, athletic sports bra, flowing maxi skirt, silver chain necklace",
+        "routine": "blink_wink, hip_sway, body_wave, chest_pop, shoulder_roll, hip_sway",
+        "scene": "commercial gym, fitness equipment, smith machine, wall mirrors, gym floor, bright cinematic lighting",
+        "bgm_id": ""
+      },
+      "weight": 2.0,
+      "history": [
+        {
+          "views": 2611559,
+          "completion_rate": 52.58,
+          "is_hit": true,
+          "is_flop": false
+        }
+      ]
+    },
+    "e8e3bcb4": {
+      "features": {
+        "character": "24yo gorgeous East Asian woman, 170cm tall, voluptuous hourglass figure, extremely slim waist, wide hips, toned long legs, fair matte skin, chestnut brown long wavy hair, sweet yet sexy, confident",
+        "setup_outfit": "loose comfortable hoodie, long sleeves, oversized fit, flowing maxi skirt, ankle-length, light fabric, high heels, stiletto, silver chain necklace",
+        "hook_outfit": "tight black short-sleeve mock-neck top, tight light-blue yoga leggings, white sneakers, black handbag with teddy bear charm, clover necklace",
+        "routine": "hair_flip_reveal, body_wave, chest_pop, shoulder_roll, hip_sway, body_wave",
+        "scene": "underground concrete parking lot, pillars and lines, cool artificial lighting, cyberpunk vibe",
+        "bgm_id": ""
+      },
+      "weight": 2.0,
+      "history": [
+        {
+          "views": 2276017,
+          "completion_rate": 32.82,
+          "is_hit": true,
+          "is_flop": false
+        }
+      ]
+    },
+    "c010f04c": {
+      "features": {
+        "character": "Mika",
+        "setup_outfit": "athletic sports bra, tight miniskirt, combat boots, cool dark sunglasses",
+        "hook_outfit": "athletic sports bra, tight miniskirt, combat boots, cool dark sunglasses",
+        "routine": "hand_block_reveal, shoulder_roll, hip_sway, body_wave, chest_pop",
+        "scene": "beautiful green park, trees and grass, sunny natural lighting",
+        "bgm_id": ""
+      },
+      "weight": 0.1,
+      "history": [
+        {
+          "views": 4050985,
+          "completion_rate": 5.21,
+          "is_hit": false,
+          "is_flop": true
+        }
+      ]
+    },
+    "de02ee6f": {
+      "features": {
+        "character": "C004_Nyx",
+        "setup_outfit": "loose comfortable hoodie, long sleeves, oversized fit, loose sweatpants, cuffed ankles, athletic fit, highlighting waistline and body proportions",
+        "hook_outfit": "loose comfortable hoodie, long sleeves, oversized fit, loose sweatpants, cuffed ankles, athletic fit, highlighting waistline and body proportions",
+        "routine": "Circle Flow",
+        "scene": "long empty corridor, minimalist white walls, dramatic overhead lighting",
+        "bgm_id": ""
+      },
+      "weight": 2.0,
+      "history": [
+        {
+          "views": 3693149,
+          "completion_rate": 37.46,
+          "is_hit": true,
+          "is_flop": false
+        }
+      ]
+    },
+    "e964ebd2": {
+      "features": {
+        "character": "C004_Nyx",
+        "setup_outfit": "form-fitting crop top, button-up shirt, tight miniskirt (上宽下紧)",
+        "hook_outfit": "",
+        "routine": "Circle Flow: turn_from_back, body_wave, chest_pop, shoulder_roll, hip_sway",
+        "scene": "professional dance studio, large wall mirrors, wooden floor",
+        "bgm_id": ""
+      },
+      "weight": 0.1,
+      "history": [
+        {
+          "views": 3708228,
+          "completion_rate": 26.5,
+          "is_hit": false,
+          "is_flop": true
+        }
+      ]
+    },
+    "9f2bbf8d": {
+      "features": {
+        "character": "C006_Yumi",
+        "setup_outfit": "tight blue ribbed short-sleeve mock-neck sweater and tight white mini skirt",
+        "hook_outfit": "",
+        "routine": "Circle Flow",
+        "scene": "underground concrete parking lot",
+        "bgm_id": ""
+      },
+      "weight": 0.1,
+      "history": [
+        {
+          "views": 2635749,
+          "completion_rate": 7.89,
+          "is_hit": false,
+          "is_flop": true
+        }
+      ]
+    },
+    "2b294f40": {
+      "features": {
+        "character": "C007_Nana",
+        "setup_outfit": "tight black short-sleeve mock-neck top and tight light-blue yoga leggings, white sneakers",
+        "hook_outfit": "",
+        "routine": "Circle Flow",
+        "scene": "luxury penthouse rooftop, modern infinity pool and glass railings",
+        "bgm_id": ""
+      },
+      "weight": 0.1,
+      "history": [
+        {
+          "views": 4149353,
+          "completion_rate": 7.24,
+          "is_hit": false,
+          "is_flop": true
+        }
+      ]
+    },
+    "9917cd40": {
+      "features": {
+        "character": "C005_Lili",
+        "setup_outfit": "loose taupe camisole and white athletic shorts, white chunky sneakers",
+        "hook_outfit": "",
+        "routine": "Circle Flow",
+        "scene": "high-end pristine white dance studio, massive wall mirrors, polished light wood floor, bright modern luxury interior, soft cinematic daylight lighting",
+        "bgm_id": ""
+      },
+      "weight": 2.0,
+      "history": [
+        {
+          "views": 2209629,
+          "completion_rate": 46.07,
+          "is_hit": true,
+          "is_flop": false
+        }
+      ]
     }
   }
 }

@@ -10,7 +10,7 @@ from typing import Union
 
 # ─── 权重配置路径 ──────────────────────────────────────────────────────────────
 _QUALITY_WEIGHTS_PATH = os.path.join(
-    os.path.dirname(__file__), "../../assets/dance/quality_weights.json"
+    os.path.dirname(__file__), "../../assets/dance/_core/quality_weights.json"
 )
 
 def _load_quality_weights() -> dict:

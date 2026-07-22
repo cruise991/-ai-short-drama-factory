@@ -10,9 +10,11 @@
       "key_beats_sec": [0, 0.46, 0.92, 1.38, 1.84, 2.30, 2.76, 3.2, 3.66],
       "total_duration_sec": 15,
       "license": "royalty_free",
-      "weight": 1.0
+      "style_tags": ["街头", "hiphop", "科目三"],
+      "weight": 1.5
     },
-    "BGM_002": {
+    "_BGM_002_DISABLED": {
+      "_note": "kpop_upbeat.mp3 file missing — disabled to prevent FileNotFoundError",
       "name": "K-Pop Upbeat",
       "file": "bgm/kpop_upbeat.mp3",
       "bpm": 125,
@@ -22,7 +24,68 @@
       "key_beats_sec": [0, 0.48, 0.96, 1.44, 1.92, 2.4, 2.88, 3.36, 3.84, 4.32],
       "total_duration_sec": 20,
       "license": "royalty_free",
+      "available": false,
+      "weight": 0.0
+    },
+    "BGM_003": {
+      "name": "科目三 Viral Remix",
+      "file": "bgm/kemuzisan_remix.mp3",
+      "bpm": 128,
+      "genre": "CN-Viral",
+      "mood": "addictive, hip, street",
+      "drop_timestamp_sec": 2.5,
+      "key_beats_sec": [0, 0.47, 0.94, 1.41, 1.88, 2.35, 2.5],
+      "total_duration_sec": 30,
+      "license": "royalty_free",
+      "style_tags": ["科目三", "街头", "流行", "扭腰"],
+      "available": false,
+      "_note": "MP3 file not yet placed in bgm/ directory — set available:true when file is ready",
+      "weight": 2.0
+    },
+    "BGM_004": {
+      "name": "古风国潮 HipHop",
+      "file": "bgm/guofeng_hiphop.mp3",
+      "bpm": 110,
+      "genre": "Ancient-CN-HipHop",
+      "mood": "elegant, powerful, cultural",
+      "drop_timestamp_sec": 4.0,
+      "key_beats_sec": [0, 0.55, 1.09, 1.64, 2.18, 2.73, 3.27, 3.82, 4.0],
+      "total_duration_sec": 30,
+      "license": "royalty_free",
+      "style_tags": ["古风", "汉服", "国潮"],
+      "available": false,
+      "_note": "MP3 file not yet placed in bgm/ directory",
+      "weight": 1.5
+    },
+    "BGM_005": {
+      "name": "慵懒 Lo-Fi 情绪",
+      "file": "bgm/lofi_chill.mp3",
+      "bpm": 85,
+      "genre": "Lo-Fi",
+      "mood": "chill, dreamy, soft",
+      "drop_timestamp_sec": 8.0,
+      "key_beats_sec": [0, 0.71, 1.41, 2.12, 2.82, 3.53, 4.24],
+      "total_duration_sec": 30,
+      "license": "royalty_free",
+      "style_tags": ["日常", "慢节奏", "情绪"],
+      "available": false,
+      "_note": "MP3 file not yet placed in bgm/ directory",
       "weight": 1.0
+    },
+    "BGM_006": {
+      "name": "K-Pop High Energy (30s)",
+      "file": "bgm/kpop_upbeat_30s.mp3",
+      "bpm": 125,
+      "genre": "K-Pop",
+      "mood": "energetic, bright, idol",
+      "drop_timestamp_sec": 4.0,
+      "key_beats_sec": [0, 0.48, 0.96, 1.44, 1.92, 2.4, 2.88, 3.36, 3.84, 4.0],
+      "total_duration_sec": 30,
+      "license": "royalty_free",
+      "style_tags": ["韩舞", "kpop", "女团"],
+      "available": false,
+      "_note": "MP3 file not yet placed in bgm/ directory",
+      "weight": 1.5
     }
   }
 }

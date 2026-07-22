@@ -5,6 +5,7 @@
       "prompt": "oversized stained grey hoodie, messy hair bun, thick black-framed glasses, no makeup, baggy sweatpants",
       "concealment_level": 5,
       "mood": "boring, tired",
+      "style_tags": ["居家", "日常"],
       "weight": 1.0
     },
     "B2_winter_bulk": {
@@ -12,6 +13,7 @@
       "prompt": "huge puffy oversized winter coat, chunky scarf covering half face, baggy sweatpants, snow boots",
       "concealment_level": 5,
       "mood": "cold, bundled",
+      "style_tags": ["冬季", "日常"],
       "weight": 1.0
     },
     "B3_office_drone": {
@@ -19,6 +21,7 @@
       "prompt": "ill-fitting grey blazer, wrinkled white shirt, messy low ponytail, tired eyes, holding coffee cup",
       "concealment_level": 3,
       "mood": "exhausted, corporate",
+      "style_tags": ["职场", "日常"],
       "weight": 0.8
     }
   },
@@ -29,6 +32,7 @@
       "reveal_level": 5,
       "mood": "powerful, confident",
       "compliance_rating": "safe",
+      "style_tags": ["运动", "健身", "瑜伽"],
       "weight": 1.5
     },
     "C2_cyberpunk_techwear": {
@@ -37,6 +41,7 @@
       "reveal_level": 3,
       "mood": "edgy, futuristic",
       "compliance_rating": "safe",
+      "style_tags": ["赛博", "科技", "未来"],
       "weight": 1.2
     },
     "C3_kpop_idol": {
@@ -45,7 +50,53 @@
       "reveal_level": 4,
       "mood": "glamorous, energetic",
       "compliance_rating": "safe",
+      "style_tags": ["韩舞", "kpop", "女团"],
       "weight": 1.3
+    },
+    "C4_kemuzisan_street": {
+      "name": "科目三街头爆款",
+      "prompt": "oversized hip-hop cropped hoodie, high-waist black mini skirt, visible midriff, chunky sneakers, cap sideways, street style, showing waist",
+      "reveal_level": 3,
+      "mood": "street, viral, hip",
+      "compliance_rating": "safe",
+      "style_tags": ["科目三", "街头", "短裙", "扭腰"],
+      "weight": 2.0
+    },
+    "C5_party_mini": {
+      "name": "派对短裙胸衣",
+      "prompt": "sequin strapless crop top bra, ultra-mini skirt, platform heels, party glam makeup, statement earrings, nightclub vibe",
+      "reveal_level": 5,
+      "mood": "bold, party, confident",
+      "compliance_rating": "review_needed",
+      "style_tags": ["短裙", "胸衣", "派对", "夜店"],
+      "weight": 1.5
+    },
+    "C6_hanfu_dance": {
+      "name": "古风汉服舞",
+      "prompt": "elegant flowing hanfu dress, wide fluttering sleeves, traditional Chinese jade hairpin, intricate gold embroidery, graceful classical movement",
+      "reveal_level": 1,
+      "mood": "elegant, cultural, graceful",
+      "compliance_rating": "safe",
+      "style_tags": ["汉服", "古风", "国潮"],
+      "weight": 1.5
+    },
+    "C7_jk_uniform": {
+      "name": "JK制服",
+      "prompt": "Japanese school uniform, plaid mini skirt, white collared shirt, knee-high socks, cute hair accessories, youthful energy",
+      "reveal_level": 3,
+      "mood": "youthful, cute, energetic",
+      "compliance_rating": "safe",
+      "style_tags": ["JK", "制服", "学生", "校园"],
+      "weight": 1.3
+    },
+    "C8_latin_dance": {
+      "name": "拉丁热辣风",
+      "prompt": "form-fitting black crop top, high-waist flared mini skirt, red accent accessories, dance heels, bold red lips, Latin dance vibes",
+      "reveal_level": 4,
+      "mood": "fiery, passionate, energetic",
+      "compliance_rating": "safe",
+      "style_tags": ["拉丁", "扭腰", "舞蹈", "短裙"],
+      "weight": 1.5
     }
   }
 }

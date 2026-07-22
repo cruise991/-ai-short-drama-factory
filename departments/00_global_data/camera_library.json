@@ -3,17 +3,38 @@
     "C1_low_angle_pan": {
       "name": "低角度环绕",
       "prompt": "low angle shot, camera slowly panning around the subject, dramatic perspective",
-      "energy_level": "medium"
+      "energy_level": "medium",
+      "aspect_ratio": "any"
     },
     "C2_dutch_angle_zoom": {
       "name": "荷兰角急推",
       "prompt": "dutch angle, fast snap zoom into subject face, shaky cam effect",
-      "energy_level": "high"
+      "energy_level": "high",
+      "aspect_ratio": "any"
     },
     "C3_static_locked": {
       "name": "固定机位",
       "prompt": "static locked-off camera, tripod shot, no movement",
-      "energy_level": "low"
+      "energy_level": "low",
+      "aspect_ratio": "any"
+    },
+    "C4_vertical_reveal": {
+      "name": "竖屏从下到上揭示",
+      "prompt": "vertical 9:16 frame, camera slowly tilts up from feet revealing legs, waist, then face — full body reveal shot, smooth tilt motion",
+      "energy_level": "medium",
+      "aspect_ratio": "9:16"
+    },
+    "C5_close_face_snap": {
+      "name": "极近脸部特写",
+      "prompt": "extreme close-up of face filling the vertical 9:16 frame, eyes and expression in detail, handheld slight vibration, micro-expression capture",
+      "energy_level": "high",
+      "aspect_ratio": "9:16"
+    },
+    "C6_behind_spin_track": {
+      "name": "背面旋转跟拍",
+      "prompt": "camera tracks the spinning dancer from behind, rotational tracking shot, surroundings blurred in motion, vertical frame dancing",
+      "energy_level": "high",
+      "aspect_ratio": "9:16"
     }
   },
   "transitions": {
@@ -28,6 +49,12 @@
       "prompt": "whip pan blur transition, seamless match-cut",
       "duration": "0.3s",
       "energy_level": "medium"
+    },
+    "T3_flash_cut": {
+      "name": "闪白快切",
+      "prompt": "white flash frame transition, instant hard cut to next scene",
+      "duration": "0.1s",
+      "energy_level": "high"
     }
   }
 }

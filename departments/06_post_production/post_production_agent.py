@@ -11,6 +11,19 @@ from shared_tools.config_loader import get_config
 import importlib
 FFmpegWrapper = importlib.import_module("departments.06_post_production.tools.ffmpeg_wrapper").FFmpegWrapper
 
+def _do_concat(workspace_dir, episode_dir, is_dance, beat_drop, clips, out_path, ffmpeg):
+    if os.environ.get("RENDER_ENGINE") == "remotion":
+        import sys
+        sys.path.append(os.path.join(workspace_dir, "departments", "05_post_production"))
+        import montage_adapter
+        beat_drops = [beat_drop] if beat_drop > 0.0 else []
+        branch = "dance" if is_dance else "short_drama"
+        montage_adapter.render_with_openmontage(
+            workspace_dir, episode_dir, branch, clips, beat_drops, out_path
+        )
+    else:
+        ffmpeg.concat_videos(clips, out_path)
+
 def process_ticket(episode_dir):
     ticket_path = os.path.join(episode_dir, "00_task_ticket.json")
     if not os.path.exists(ticket_path):
@@ -79,6 +92,11 @@ def process_ticket(episode_dir):
     # 1. Generate Audio & Multiplex each shot (using real tools)
     for shot in shots:
         shot_id = shot["id"]
+        
+        if shot.get("phase") == "Anchor_Image" or (not shot.get("video_prompt") and is_dance_format):
+            print(f"\n>> Skipping {shot_id} (Anchor Image, no video payload).")
+            continue
+            
         text = shot.get("voiceover")
         
         print(f"\n>> Real Assembling {shot_id}...")
@@ -153,11 +171,16 @@ def process_ticket(episode_dir):
         pre_dance_clips = []
         main_dance_clips = []
         
-        for i, shot in enumerate(shots):
+        for shot in shots:
+            shot_id = shot["id"]
+            clip_path = os.path.join(final_dir, f"{shot_id}_final.mp4")
+            if clip_path not in processed_clips:
+                continue
+            
             if shot.get("phase") in ["Setup", "Transition"]:
-                pre_dance_clips.append(processed_clips[i])
+                pre_dance_clips.append(clip_path)
             else:
-                main_dance_clips.append(processed_clips[i])
+                main_dance_clips.append(clip_path)
                 
         if pre_dance_clips:
             # Concat pre-dance clips
@@ -186,11 +209,11 @@ def process_ticket(episode_dir):
             # Now concat everything
             final_clips_to_concat = pre_dance_clips + main_dance_clips
             if final_clips_to_concat:
-                ffmpeg.concat_videos(final_clips_to_concat, concat_video_path)
+                _do_concat(workspace_dir, episode_dir, is_dance_format, drop_timestamp_sec, final_clips_to_concat, concat_video_path, ffmpeg)
         else:
-            ffmpeg.concat_videos(processed_clips, concat_video_path)
+            _do_concat(workspace_dir, episode_dir, is_dance_format, drop_timestamp_sec, processed_clips, concat_video_path, ffmpeg)
     elif processed_clips:
-        ffmpeg.concat_videos(processed_clips, concat_video_path)
+        _do_concat(workspace_dir, episode_dir, is_dance_format, drop_timestamp_sec, processed_clips, concat_video_path, ffmpeg)
         
     if is_dance_format and global_bgm_file and os.path.exists(global_bgm_file):
         print(f"\n>> Mixing Global BGM: {global_bgm_file}")

@@ -134,6 +134,43 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 **旁白 (Voiceover)**: [情绪化、口语化台词，无AI味]
 **提示词 (Video Prompt)**: [英文画面描述，包含特征、字卡与 safe margins, no head cropping 等指令]"""
 
+    elif "换装" in format_type or "变身" in format_type:
+        system_prompt = f"""你是一个顶级的短视频营销导演。当前分支是【换装变身反差】。
+你的工作方式参考 video-spec-builder 方法论：
+- 拒绝一切模糊词汇。每个镜头必须有具体可拍摄的画面描述。
+- 每个 Shot 必须精确到秒，时间线严格连续。
+- 最大允许幕数 = {max_shots} 幕。
+
+【🔥 换装变身反差规范 (Transformation Branch)】
+1. 绝对无台词/旁白：这是一个纯视觉冲击的分支。**剧本中绝对不能出现任何 `台词 (Dialogue)` 或 `旁白 (Voiceover)` 字段。**
+2. 强烈的视觉反差：明确定义变身前（Setup）和变身后（Reveal）的妆容、服装、光影对比。
+3. 转场设计：中间必须有 Glitch（故障）或其他强视觉过渡。
+4. 【Agnes 官方提示词结构】Video Prompt (英文) 必须严格遵循官方文生图/视频结构：
+   [主体] + [场景 / 环境] + [风格] + [光照] + [构图] + [质量要求]
+{evolution_rules}{marketing_sop}
+以下是【爆款调研结果】：
+---
+{trending_research}
+---
+
+【严格格式要求】必须包含以下 Markdown 结构：
+# 剧本与分镜 (Storyboard & Live-Action Blueprint)
+
+**核心目标 (Goal)**: [目标]
+**受众与风格 (Audience & Style)**: {audience} | {style}
+**形式 (Format)**: {format_type}
+**时长**: 约 [总时长] 秒
+
+## 角色设定 (Characters)
+- [角色1]: [特征，包括变身前和变身后的描述]
+
+## Shot 1: [标题]
+**时间范围**: 0:00 - 0:05 (5s)
+**场景 (Scene)**: [具体场景描述]
+**图像建议 (Image Suggestion)**: [静态画面动作，确保存留安全区，不裁切头部]
+**提示词 (Video Prompt)**: [英文画面描述，包含特征、字卡与 safe margins 等指令]
+"""
+
     elif "舞蹈" in format_type or "钩子" in format_type:
         # ─── Layer 4+5: Director Engine + Temporal Engine ────────────────────
         # LLM 不做任何创意决策。所有创意由 director_engine.direct() 完成。
@@ -149,8 +186,20 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
         _char_id  = None
         _trend_id = None
         if ticket:
-            _char_id  = ticket.get("character_id")
+            _char_id  = ticket.get("character_id") or ticket.get("module_params", {}).get("character_id")
             _trend_id = ticket.get("trend_id")
+
+        # 从 goal_text 智能推断热点 trend_id
+        if not _trend_id:
+            _goal_lower = goal_text.lower()
+            if "健身" in _goal_lower or "fitness" in _goal_lower or "运动" in _goal_lower:
+                _trend_id = "2026_fitness_power"
+            elif "科目三" in _goal_lower:
+                _trend_id = "2026_kemuzisan_viral"
+            elif "国风" in _goal_lower or "汉服" in _goal_lower:
+                _trend_id = "2026_guofeng_hanfu"
+            elif "赛博" in _goal_lower or "cyber" in _goal_lower:
+                _trend_id = "2026_cyber_dance"
 
         # 若未指定角色，从 goal 中匹配
         if not _char_id:
@@ -159,7 +208,8 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
                 "mika": "C002_Mika", "c002": "C002_Mika",
                 "aria": "C003_Aria", "c003": "C003_Aria",
                 "nyx":  "C004_Nyx",  "c004": "C004_Nyx",
-                "sofia":"C005_Sofia","c005": "C005_Sofia",
+                "lili": "C005_Lili", "c005": "C005_Lili",
+                "yumi": "C006_Yumi", "c006": "C006_Yumi",
             }
             _goal_lower = goal_text.lower()
             for _alias, _cid in _char_id_map.items():
@@ -174,69 +224,90 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
         if ticket:
             _total_dur = int(ticket.get("total_duration", ticket.get("duration", 12)))
 
+        # [Task-07] 动作关键词 → motion_library ID 映射（无需 LLM）
+        MOTION_KEYWORD_MAP = {
+            "扭腰": "R06",   "扭胯": "R01",   "科目三": "R09",
+            "甩发": "R06",   "手势舞": "R04", "hiphop": "R03",
+            "hip-hop": "R03", "古风": "R10",   "袖舞": "R10",
+            "慢摇": "R05",   "街舞": "R03",   "韩舞": "R07",
+            "bounce": "R08", "滑步": "R08",
+        }
+        # [Task-07] 风格关键词 → BGM ID 映射（无需 LLM）
+        STYLE_BGM_MAP = {
+            "科目三": "BGM_001", "街头": "BGM_001", "hiphop": "BGM_001",
+            "韩舞": "BGM_001",   "kpop": "BGM_001", "古风": "BGM_004",
+            "汉服": "BGM_004",   "lo-fi": "BGM_005", "慢节奏": "BGM_005",
+        }
+        goal_lower = (ticket.get("goal", "") + " " + ticket.get("style", "")).lower()
+        _matched_motion = next((v for k, v in MOTION_KEYWORD_MAP.items() if k in goal_lower), "R01")
+        _matched_bgm    = next((v for k, v in STYLE_BGM_MAP.items() if k in goal_lower), "BGM_001")
+        # Store on ticket for post-production use (non-persisted, in-memory)
+        if ticket:
+            ticket["_resolved_motion_id"] = _matched_motion
+            ticket["_resolved_bgm_id"]    = _matched_bgm
+
+        # ─── 调用 LLM 动态切割 Timeline ───────────────────────────────────────
+        custom_beats = None
+        timeline_sys_prompt = f"你是一个顶级的短片剪辑师。用户需要一个总长为 {_total_dur} 秒的动态视频。根据 V2.0 规范，单个镜头的上限为 18 秒。请你根据音乐张力和动作连贯性，自主将 {_total_dur} 秒拆分为几个镜头（可长可短，比如 [15, 15] 或 [8, 12, 10]）。请直接返回一个由数字组成的 JSON 数组，要求总和严格等于 {_total_dur}。不要输出任何其他 Markdown 或解释文本。"
+        timeline_user_prompt = f"目标：{goal_text}。总时长：{_total_dur} 秒。请输出时间分割数组："
+        try:
+            raw_beats = call_llm(timeline_sys_prompt, timeline_user_prompt)
+            import json
+            import re
+            array_match = re.search(r'\[(.*?)\]', raw_beats)
+            if array_match:
+                custom_beats = json.loads(f"[{array_match.group(1)}]")
+                if sum(custom_beats) != _total_dur:
+                    print(f"  [Planning Dept] ⚠️ LLM sum {sum(custom_beats)} != {_total_dur}, using fallback.")
+                    custom_beats = None
+        except Exception as e:
+            print(f"  [Planning Dept] ⚠️ LLM duration parsing error: {e}")
+            custom_beats = None
+
         # ─── 调用导演引擎（Layer 4+5）─────────────────────────────────────────
         print(f"[Planning Dept] 🎬 Director Engine 启动: {_char_id}, {_total_dur}s, trend={_trend_id}")
         try:
-            _decision = _de_mod.direct(_char_id, _total_dur, _trend_id)
+            _decision = _de_mod.direct(_char_id, _total_dur, _trend_id, custom_beats=custom_beats)
         except Exception as _de_err:
             print(f"[Planning Dept] ⚠️  Director Engine 异常: {_de_err}，使用默认参数重试")
             _decision = _de_mod.direct("C001_Luna", 12, None)
 
-        # ─── Layer 6: Prompt Renderer System Prompt（固定模板，~500 tokens）──
-        # LLM 唯一任务：按固定模板将结构化数据拼接为英文 Agnes Prompt
-        _timeline_json = __import__("json").dumps(_decision["timeline"], indent=2, ensure_ascii=False)
-        _negative = _decision.get("negative_prompt", "extra fingers, bad anatomy, blur, duplicate limbs, watermark")
-
-        system_prompt = f"""You are a Prompt Renderer. You do NOT make creative decisions.
-
-You have received all creative decisions from the Director Engine. Your ONLY task is to fill in the visual_prompt for each shot using this FIXED template:
-
-TEMPLATE: "{{character_anchor}}, {{hairstyle}}, {{expression}}, wearing {{costume}}, {{continuity_prefix}}performing {{dance_action}}, {{camera_move}}, in {{scene}}, {{lighting}}, {{effects}}, {{music_pace_hint}}, masterpiece, high visual density, cinematic"
-
-FIXED VALUES (do NOT change these):
-- character_anchor: "{_decision['anchor_prompt']}"
-- hairstyle: "{_decision['hairstyle_prompt']}"
-- expression: "{_decision['expression_prompt']}"
-- costume: "{_decision['costume_prompt']}"
-- scene: "{_decision['scene_prompt']}"
-- lighting: "{_decision['lighting_prompt']}"
-- effects: "{_decision['effects_prompt']}"
-- music_pace_hint: "{_decision['music_pace_hint']}"
-- negative_prompt (same for all shots): "{_negative}"
-
-TIMELINE TO RENDER (each shot has action_prompt, camera_prompt, continuity_prefix already set):
-{_timeline_json}
-
-RULES:
-1. For each shot, fill in visual_prompt using the template above.
-2. Substitute {{continuity_prefix}} with the shot's continuity_prefix field (empty string for shot 1).
-3. You MAY adjust verb tense/prepositions for grammatical flow. Do NOT add or remove descriptors.
-4. Output ONLY a valid JSON code block. No explanations, no markdown prose.
-
-OUTPUT FORMAT (pure JSON):
-```json
-{{
-  "character_id": "{_decision['character_id']}",
-  "character_name": "{_decision['character_name']}",
-  "anchor_prompt": "{_decision['anchor_prompt']}",
-  "style_id": "{_decision['style_id']}",
-  "negative_prompt": "{_negative}",
-  "total_duration": {_decision['total_duration']},
-  "shots": [
-    {{
-      "id": "shot_01",
-      "type": "hook",
-      "duration": <seconds>,
-      "action_id": "<from timeline>",
-      "camera_id": "<from timeline>",
-      "exit_state": <from timeline>,
-      "visual_prompt": "<YOUR ASSEMBLED ENGLISH PROMPT HERE>",
-      "negative_prompt": "{_negative}"
-    }}
-    // ... one entry per shot in timeline
-  ]
-}}
-```"""
+        # ─── 直接组装返回完整的结构化数据（Bypass LLM）────────────────────────
+        stage_2_timeline = _decision.get("stage_2_video", {}).get("timeline", [])
+        loop_pattern = _decision.get("stage_2_video", {}).get("loop_pattern", "")
+        vibe = _decision.get("metadata", {}).get("vibe", "pure")
+        
+        speed_modifier = "moves smoothly, fluidly, slow and alluring rhythm"
+        if vibe in ["energy", "psychedelic"]:
+            speed_modifier = "moves rapidly, explosively, sharp and dynamic rhythm"
+        
+        # 极简 Stage 2 Video Prompt 组装
+        stage_2_prompt = (
+            f"The video begins exactly from the input image. She steps back to reveal full body, "
+            f"executes the {loop_pattern} dance move. She {speed_modifier}. "
+            f"She leans intimately towards the camera during the transition. "
+            f"Spend the last 2 seconds smoothly returning limbs and body to the exact interactive anchor pose from the first frame, locking into it perfectly for seamless loop. "
+            f"Constant intense eye contact with the viewer throughout the entire video. "
+            f"Locked camera, no panning, no zooming, no camera movement. "
+            f"Consistent facial features and expressions, no face morphing."
+        )
+        
+        task_data = {
+            "ticket_id": ticket.get("id") if ticket else "UNKNOWN",
+            "goal": ticket.get("goal") if ticket else "",
+            "total_duration": _total_dur,
+            "character": _decision.get("character_id"),
+            "stage_1_image": _decision.get("stage_1_image", {}),
+            "stage_2_video": {
+                "loop_pattern": loop_pattern,
+                "timeline": stage_2_timeline,
+                "video_prompt": stage_2_prompt
+            },
+            "metadata": _decision.get("metadata", {})
+        }
+        
+        # Mock LLM JSON output format to satisfy downstream parsers if needed
+        return f"```json\n{__import__('json').dumps(task_data, indent=2, ensure_ascii=False)}\n```"
 
 
     else:
@@ -319,14 +390,8 @@ OUTPUT FORMAT (pure JSON):
 """
         )
 
-    # ─── Layer 8: Quality Evaluator Gate（仅舞蹈分支）────────────────────────
-    # 对非舞蹈分支，直接返回 LLM 结果
-    is_dance_branch = ("舞蹈" in format_type or "钩子" in format_type)
 
-    if not is_dance_branch:
-        return call_llm(system_prompt, user_prompt)
-
-    # 舞蹈分支：调用 Quality Evaluator 门禁，最多重试 3 次
+    # 非舞蹈分支：调用 Quality Evaluator 门禁，最多重试 3 次
     import json as _json_mod, importlib.util as _ilu
 
     # 动态导入 quality_evaluator（同目录）
@@ -451,8 +516,6 @@ def run_requirements_gathering(ticket):
     print(f"{'='*50}")
     print(f"收到您的初始目标：{ticket.get('goal')}\n")
     
-    # QA Monitor Module Loading
-    qa_agent = None
     try:
         qa_agent_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "04_qa_evolution", "qa_agent.py")
         spec = importlib.util.spec_from_file_location("qa_agent", qa_agent_path)
@@ -460,6 +523,13 @@ def run_requirements_gathering(ticket):
         spec.loader.exec_module(qa_agent)
     except Exception as e:
         print(f"[QA Load Error] {e}")
+
+    try:
+        from shared_tools.skill_engine import SkillEngine
+        skill_engine = SkillEngine()
+    except Exception as e:
+        print(f"[SkillEngine Load Error] {e}")
+        skill_engine = None
 
     print("[Planning Dept] 正在并发执行全网爆款调研与初步方案构思...")
     
@@ -524,11 +594,15 @@ def run_requirements_gathering(ticket):
                 if not passed:
                     qa_warning = f"\n【QA Monitor 紧急打回警告】: {msg}"
             
-            history_text = "\n".join([f"{m['role']}: {m['content']}" for m in chat_history[-6:]])
             system_instruction = f"你是一个顶级短视频营销导演。正与CEO探讨策划方向，已锁定分支为【{ticket.get('selected_branch', 'AI舞蹈与视觉钩子')}】，重点确认【受众】、【风格】与【角色IP】。保持简短精炼。"
             if qa_warning:
                 system_instruction += qa_warning
-            reply = call_llm(system_instruction, history_text)
+            
+            if skill_engine:
+                reply = skill_engine.run_agentic_loop(system_instruction, chat_history, call_llm)
+            else:
+                history_text = "\n".join([f"{m['role']}: {m['content']}" for m in chat_history[-6:]])
+                reply = call_llm(system_instruction, history_text)
             
             if not reply:
                 print("\n🤖 [AI 策划总监]：(抱歉，API连接失败。)")
@@ -642,8 +716,8 @@ def process_ticket(episode_dir):
         return False
 
     # ── Phase 2.5: Script Humanization (去AI味洗稿) ──
-    # 舞蹈流 (Branch 3) 不包含台词，且输出纯 JSON，跳过洗稿以防破坏 JSON 结构
-    is_dance = "舞蹈" in format_type or "钩子" in format_type
+    # 舞蹈/换装流 (Branch 3/4) 不包含台词，且输出纯 JSON，跳过洗稿以防破坏 JSON 结构
+    is_dance = "舞蹈" in format_type or "钩子" in format_type or "换装" in format_type or "变身" in format_type
     if not is_dance:
         storyboard_content = humanize_storyboard(storyboard_content, qa_feedback)
 
@@ -662,19 +736,38 @@ def process_ticket(episode_dir):
     ticket["last_updated_by"] = "Planning_Agent"
     ticket["last_updated_time"] = time.time()
     
-    # [NEW] Extract and save distribution data separately for M3 Evolutio
+    # [Task-04/05] Extract and save distribution data — with guaranteed fallback from director engine
+    dist_path = os.path.join(scripts_dir, "01_distribution.json")
+    _dist_saved = False
     try:
         import re
         json_match = re.search(r'```json\s*(.*?)\s*```', storyboard_content, re.DOTALL)
         json_content = json_match.group(1) if json_match else storyboard_content
         parsed_data = json.loads(json_content)
         if "distribution" in parsed_data:
-            dist_path = os.path.join(scripts_dir, "01_distribution.json")
             with open(dist_path, "w", encoding="utf-8") as df:
                 json.dump(parsed_data["distribution"], df, ensure_ascii=False, indent=2)
             print(f"  [Planning Dept] Saved distribution metadata to {dist_path}")
+            _dist_saved = True
     except Exception as e:
-        print(f"  [Planning Dept] Warning: Could not parse distribution metadata: {e}")
+        print(f"  [Planning Dept] Warning: Could not parse distribution metadata from storyboard: {e}")
+
+    # [Task-04] GUARANTEED FALLBACK: If distribution.json not yet saved, generate from director engine / keyword maps
+    if not _dist_saved:
+        _bgm_id   = ticket.get("_resolved_bgm_id", "BGM_001")
+        _goal_text = ticket.get("goal", "")
+        _style_text = ticket.get("style", "")
+        _hashtags = [f"#{w}" for w in [_style_text, "舞蹈", "短视频"] if w]
+        _fallback_dist = {
+            "bgm_id": _bgm_id,
+            "cover_frame_sec": 3.2,
+            "highlight_clips": ["shot_02", "shot_03"],
+            "platform_tags": _hashtags,
+            "_generated_by": "planning_agent_fallback"
+        }
+        with open(dist_path, "w", encoding="utf-8") as df:
+            json.dump(_fallback_dist, df, ensure_ascii=False, indent=2)
+        print(f"  [Planning Dept] ✅ Fallback distribution.json generated (bgm={_bgm_id}) at {dist_path}")
         
     with open(ticket_path, "w", encoding="utf-8") as f:
         json.dump(ticket, f, ensure_ascii=False, indent=2)

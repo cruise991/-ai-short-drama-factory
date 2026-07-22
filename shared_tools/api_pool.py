@@ -208,7 +208,7 @@ def call_llm(system_prompt, user_prompt):
             
             cmd = [
                 "/usr/bin/curl",
-                "-s",
+                "-sS",
                 "-k",
                 "--http1.1",
                 "-X", "POST",
@@ -222,7 +222,7 @@ def call_llm(system_prompt, user_prompt):
             
             cmd.extend([
                 "-d", "@-",
-                "--max-time", "15"
+                "--max-time", "60"
             ])
             if _resolve_arg:
                 cmd.extend(["--resolve", _resolve_arg])
@@ -266,56 +266,82 @@ def call_llm(system_prompt, user_prompt):
     if "质检员" in system_prompt:
         return "FAIL: All API keys failed. QA cannot proceed."
     elif "You are a Prompt Renderer" in system_prompt:
-        return """
-```json
-{
-  "character_id": "C001_Luna",
-  "character_name": "Luna",
-  "anchor_prompt": "ultra-realistic, raw photo, 8k resolution, photorealistic 1girl, 22yo gorgeous East Asian woman, 172cm tall, perfect golden ratio body proportions, hourglass figure, slim waist, long slender legs, highly detailed realistic face",
-  "style_id": "S_Kpop_01",
-  "negative_prompt": "extra fingers, bad anatomy, blur, duplicate limbs, watermark",
-  "total_duration": 15,
-  "shots": [
-    {
-      "id": "shot_01",
-      "type": "hook",
-      "duration": 5,
-      "action_id": "static",
-      "camera_id": "static",
-      "visual_prompt": "ultra-realistic, raw photo, 8k resolution, photorealistic 1girl, 22yo gorgeous East Asian woman, 172cm tall, perfect golden ratio body proportions, hourglass figure, slim waist, long slender legs, highly detailed realistic face, long straight hair, confident expression, wearing white crop hoodie, performing standing pose, static camera, in modern dance studio, neon lights, highly detailed, masterpiece, cinematic",
-      "negative_prompt": "extra fingers, bad anatomy, blur, duplicate limbs, watermark"
-    },
-    {
-      "id": "shot_02",
-      "type": "dance",
-      "duration": 5,
-      "action_id": "dance_move_1",
-      "camera_id": "zoom_in",
-      "visual_prompt": "ultra-realistic, raw photo, 8k resolution, photorealistic 1girl, 22yo gorgeous East Asian woman, 172cm tall, perfect golden ratio body proportions, hourglass figure, slim waist, long slender legs, highly detailed realistic face, long straight hair, smiling expression, wearing white crop hoodie, performing dynamic dance move, zoom_in camera, in modern dance studio, neon lights, highly detailed, masterpiece, cinematic",
-      "negative_prompt": "extra fingers, bad anatomy, blur, duplicate limbs, watermark"
-    },
-    {
-      "id": "shot_03",
-      "type": "dance",
-      "duration": 3,
-      "action_id": "dance_move_2",
-      "camera_id": "pan_left",
-      "visual_prompt": "ultra-realistic, raw photo, 8k resolution, photorealistic 1girl, 22yo gorgeous East Asian woman, 172cm tall, perfect golden ratio body proportions, hourglass figure, slim waist, long slender legs, highly detailed realistic face, long straight hair, intense expression, wearing white crop hoodie, performing fast spin, pan_left camera, in modern dance studio, neon lights, highly detailed, masterpiece, cinematic",
-      "negative_prompt": "extra fingers, bad anatomy, blur, duplicate limbs, watermark"
-    },
-    {
-      "id": "shot_04",
-      "type": "pose",
-      "duration": 2,
-      "action_id": "static",
-      "camera_id": "static",
-      "visual_prompt": "ultra-realistic, raw photo, 8k resolution, photorealistic 1girl, 22yo gorgeous East Asian woman, 172cm tall, perfect golden ratio body proportions, hourglass figure, slim waist, long slender legs, highly detailed realistic face, long straight hair, winking expression, wearing white crop hoodie, performing final pose, static camera, in modern dance studio, neon lights, highly detailed, masterpiece, cinematic",
-      "negative_prompt": "extra fingers, bad anatomy, blur, duplicate limbs, watermark"
-    }
-  ]
-}
-```
-"""
+        import re
+        import json
+        try:
+            # Parse timeline and fixed values from system_prompt instead of user_prompt
+            timeline_match = re.search(r"TIMELINE TO RENDER.*?:(.*?)RULES:", system_prompt, re.DOTALL)
+            fixed_values_match = re.search(r"FIXED VALUES.*?:(.*?)TIMELINE TO RENDER", system_prompt, re.DOTALL)
+            
+            timeline_json = []
+            if timeline_match:
+                timeline_str = timeline_match.group(1).strip()
+                timeline_json = json.loads(timeline_str)
+            
+            # Extract fixed values
+            char_anchor = "ultra-realistic, raw photo, 8k resolution, photorealistic 1girl, 22yo gorgeous East Asian woman, 172cm tall, perfect golden ratio body proportions, hourglass figure, slim waist, long slender legs, highly detailed delicate sweet face, flawless porcelain glass skin, soft jawline, big bright eyes, aegyo sal, slightly downturned puppy eyes, sweet alluring smile, pure and innocent aura, long flowing dark brown hair, Korean idol aesthetic, Douyin beauty"
+            costume = "white crop hoodie, short shorts"
+            scene = "modern dance studio"
+            lighting = "neon lights"
+            effects = "highly detailed"
+            music_pace = "cinematic"
+            negative_prompt = "acne, blemishes, wrinkles, asymmetrical face, ugly, mature, deep smile lines, rough skin, extra fingers, bad anatomy, blur, duplicate limbs, watermark, prominent hands, hands toward camera, oily skin, shiny skin"
+            
+            if fixed_values_match:
+                fixed_str = fixed_values_match.group(1)
+                for line in fixed_str.split("\n"):
+                    line = line.strip()
+                    if line.startswith("- character_anchor:"): char_anchor = line.split('"', 1)[1].rsplit('"', 1)[0]
+                    if line.startswith("- costume:"): costume = line.split('"', 1)[1].rsplit('"', 1)[0]
+                    if line.startswith("- scene:"): scene = line.split('"', 1)[1].rsplit('"', 1)[0]
+                    if line.startswith("- lighting:"): lighting = line.split('"', 1)[1].rsplit('"', 1)[0]
+                    if line.startswith("- effects:"): effects = line.split('"', 1)[1].rsplit('"', 1)[0]
+                    if line.startswith("- music_pace_hint:"): music_pace = line.split('"', 1)[1].rsplit('"', 1)[0]
+                    if line.startswith("- negative_prompt"): negative_prompt = line.split('"', 1)[1].rsplit('"', 1)[0]
+            
+            # Default fallback if timeline parsing failed
+            if not timeline_json:
+                timeline_json = [
+                    {"id": "shot_01", "type": "hook", "duration": 5, "action_id": "static", "camera_id": "static"},
+                    {"id": "shot_02", "type": "dance", "duration": 5, "action_id": "dance_move_1", "camera_id": "zoom_in"},
+                    {"id": "shot_03", "type": "dance", "duration": 5, "action_id": "dance_move_2", "camera_id": "pan_left"},
+                    {"id": "shot_04", "type": "pose", "duration": 2, "action_id": "static", "camera_id": "static"}
+                ]
+            
+            mock_shots = []
+            total_duration = 0
+            for i, shot in enumerate(timeline_json):
+                duration = shot.get("duration", 5)
+                total_duration += duration
+                action = shot.get("action_id", "dancing")
+                camera = shot.get("camera_id", "static")
+                
+                # To prevent close-up framing and bad hands
+                visual_prompt = f"{char_anchor}, (wearing {costume}:1.4), full body shot, (perfect beautiful hands:1.2), performing {action}, {camera}, in {scene}, ({lighting}:1.4), {effects}, {music_pace}, masterpiece, high visual density, cinematic"
+                
+                mock_shots.append({
+                    "id": shot.get("id", f"shot_{i+1:02d}"),
+                    "type": shot.get("type", "dance"),
+                    "duration": duration,
+                    "action_id": action,
+                    "camera_id": camera,
+                    "visual_prompt": visual_prompt,
+                    "negative_prompt": negative_prompt
+                })
+            
+            mock_response = {
+                "character_id": "mocked",
+                "character_name": "mocked",
+                "character_anchor": char_anchor,
+                "style_id": "mocked",
+                "negative_prompt": negative_prompt,
+                "total_duration": total_duration,
+                "shots": mock_shots
+            }
+            return f"```json\n{json.dumps(mock_response, indent=2, ensure_ascii=False)}\n```"
+        except Exception as e:
+            print(f"  [Mock Fallback] Error generating dynamic mock: {e}")
+            return '{"error": "mock failed"}'
     elif "【📌 强制输出格式规范】" in system_prompt:
         return """
 ```json
@@ -380,6 +406,36 @@ def call_llm(system_prompt, user_prompt):
         return "Audience: 通用受众\nStyle: 高级感营销\nCharacter: default"
     elif "探讨策划方向" in system_prompt:
         return "网络有点卡顿，我已经收到您的意向，是否确定当前策划方向开始制作？（输入 'ok' 确认生成）"
+    elif "换装变身反差" in system_prompt:
+        return """
+# 剧本与分镜 (Storyboard & Live-Action Blueprint)
+
+**核心目标 (Goal)**: 换装变身反差展示
+**受众与风格 (Audience & Style)**: 通用受众 | 赛博朋克
+**形式 (Format)**: 换装变身反差
+**时长**: 约 15 秒
+
+## 角色设定 (Characters)
+- 主角: 变身前为普通职员，变身后为赛博辣妹
+
+## Shot 1: 变身前状态
+**时间范围**: 0:00 - 0:05 (5s)
+**场景 (Scene)**: 杂乱的办公室
+**图像建议 (Image Suggestion)**: 静态站立，神情疲惫
+**提示词 (Video Prompt)**: ultra-realistic, photorealistic 1girl, tired office worker, standing in messy office, cold lighting, masterpiece, 8k
+
+## Shot 2: Glitch 转场
+**时间范围**: 0:05 - 0:10 (5s)
+**场景 (Scene)**: 办公室场景逐渐崩溃
+**图像建议 (Image Suggestion)**: 静态，画面出现故障波纹
+**提示词 (Video Prompt)**: ultra-realistic, photorealistic 1girl, glitch effect, neon lights bleeding in, transition, masterpiece, 8k
+
+## Shot 3: 赛博辣妹揭示
+**时间范围**: 0:10 - 0:15 (5s)
+**场景 (Scene)**: 霓虹闪烁的赛博朋克街道
+**图像建议 (Image Suggestion)**: 自信微笑，直视镜头
+**提示词 (Video Prompt)**: ultra-realistic, photorealistic 1girl, cyber punk fashion, confident smile, neon streets, cinematic lighting, masterpiece, 8k
+"""
     else:
         return "PASS"
 

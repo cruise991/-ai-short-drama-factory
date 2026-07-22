@@ -180,12 +180,18 @@ def audit_planning(episode_dir, workflow_start_time):
     if shots and len(shots) > max_shots:
         return False, f"FAIL: 剧本幕数({len(shots)}幕)超过了最大允许幕数({max_shots}幕)。请策划部重新压缩精简故事，确保总时长不超过 {max_video_sec} 秒！"
     
-    # 物理前置校验：单幕旁白时长卡控（仅针对非舞蹈分支）
-    if shots and "舞蹈" not in format_type and "钩子" not in format_type:
+    # 物理前置校验：单幕旁白时长卡控（仅针对有台词的分支）
+    is_visual_only = "舞蹈" in format_type or "钩子" in format_type or "换装" in format_type or "变身" in format_type
+    if shots and not is_visual_only:
         for shot in shots:
             vo = shot.get("voiceover", "") or shot.get("dialogue", "")
             if len(vo) > int(max_vo):
                 return False, f"FAIL: Shot {shot['id']} 旁白/台词超长 ({len(vo)}字)。必须限制在 {max_vo} 字以内，否则语音语速过快会被截断。违规文本: {vo}"
+    elif shots and ("换装" in format_type or "变身" in format_type):
+        for shot in shots:
+            vo = shot.get("voiceover", "") or shot.get("dialogue", "")
+            if vo.strip():
+                return False, f"FAIL: 换装变身分支为纯视觉视频，绝对不能包含旁白或台词！违规文本: {vo}"
     
     # Load dynamic memory for QA rules
     memory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "company_memory.json")
@@ -217,6 +223,12 @@ def audit_planning(episode_dir, workflow_start_time):
 【⚠️ M3 门禁强制规则（如果不满足，必须输出 FAIL）】：
 1. 结构完整性：剧本（JSON）的 shots 列表中必须明确包含 hook、dance 和 pose 这三种镜头类型（type）。如果缺失任何一个核心类型，必须打回。
 2. 合规审查：Hook 阶段的动作与服饰虽然要求冲击力，但【绝对不能】越过色情、低俗或擦边球的红线。如果存在过度暴露描写，请以 compliance_rating 不合格为由立刻打回！
+"""
+    elif "换装" in format_type or "变身" in format_type:
+        system_prompt += """
+【🌟 换装变身反差特殊规则】
+这是一个纯视觉分支。剧本中必须【绝对禁止】任何旁白(Voiceover)或台词(Dialogue)。如果有台词，必须打回。
+不强制要求特定的 JSON 结构，接受 Markdown 剧本格式。
 """
     else:
         system_prompt += """
@@ -310,22 +322,56 @@ def audit_production(episode_dir, workflow_start_time):
     if not shots:
         return False, "QA Production failed: Cannot parse storyboard."
         
+    ticket_path = os.path.join(episode_dir, "00_task_ticket.json")
+    format_type = "旁白演绎"
+    try:
+        with open(ticket_path, "r", encoding="utf-8") as f:
+            ticket_data = json.load(f)
+            format_type = ticket_data.get("format_type", "旁白演绎")
+    except:
+        pass
+        
     assets_dir = os.path.join(episode_dir, "02_raw_assets")
     for shot in shots:
         shot_id = shot["id"]
         img_path = os.path.join(assets_dir, f"{shot_id}.png")
         vid_path = os.path.join(assets_dir, f"{shot_id}.mp4")
         
-        for asset_path in [img_path, vid_path]:
+        # Determine expected assets based on shot type
+        expected_assets = []
+        is_dance_shot = "舞蹈" in format_type or "变装" in format_type or "变身" in format_type or "钩子" in format_type
+        if is_dance_shot:
+            if shot.get("phase") == "Anchor_Image_And_First_Dance":
+                expected_assets.extend([img_path, vid_path])
+            elif shot.get("phase") == "Anchor_Image" or shot_id == "shot_01":
+                expected_assets.append(img_path)
+            else:
+                expected_assets.append(vid_path)
+        else:
+            if shot.get("phase") == "Anchor_Image" or not shot.get("video_prompt"):
+                expected_assets.append(img_path)
+            elif shot.get("phase") == "Main_Dance":
+                expected_assets.append(vid_path)
+            else:
+                expected_assets.extend([img_path, vid_path])
+        
+        for asset_path in expected_assets:
             if not os.path.exists(asset_path):
                 return False, f"QA Production failed: {os.path.basename(asset_path)} is missing."
             if os.path.getmtime(asset_path) < workflow_start_time:
                 return False, f"QA Production failed: Time Fingerprint mismatch for {os.path.basename(asset_path)}."
                 
         # Deep Content Audit for the generated video
-        is_valid, msg = check_video_content(vid_path)
-        if not is_valid:
-            return False, f"QA Production failed: {msg}"
+        if vid_path in expected_assets:
+            is_valid, msg = check_video_content(vid_path)
+            if not is_valid:
+                # Delete the corrupted video to prevent skip-loop deadlocks
+                try:
+                    os.remove(vid_path)
+                    print(f"[QA Dept] Deleted corrupted file {vid_path} to force regeneration.")
+                except Exception as e:
+                    print(f"[QA Dept] Failed to delete corrupted file {vid_path}: {e}")
+                return False, f"QA Production failed: {msg}"
             
     return True, "QA Production passed: All visual assets generated and verified (Content Audit Passed)."
 

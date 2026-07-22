@@ -29,28 +29,59 @@ def _load(filename: str) -> dict:
 
 
 def load_dance_assets() -> dict:
-    """加载所有舞蹈资产，返回统一字典。"""
+    """加载所有舞蹈资产，返回统一字典。支持模块化新目录结构。"""
     assets = {
-        "trends":       _load("trends.json"),
-        "characters":   _load("characters.json"),
-        "dance_moves":  _load("dance_moves.json"),
-        "camera_moves": _load("camera_moves.json"),
-        "shot_templates":  _load("shot_templates.json"),
-        "rhythm_templates": _load("rhythm_templates.json"),
-        "hooks":        _load("hooks.json"),
-        "poses":        _load("poses.json"),
-        "transition_graph": _load("transition_graph.json"),
-        "prompt_template":  _load("prompt_template.json"),
-        "negative_prompts": _load("negative_prompts.json"),
-        "rules":        _load("rules.json"),
-        "styles":       {},
+        "trends":           _load("_core/trends.json"),
+        "rules":            _load("_core/rules.json"),
+        "prompt_template":  _load("_core/prompt_template.json"),
+        "negative_prompts": _load("_core/negative_prompts.json"),
+        "quality_weights":  _load("_core/quality_weights.json"),
+
+        "dance_moves":      _load("04_actions/basic_moves.json"),
+        "hooks":            _load("04_actions/hooks.json"),
+        "poses":            _load("04_actions/poses.json"),
+        "choreography":     _load("04_actions/choreography.json"),
+
+        "camera_moves":     _load("06_camera_and_edit/camera_moves.json"),
+        "shot_templates":   _load("06_camera_and_edit/shot_templates.json"),
+        "transition_graph": _load("06_camera_and_edit/transition_graph.json"),
+        "edit_effects":     _load("06_camera_and_edit/edit_effects.json"),
+
+        "rhythm_templates": _load("05_music/rhythm_templates.json"),
+        "music_genres":     _load("05_music/genres.json"),
+
+        "hairstyles":       _load("01_characters/hairstyles.json"),
+        "makeup":           _load("01_characters/makeup.json"),
+        "expressions":      _load("01_characters/expressions.json"),
+
+        "characters":       {},
+        "outfits":          {},
+        "scenes":           {}
     }
-    # 加载所有风格包
-    styles_dir = os.path.join(_DANCE_ASSETS_DIR, "styles")
-    for fpath in glob.glob(os.path.join(styles_dir, "*.json")):
-        style_id = os.path.splitext(os.path.basename(fpath))[0]
-        with open(fpath, "r", encoding="utf-8") as f:
-            assets["styles"][style_id] = json.load(f)
+
+    def _load_dir(dir_name):
+        d = {}
+        dir_path = os.path.join(_DANCE_ASSETS_DIR, dir_name)
+        if os.path.exists(dir_path):
+            import glob
+            for fpath in glob.glob(os.path.join(dir_path, "*.json")):
+                sub_id = os.path.splitext(os.path.basename(fpath))[0]
+                with open(fpath, "r", encoding="utf-8") as f:
+                    d[sub_id] = json.load(f)
+        return d
+
+    assets["outfits"] = _load_dir("02_outfits")
+    assets["scenes"] = _load_dir("03_scenes")
+
+    # 加载所有角色 IP
+    chars_dir = os.path.join(_DANCE_ASSETS_DIR, "01_characters/ips")
+    if os.path.exists(chars_dir):
+        import glob
+        for fpath in glob.glob(os.path.join(chars_dir, "*.json")):
+            char_id = os.path.splitext(os.path.basename(fpath))[0]
+            with open(fpath, "r", encoding="utf-8") as f:
+                assets["characters"][char_id] = json.load(f)
+
     return assets
 
 
@@ -85,38 +116,6 @@ def list_weighted_sample(options: list) -> str:
 
 
 # ─── 风格包选择 ───────────────────────────────────────────────────────────────
-def select_style_pack(character_id: str, rules: dict, styles: dict,
-                      trend_id: Optional[str] = None) -> tuple:
-    """
-    根据角色规则 + 热点趋势选择风格包。
-    优先选与当前热点 preferred_style 对齐的风格包，并在该风格中加权。
-    返回 (style_id, style_pack_dict)
-    """
-    char_rules = rules.get(character_id, {})
-    preferred_styles = char_rules.get("preferred_styles", {})
-
-    if not preferred_styles:
-        # fallback: 随机从已有风格包中选
-        style_id = random.choice(list(styles.keys()))
-        return style_id, styles[style_id]
-
-    style_id, _ = weighted_sample(preferred_styles)
-    if style_id not in styles:
-        style_id = list(styles.keys())[0]
-
-    return style_id, styles[style_id]
-
-
-# ─── 从风格包抽样单个属性 ──────────────────────────────────────────────────────
-def _pick_from_style(style_pack: dict, attr: str) -> str:
-    """从风格包的某个属性（scenes/lighting/costumes/等）加权抽样，返回 prompt 字符串。"""
-    options = style_pack.get(attr, {})
-    if not options:
-        return ""
-    key, val = weighted_sample(options)
-    return val.get("prompt", val) if isinstance(val, dict) else str(val)
-
-
 # ─── 节奏模板选择 ─────────────────────────────────────────────────────────────
 def select_rhythm(character_id: str, rules: dict, rhythm_templates: dict,
                   total_duration: int) -> tuple:
@@ -127,12 +126,12 @@ def select_rhythm(character_id: str, rules: dict, rhythm_templates: dict,
     # 过滤出时长接近的模板
     candidates = {
         k: v for k, v in rhythm_templates.items()
-        if k in preferred and abs(v["total_seconds"] - total_duration) <= 4
+        if not k.startswith("_") and k in preferred and abs(v["total_seconds"] - total_duration) <= 6
     }
     if not candidates:
-        candidates = {k: rhythm_templates[k] for k in preferred if k in rhythm_templates}
+        candidates = {k: rhythm_templates[k] for k in preferred if k in rhythm_templates and not k.startswith("_")}
     if not candidates:
-        candidates = rhythm_templates
+        candidates = {k: v for k, v in rhythm_templates.items() if not k.startswith("_")}
 
     rhythm_id = list_weighted_sample(list(candidates.keys()))
     return rhythm_id, rhythm_templates[rhythm_id]
@@ -231,18 +230,48 @@ def build_timeline(character_id: str, rules: dict, rhythm: dict, shot_template: 
     camera_sequence = camera_sequence[:n]
 
     # 选 hook
-    hook_id = list_weighted_sample(char_rules.get("preferred_hooks", list(hooks.keys())))
-    hook_data = hooks.get(hook_id, hooks[list(hooks.keys())[0]])
+    hook_keys = [k for k in hooks.keys() if not k.startswith("_")]
+    hook_id = list_weighted_sample(char_rules.get("preferred_hooks", hook_keys))
+    hook_data = hooks.get(hook_id, hooks[hook_keys[0]])
 
     # 选 pose
-    pose_id = list_weighted_sample(char_rules.get("preferred_poses", list(poses.keys())))
-    pose_data = poses.get(pose_id, poses[list(poses.keys())[0]])
+    pose_keys = [k for k in poses.keys() if not k.startswith("_")]
+    pose_id = list_weighted_sample(char_rules.get("preferred_poses", pose_keys))
+    pose_data = poses.get(pose_id, poses[pose_keys[0]])
 
-    # 中间动作：从 dance_moves 中不重复地抽取
+    # 中间动作：提升 Hooks 和 Wave 动作的权重
     middle_count = n - 2
-    all_move_ids = [k for k in dance_moves.keys() if not k.startswith("_")]
-    random.shuffle(all_move_ids)
-    middle_moves = all_move_ids[:middle_count]
+    middle_moves_pool = []
+    
+    # 注入高级 Hook 动作，权重 x3
+    for h_id in hooks:
+        if not h_id.startswith("_"):
+            middle_moves_pool.extend([f"HOOK:{h_id}"] * 3)
+            
+    for k, v in dance_moves.items():
+        if k.startswith("_"): continue
+        if "prompt" in v: # flat
+            if "wave" in k or "hip" in k:
+                middle_moves_pool.extend([f"MOVE:{k}"] * 2)
+            else:
+                middle_moves_pool.append(f"MOVE:{k}")
+        else: # nested
+            for sub_k, sub_v in v.items():
+                if "wave" in sub_k or "hip" in sub_k:
+                    middle_moves_pool.extend([f"MOVE:{k}/{sub_k}"] * 2)
+                else:
+                    middle_moves_pool.append(f"MOVE:{k}/{sub_k}")
+                
+    if not middle_moves_pool:
+        middle_moves_pool = ["MOVE:hand_movements/flower_basic"]
+        
+    random.shuffle(middle_moves_pool)
+    middle_moves = []
+    for m in middle_moves_pool:
+        if m not in middle_moves:
+            middle_moves.append(m)
+            if len(middle_moves) >= middle_count:
+                break
 
     timeline = []
     for idx in range(n):
@@ -270,8 +299,19 @@ def build_timeline(character_id: str, rules: dict, rhythm: dict, shot_template: 
             shot["camera_prompt"] = camera_moves.get(camera_sequence[idx], {}).get("prompt", "")
         else:
             # 中间舞蹈动作
-            move_id = middle_moves[idx - 1] if (idx - 1) < len(middle_moves) else all_move_ids[0]
-            move_data = dance_moves.get(move_id, {})
+            move_id_raw = middle_moves[idx - 1] if (idx - 1) < len(middle_moves) else middle_moves[0]
+            
+            if move_id_raw.startswith("HOOK:"):
+                move_id = move_id_raw[5:]
+                move_data = hooks.get(move_id, {})
+            else:
+                move_id = move_id_raw[5:]
+                if "/" in move_id:
+                    cat, sub = move_id.split("/")
+                    move_data = dance_moves.get(cat, {}).get(sub, {})
+                else:
+                    move_data = dance_moves.get(move_id, {})
+                
             shot["type"] = "dance"
             shot["action_id"] = move_id
             shot["action_prompt"] = move_data.get("prompt", "")
@@ -284,7 +324,8 @@ def build_timeline(character_id: str, rules: dict, rhythm: dict, shot_template: 
 
 # ─── 主入口 ───────────────────────────────────────────────────────────────────
 def direct(character_id: str, total_duration: int,
-           trend_id: Optional[str] = None) -> dict:
+           trend_id: Optional[str] = None, module_params: Optional[dict] = None,
+           custom_beats: Optional[list] = None) -> dict:
     """
     Layer 4 + 5 主入口。
     输入: 角色 ID + 视频总时长（秒）+ 可选热点 ID
@@ -295,7 +336,12 @@ def direct(character_id: str, total_duration: int,
     # 检查角色存在
     char_data = assets["characters"].get(character_id)
     if not char_data:
-        raise ValueError(f"Character '{character_id}' not found in dance/characters.json")
+        # Fallback 到第一个角色
+        if assets["characters"]:
+            character_id = list(assets["characters"].keys())[0]
+            char_data = assets["characters"][character_id]
+        else:
+            raise ValueError(f"Character '{character_id}' not found and no characters available in dance/characters/")
 
     char_rules = assets["rules"].get(character_id, {})
 
@@ -304,30 +350,71 @@ def direct(character_id: str, total_duration: int,
     if trend_id and trend_id in assets["trends"]:
         active_trend = assets["trends"][trend_id]
 
-    # Layer 2 → 3: 角色 → 风格包选择
-    style_id, style_pack = select_style_pack(
-        character_id, assets["rules"], assets["styles"], trend_id
-    )
+    # ─── 新增模块化抽样 ───
+    def _sample_modular(category_dict, target_style=None):
+        if not category_dict: return ""
+        keys = list(category_dict.keys())
+        if not keys: return ""
+        
+        if target_style:
+            filtered_keys = [k for k in keys if category_dict[k].get("style") == target_style]
+            if filtered_keys:
+                chosen = random.choice(filtered_keys)
+                return category_dict[chosen].get("prompt", "")
+                
+        chosen = random.choice(keys)
+        item = category_dict[chosen]
+        return item.get("prompt", "")
 
-    # Layer 3: 从风格包加权抽样各属性
-    scene_prompt    = _pick_from_style(style_pack, "scenes")
-    lighting_prompt = _pick_from_style(style_pack, "lighting")
-    costume_prompt  = _pick_from_style(style_pack, "costumes")
-    hairstyle_prompt = _pick_from_style(style_pack, "hairstyles")
-    expression_prompt = _pick_from_style(style_pack, "expressions")
-    effects_prompt  = style_pack.get("effects", {}).get("prompt", "")
-    style_negative  = style_pack.get("effects", {}).get("negative", "")
-    music_pace_hint = style_pack.get("music_pace_hint", "")
-    music_style     = style_pack.get("music_style", "")
+    preferred_style = active_trend.get("preferred_style") if active_trend else None
+
+    hairstyle_prompt = _sample_modular(assets["hairstyles"], target_style=preferred_style)
+    makeup_style = _sample_modular(assets["makeup"], target_style=preferred_style)
+    
+    # 智能场景匹配：优先从所有场景（indoor/outdoor）中匹配目标风格
+    matched_scenes = []
+    if preferred_style:
+        for cat in ["indoor", "outdoor"]:
+            cat_scenes = assets["scenes"].get(cat, {})
+            for k, v in cat_scenes.items():
+                if v.get("style") == preferred_style:
+                    matched_scenes.append(v)
+    if matched_scenes:
+        scene_location = random.choice(matched_scenes).get("prompt", "")
+    else:
+        scene_cat = random.choice(["indoor", "outdoor"])
+        scene_location = _sample_modular(assets["scenes"].get(scene_cat, {}))
+
+    # 灯光环境暂使用硬编码，未来可进一步拆分为独立的 lighting.json
+    lighting_prompt = "lower overall exposure, avoid softbox overexposure, use soft diffused light, retain skin and clothing texture details. Main light: soft frontal diffused light simulating window natural light. Fill light: low intensity side light to supplement shadow details. Rim light: weak back-side light outlining hair and body edges. Avoid: direct harsh spotlights, overexposed highlights, glaring reflections"
+    
+    # 表情和剪辑特效现在也走模块化
+    expression_prompt = _sample_modular(assets["expressions"]) or "confident smile"
+    effects_prompt  = _sample_modular(assets["edit_effects"])
+    style_negative  = "" # 废弃风格包特有负面词
+    
+    # 音乐流派模块化
+    music_genre_data = {}
+    music_genres = assets["music_genres"].get("genres", {})
+    if music_genres:
+        genre_id = random.choice(list(music_genres.keys()))
+        music_genre_data = music_genres[genre_id]
+        
+    music_pace_hint = music_genre_data.get("style", "")
+    music_style     = genre_id if music_genres else ""
 
     # Layer 4: 导演引擎 — 节奏 + 镜头序列选择
-    rhythm_id, rhythm = select_rhythm(
-        character_id, assets["rules"], assets["rhythm_templates"], total_duration
-    )
+    if custom_beats:
+        rhythm = {"total_seconds": sum(custom_beats), "beats": custom_beats, "desc": "Custom LLM Beats"}
+        rhythm_id = "custom_llm_beats"
+    else:
+        rhythm_id, rhythm = select_rhythm(
+            character_id, assets["rules"], assets["rhythm_templates"], total_duration
+        )
 
-    template_candidates = char_rules.get("preferred_shot_templates", list(assets["shot_templates"].keys()))
-    template_id = list_weighted_sample([t for t in template_candidates if t in assets["shot_templates"]]
-                                       or list(assets["shot_templates"].keys()))
+    template_candidates = char_rules.get("preferred_shot_templates", [k for k in assets["shot_templates"].keys() if not k.startswith("_")])
+    template_id = list_weighted_sample([t for t in template_candidates if t in assets["shot_templates"] and not t.startswith("_")]
+                                       or [k for k in assets["shot_templates"].keys() if not k.startswith("_")])
     shot_template = assets["shot_templates"][template_id]
 
     # Layer 4: 组装原始 Timeline
@@ -340,29 +427,71 @@ def direct(character_id: str, total_duration: int,
     # Layer 5: Temporal Engine — 注入帧间连续性
     enriched_timeline = apply_temporal_continuity(raw_timeline, assets["transition_graph"])
 
-    # 负面提示词
-    neg = assets["negative_prompts"]
-    negative_prompt = f"{neg.get('universal', '')}, {neg.get('dance_specific', '')}, {style_negative}"
+    # 负面提示词 (Stage 1) - 强力防模糊 + 防扭曲防暴露 + 防暗调 + 强化解剖学防变异 + 防背包配饰 + 审美红线
+    stage_1_negative = "nsfw, nude, cleavage exposure, explicit, deformed, unnatural proportions, bad anatomy, broken limbs, motion blur, dancing, running, floating hair, dynamic pose, mid-air, depth of field blur, action lines, flying clothes, blur, watermark, changing clothes, ugly, poor quality, heavy makeup, strong lip gloss, water drops on lips, strong light, high contrast, smooth plastic skin, unnatural lighting, dark lighting, poorly drawn face, face morphing, dirty background, extra arms, three arms, extra hands, extra legs, three legs, mutated legs, deformed legs, missing limbs, mutated hands, multiple people, cloned body, blush, red cheeks, excessive blush, unnatural red cheeks, plastic skin, oily face, shiny skin, asymmetrical eyes, handbag, bag, backpack, purse, holding bag, holding accessories, messy lighting equipment, messy background"
+
+    # 从热点中解析 BGM 偏好，否则默认 BGM_001
+    bgm_id = "BGM_001"
+    if active_trend and active_trend.get("preferred_bgm"):
+        bgm_id = active_trend["preferred_bgm"]
+
+    # --- Dual-Stage Loop Pattern Router ---
+    vibe = module_params.get("vibe", "pure") if module_params else "pure"
+    loop_router = {
+        "psychedelic": {
+            "loop_pattern": "Hand Lock",
+            "anchor_prompt": "hands on cheeks forming a heart or resting on cheeks, with a wink, hands will bounce back to cheeks at the end"
+        },
+        "sad": {
+            "loop_pattern": "Mirror Symmetry",
+            "anchor_prompt": "one hand gently playing with high ponytail, looking directly at the camera, slightly biting lip, hand naturally returns to hair at the end"
+        },
+        "pure": {
+            "loop_pattern": "Circle Flow",
+            "anchor_prompt": "one hand playing with hair, slightly raising chin"
+        },
+        "energy": {
+            "loop_pattern": "Beat Drop",
+            "anchor_prompt": "hands in pockets or one hand pulling jacket edge, contemptuous look, hands return to pockets at the end"
+        }
+    }
+    
+    router_info = loop_router.get(vibe, loop_router["pure"])
+    golden_anchor = router_info["anchor_prompt"]
+    loop_pattern = router_info["loop_pattern"]
+
+    # 动态注入安全词、细分身材和强质感服装
+    safety_words = "sfw, elegant, high fashion, aesthetic, monetizable"
+    
+    if vibe in ["energy", "psychedelic"]:
+        costume_modifiers = "stylish athletic wear"
+    else:
+        costume_modifiers = "casual cute fashion"
+
+    aesthetic_prompt = "hyper-realistic skin texture, clearly visible pores, perfectly even skin tone without blush, raw natural bare face makeup look, soft matte natural lip color without gloss or water drops, no heavy makeup, not painted feeling, no smooth plastic look, shallow depth of field blur for background"
+    stage_1_image_prompt = f"{safety_words}. {char_data.get('anchor_prompt', '')}, {golden_anchor}. {aesthetic_prompt}. {costume_modifiers}. {scene_location}. {lighting_prompt}. perfect human anatomy, exactly two arms and two legs."
 
     return {
         "character_id":    character_id,
         "character_name":  char_data.get("name", character_id),
-        "anchor_prompt":   char_data.get("anchor_prompt", ""),
-        "style_id":        style_id,
         "trend_id":        trend_id,
-        "hairstyle_prompt":   hairstyle_prompt,
-        "expression_prompt":  expression_prompt,
-        "costume_prompt":     costume_prompt,
-        "scene_prompt":       scene_prompt,
-        "lighting_prompt":    lighting_prompt,
-        "effects_prompt":     effects_prompt,
-        "music_style":        music_style,
-        "music_pace_hint":    music_pace_hint,
-        "negative_prompt":    negative_prompt,
-        "rhythm_id":          rhythm_id,
-        "shot_template_id":   template_id,
-        "total_duration":     rhythm.get("total_seconds", total_duration),
-        "timeline":           enriched_timeline
+        
+        "stage_1_image": {
+            "prompt": stage_1_image_prompt,
+            "negative_prompt": stage_1_negative,
+            "golden_anchor": golden_anchor
+        },
+        
+        "stage_2_video": {
+            "loop_pattern": loop_pattern,
+            "timeline": enriched_timeline,
+            "camera_control": "Locked camera, no transitions"
+        },
+        
+        "metadata": {
+            "vibe": vibe,
+            "outfit_contrast": module_params.get("outfit_contrast", "") if module_params else ""
+        }
     }
 
 

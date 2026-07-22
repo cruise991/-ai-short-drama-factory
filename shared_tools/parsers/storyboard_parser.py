@@ -83,6 +83,56 @@ def parse_timeline_json(data):
         })
     return data.get("locks", {}), shots
 
+def parse_dance_json(data):
+    stage_1 = data.get("stage_1_image", {})
+    stage_2 = data.get("stage_2_video", {})
+    locks = {
+        "character_anchor": data.get("character", ""),
+        "costume_lock": stage_1.get("costume", ""),
+        "scene_lock": stage_1.get("scene", "")
+    }
+    
+    timeline = stage_2.get("timeline", [])
+    if timeline:
+        first_t_shot = timeline[0]
+        first_vid_prompt = f"{first_t_shot.get('action_prompt', '')}. {first_t_shot.get('camera_prompt', '')}. {stage_2.get('video_prompt', '')}"
+        shots = [
+            {
+                "id": "shot_01",
+                "phase": "Anchor_Image_And_First_Dance",
+                "image_suggestion": stage_1.get("prompt", ""),
+                "video_prompt": first_vid_prompt
+            }
+        ]
+        for i, t_shot in enumerate(timeline[1:]):
+            shot_id = f"shot_{str(i+2).zfill(2)}"
+            vid_prompt = f"{t_shot.get('action_prompt', '')}. {t_shot.get('camera_prompt', '')}. {stage_2.get('video_prompt', '')}"
+            phase = t_shot.get("phase", t_shot.get("type", "Main_Dance"))
+            shots.append({
+                "id": shot_id,
+                "phase": phase,
+                "image_suggestion": "",
+                "video_prompt": vid_prompt,
+                "time_range": f"0:00 - 0:{t_shot.get('duration', 5)}"
+            })
+    else:
+        shots = [
+            {
+                "id": "shot_01",
+                "phase": "Anchor_Image",
+                "image_suggestion": stage_1.get("prompt", ""),
+                "video_prompt": ""
+            },
+            {
+                "id": "shot_02",
+                "phase": "Main_Dance",
+                "image_suggestion": "",
+                "video_prompt": stage_2.get("video_prompt", ""),
+                "time_range": f"0:00 - 0:{data.get('total_duration', 12)}"
+            }
+        ]
+    return locks, shots
+
 def load_and_parse(filepath):
     if not os.path.exists(filepath):
         print(f"[Parser Error] Storyboard file not found: {filepath}")
@@ -99,6 +149,8 @@ def load_and_parse(filepath):
         data = json.loads(json_content)
         if "timeline" in data or "shots" in data:
             return parse_timeline_json(data)
+        elif "stage_1_image" in data and "stage_2_video" in data:
+            return parse_dance_json(data)
     except Exception:
         pass
         

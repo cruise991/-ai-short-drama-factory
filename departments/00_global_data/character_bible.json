@@ -11,7 +11,8 @@
       "appearance_prompt": "1girl, pure aesthetic, long straight black hair, soft bangs, big doe eyes, light innocent makeup, innocent smile, cute",
       "negative_prompt": "heavy makeup, aggressive expression, gothic",
       "micro_expression": "soft bite lip, shy downward glance, gentle smile",
-      "target_audience": {"gender": "male_18_30", "interest": "anime_gaming"}
+      "target_audience": {"gender": "male_18_30", "interest": "anime_gaming"},
+      "style_tags": ["纯欲", "甜美", "清纯"]
     },
     "A2_cyber_sister": {
       "name": "赛博御姐",
@@ -24,7 +25,8 @@
       "appearance_prompt": "1girl, cyber aesthetic, sleek silver bob cut, sharp cat eyes, bold red eyeliner, cool confident smirk, mature, techwear",
       "negative_prompt": "cute, child-like, messy hair, floral",
       "micro_expression": "raised eyebrow, confident smirk, piercing intense stare",
-      "target_audience": {"gender": "gender_neutral_20_35", "interest": "fashion_tech"}
+      "target_audience": {"gender": "gender_neutral_20_35", "interest": "fashion_tech"},
+      "style_tags": ["赛博", "御姐", "科技"]
     },
     "A3_fitness_energy": {
       "name": "运动元气",
@@ -37,7 +39,8 @@
       "appearance_prompt": "1girl, athletic build, high sporty ponytail, bright energetic eyes, sweat-glowing skin, sunny wide smile, sportswear",
       "negative_prompt": "depressed, sleepy, formal wear",
       "micro_expression": "wide energetic smile, heavy breathing, playful wink",
-      "target_audience": {"gender": "female_18_28", "interest": "fitness_lifestyle"}
+      "target_audience": {"gender": "female_18_28", "interest": "fitness_lifestyle"},
+      "style_tags": ["运动", "健身", "元气"]
     },
     "D1_dance_idol": {
       "name": "K-Pop Idol Dancer",
@@ -50,7 +53,36 @@
       "appearance_prompt": "photorealistic 1girl, 22yo slim East Asian woman, long wavy brown hair, sharp almond eyes, idol makeup, athletic build, charismatic expression",
       "negative_prompt": "messy, casual, sleepy",
       "micro_expression": "confident smile, intense gaze",
-      "target_audience": {"gender": "all", "interest": "dance_kpop"}
+      "target_audience": {"gender": "all", "interest": "dance_kpop"},
+      "style_tags": ["韩舞", "kpop", "女团", "偶像"]
+    },
+    "A4_street_queen": {
+      "name": "街头女王",
+      "age": 21,
+      "nationality": "Asian",
+      "hair": "High space buns or loose braids with dyed tips",
+      "eyes": "Sharp eyeliner, fierce confident gaze",
+      "clothing": "Street hip-hop style, crop top and mini skirt",
+      "personality": "Confident, sassy, viral energy, crowd-commanding",
+      "appearance_prompt": "photorealistic 1girl, 21yo slim East Asian woman, two space buns hairstyle with dyed tips, sharp eyeliner, fierce confident expression, hip-hop culture aesthetic, energetic dynamic pose",
+      "negative_prompt": "soft, shy, formal, conservative",
+      "micro_expression": "fierce sassy look, chin raised, slight smirk, eye roll swag",
+      "target_audience": {"gender": "male_female_18_28", "interest": "street_dance_viral"},
+      "style_tags": ["科目三", "街头", "扭腰", "说唱"]
+    },
+    "A5_hanfu_immortal": {
+      "name": "古风仙女",
+      "age": 23,
+      "nationality": "Asian",
+      "hair": "Elaborate traditional updo with jade and gold hairpins",
+      "eyes": "Soft elegant almond eyes, light classical blush makeup",
+      "clothing": "Flowing hanfu with wide sleeves and embroidery",
+      "personality": "Ethereal, graceful, otherworldly, poetic",
+      "appearance_prompt": "photorealistic 1girl, 23yo elegant East Asian woman, elaborate traditional Chinese updo, jade and gold hairpins, soft elegant almond eyes, delicate blush, flowing hanfu robe, immortal fairy celestial aesthetic",
+      "negative_prompt": "modern clothes, casual, western style, street wear",
+      "micro_expression": "serene smile, gentle far-away gaze, graceful sleeve lift",
+      "target_audience": {"gender": "all_18_35", "interest": "hanfu_culture_history"},
+      "style_tags": ["古风", "汉服", "国潮", "仙女"]
     }
   }
 }

@@ -1,29 +1,84 @@
 {
   "setup_scenes": {
-    "D1_messy_bedroom": {
-      "name": "杂乱卧室",
-      "prompt": "messy unmade bed, clothes scattered, dim desk lamp, mundane room background",
-      "color_grade": "desaturated, low contrast, cool gray tones",
-      "lighting_setup": "overcast lighting, single dim top light",
+    "D1_luxury_bedroom": {
+      "name": "高级简约卧室",
+      "prompt": "high-end luxury bedroom, clean minimal interior, soft white bedding, daylight coming from large windows, bright modern aesthetic",
+      "color_grade": "bright, airy, soft pastel tones",
+      "lighting_setup": "high-key natural daylight, soft window light",
+      "style_tags": ["居家", "日常", "高级"],
       "weight": 1.0
     }
   },
   "dance_scenes": {
-    "D2_neon_studio": {
-      "name": "赛博霓虹舞蹈室",
-      "prompt": "modern dance studio, mirror walls, glowing neon LED strips in purple and cyan, dark floor",
-      "color_grade": "vibrant, high contrast, neon colors",
-      "lighting_setup": "bottom light, strong colored side rim lights",
+    "D2_bright_studio": {
+      "name": "明亮高级舞蹈室",
+      "prompt": "bright modern premium dance studio, floor-to-ceiling clean mirrors, warm wooden floor, sunlight streaming in, high-end idol training room",
+      "color_grade": "bright, high-key, warm natural tones",
+      "lighting_setup": "soft cinematic daylight, bright ambient fill",
+      "style_tags": ["明亮", "韩舞", "kpop", "高级"],
       "weight": 1.2
+    },
+    "D3_sunny_court": {
+      "name": "阳光篮球场",
+      "prompt": "high-end outdoor sunny basketball court, bright daylight, clear blue sky, clean modern urban environment, vibrant fresh look",
+      "color_grade": "vibrant, high key, fresh teal and warm tones",
+      "lighting_setup": "bright midday sunlight, soft bounce light",
+      "style_tags": ["阳光", "街头", "hiphop", "清新"],
+      "weight": 1.5
+    },
+    "D4_luxury_rooftop": {
+      "name": "高级城市天台",
+      "prompt": "luxury modern rooftop terrace overlooking a clean glittering city skyline, bright afternoon sunlight, high-end architectural aesthetic, beautiful bokeh",
+      "color_grade": "bright cinematic grade, clean white tones",
+      "lighting_setup": "bright afternoon sun, soft fill",
+      "style_tags": ["时尚", "城市", "写真", "高级"],
+      "weight": 1.3
     }
   },
   "cinematic_scenes": {
-    "D3_rainy_street": {
-      "name": "电影感夜雨街头",
-      "prompt": "wet asphalt reflecting neon signs, dark city street at night, cinematic bokeh background",
-      "color_grade": "teal and orange, moody",
-      "lighting_setup": "strong backlighting, rim light from street lamps",
+    "D5_clean_street": {
+      "name": "清新阳光街头",
+      "prompt": "clean modern city street in bright daylight, fashionable cafe storefronts, shallow depth of field, high-end urban lifestyle",
+      "color_grade": "bright and airy color grading",
+      "lighting_setup": "natural sunlight, soft rim light",
+      "style_tags": ["明亮", "城市", "高级"],
       "weight": 1.0
+    },
+    "D8_modern_subway": {
+      "name": "现代明亮地铁站",
+      "prompt": "modern futuristic clean subway station, bright white light, high-key metallic and glass surfaces, sleek architectural leading lines",
+      "color_grade": "clean white, cool cyan, high-key",
+      "lighting_setup": "bright overhead diffused light, clean modern glow",
+      "style_tags": ["明亮", "地铁", "高级"],
+      "weight": 1.3
+    }
+  },
+  "cultural_scenes": {
+    "D6_bright_palace": {
+      "name": "明亮古风庭院",
+      "prompt": "ancient Chinese palace courtyard in bright spring daylight, cherry blossom petals falling, soft ethereal sunlight, clean elegant aesthetic",
+      "color_grade": "warm bright amber, soft ethereal",
+      "lighting_setup": "bright diffused daylight",
+      "style_tags": ["古风", "汉服", "明亮"],
+      "weight": 1.5
+    },
+    "D7_campus_sunlight": {
+      "name": "阳光校园",
+      "prompt": "bright school corridor, afternoon sunlight streaming heavily through tall windows, clean modern lockers, fresh nostalgic youthful atmosphere",
+      "color_grade": "warm white, fresh clean light",
+      "lighting_setup": "soft side window light, natural bright fill",
+      "style_tags": ["JK", "校园", "青春", "明亮"],
+      "weight": 1.2
+    }
+  },
+  "premium_scenes": {
+    "D9_premium_studio": {
+      "name": "高级女团练舞室",
+      "prompt": "premium dance studio, floor-to-ceiling mirrors, warm wooden parquet floor, bright daylight, high-end interior design, clean and modern",
+      "color_grade": "warm bright, high-key",
+      "lighting_setup": "natural bright daylight, rim light from mirror walls",
+      "style_tags": ["韩舞", "kpop", "女团", "高级", "明亮"],
+      "weight": 1.4
     }
   }
 }

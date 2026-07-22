@@ -4,6 +4,12 @@ import os
 import subprocess
 import time
 import ssl
+import cv2
+import numpy as np
+import os
+import subprocess
+import time
+import ssl
 
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
@@ -32,6 +38,60 @@ def download(url, filename):
     with urllib.request.urlopen(url, context=ctx) as response, open(filename, 'wb') as out_file:
         out_file.write(response.read())
 
+def check_face_morphing(video_path):
+    print(f"  [QA] Checking face morphing and SSIM for {video_path}")
+    cap = cv2.VideoCapture(video_path)
+    frames = []
+    while True:
+        ret, frame = cap.read()
+        if not ret: break
+        frames.append(frame)
+    cap.release()
+    
+    if len(frames) < 2: return True
+    
+    first_frame = frames[0]
+    last_frame = frames[-1]
+    
+    try:
+        from skimage.metrics import structural_similarity as ssim
+        gray_first = cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY)
+        gray_last = cv2.cvtColor(last_frame, cv2.COLOR_BGR2GRAY)
+        global_score, _ = ssim(gray_first, gray_last, full=True)
+    except:
+        mse = np.mean((first_frame.astype("float") - last_frame.astype("float")) ** 2)
+        global_score = 1.0 - (mse / 255.0**2)
+        
+    print(f"  [QA] Global similarity score: {global_score:.3f}")
+    
+    try:
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        gray_first = cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray_first, 1.1, 4)
+        
+        if len(faces) > 0:
+            x, y, w, h = faces[0]
+            face_first = gray_first[y:y+h, x:x+w]
+            face_last = cv2.cvtColor(last_frame, cv2.COLOR_BGR2GRAY)[y:y+h, x:x+w]
+            try:
+                face_score, _ = ssim(face_first, face_last, full=True)
+            except:
+                mse = np.mean((face_first.astype("float") - face_last.astype("float")) ** 2)
+                face_score = 1.0 - (mse / 255.0**2)
+            print(f"  [QA] Facial similarity score: {face_score:.3f}")
+            
+            if face_score < 0.95:
+                print("  [QA] 🚨 面部变异(Face Morphing)检测失败！需要重试。")
+                return False
+    except Exception as e:
+        print(f"  [QA] Face detection failed: {e}")
+            
+    if global_score < 0.85:
+        print("  [QA] 🚨 全局一致性检测失败！需要重试。")
+        return False
+        
+    return True
+
 def poll_video(task_id, filename):
     while True:
         res = fetch_json(f"https://apihub.agnes-ai.com/agnesapi?video_id={task_id}")
@@ -39,7 +99,12 @@ def poll_video(task_id, filename):
         print(f"Task {task_id} status: {status}")
         if status == 'completed':
             download(res.get('remixed_from_video_id'), filename)
-            return
+            
+            if "shot_01" in filename or "shot_02" in filename:
+                if not check_face_morphing(filename):
+                    print("  [Pipeline] QA failed, returning False to trigger retry")
+                    return False
+            return True
         if status == 'failed':
             raise Exception("Video failed")
         time.sleep(15)
@@ -58,7 +123,8 @@ print(">> Generating Video 1...")
 vid1 = fetch_json("https://apihub.agnes-ai.com/v1/videos", {
     "model": "agnes-video-v2.0",
     "prompt": "The man grabs the drive slowly. Camera pans.",
-    "image": img_url1,
+    "first_frame": img_url1,
+    "last_frame": img_url1,
     "num_frames": 121,
     "frame_rate": 24
 })
@@ -78,7 +144,8 @@ print(">> Generating Video 2...")
 vid2 = fetch_json("https://apihub.agnes-ai.com/v1/videos", {
     "model": "agnes-video-v2.0",
     "prompt": "The woman walks forward confidently. Slow motion.",
-    "image": img_url2,
+    "first_frame": img_url2,
+    "last_frame": img_url2,
     "num_frames": 121,
     "frame_rate": 24
 })
