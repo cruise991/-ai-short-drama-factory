@@ -253,11 +253,17 @@
         "scene": "high-end pristine white dance studio, massive wall mirrors, polished light wood floor, bright modern luxury interior, soft cinematic daylight lighting",
         "bgm_id": ""
       },
-      "weight": 2.0,
+      "weight": 3.0,
       "history": [
         {
           "views": 2209629,
           "completion_rate": 46.07,
+          "is_hit": true,
+          "is_flop": false
+        },
+        {
+          "views": 3857842,
+          "completion_rate": 43.57,
           "is_hit": true,
           "is_flop": false
         }

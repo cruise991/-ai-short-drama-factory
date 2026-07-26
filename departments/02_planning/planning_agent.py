@@ -556,17 +556,30 @@ def run_requirements_gathering(ticket):
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         while True:
-            import sys as _sys
-            # Non-interactive mode: stdin is a pipe, auto-confirm
-            if not _sys.stdin.isatty():
-                print("[Auto-Mock] Non-TTY stdin detected. Auto-confirming 'ok'.")
-                user_input = "ok"
-            else:
+            import os
+            web_project_id = os.environ.get("CURRENT_WEB_PROJECT_ID")
+            
+            if web_project_id:
+                print(f"[AWAITING_USER_INPUT] {web_project_id}", flush=True)
                 try:
-                    user_input = input("\n您 > ")
-                except EOFError:
-                    print("[Auto-Mock] EOFError detected. Typing 'ok'.")
+                    import requests
+                    resp = requests.get(f"http://localhost:8008/api/projects/{web_project_id}/internal_wait_input", timeout=86400)
+                    user_input = resp.json().get("text", "ok")
+                except Exception as e:
+                    print(f"[Auto-Mock] Web Input Error: {e}")
                     user_input = "ok"
+            else:
+                import sys as _sys
+                # Non-interactive mode: stdin is a pipe, auto-confirm
+                if not _sys.stdin.isatty():
+                    print("[Auto-Mock] Non-TTY stdin detected. Auto-confirming 'ok'.")
+                    user_input = "ok"
+                else:
+                    try:
+                        user_input = input("\n您 > ")
+                    except EOFError:
+                        print("[Auto-Mock] EOFError detected. Typing 'ok'.")
+                        user_input = "ok"
                 
             lower_input = user_input.strip().lower()
             exit_keywords = ['ok', 'confirm', '确认', '好了', '可以了', '生成', 'pass', '是的', '执行']

@@ -1,18 +1,29 @@
 version: '3.8'
 
 services:
-  ai-short-drama-factory:
-    build: .
-    container_name: short_drama_factory
+  frontend:
+    build:
+      context: ./frontend
+    container_name: short_drama_frontend
     ports:
-      - "8501:8501" # Expose Streamlit Web UI
+      - "3008:80" # Web UI accessible at port 3008
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./server
+    container_name: short_drama_backend
+    ports:
+      - "8008:8000" # FastAPI Backend
     volumes:
-      # Mount the configuration file so API keys can be edited without rebuilding
+      - ./server:/app
+      - .:/workspace
+      - ./.env:/app/.env
       - ./company_config.yaml:/app/company_config.yaml
-      # Mount the working projects directory for persistent state
       - ./projects:/app/projects
-      # [DELIVERY] Mount the isolated OUT directory so host can directly view audited finals
-      - ../out:/out
+      - ./data:/app/data # SQLite Database storage
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
