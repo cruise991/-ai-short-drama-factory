@@ -2,7 +2,7 @@
 set -e
 
 # Config
-API_KEY="${AGNES_API_KEY:-YOUR_API_KEY_HERE}"
+API_KEY="${AGNES_API_KEY:-""}"
 EPISODE_DIR="projects/paperai-series/episode-01"
 ASSETS_DIR="$EPISODE_DIR/02_raw_assets"
 FINAL_DIR="$EPISODE_DIR/04_final_output"

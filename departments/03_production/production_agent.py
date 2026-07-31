@@ -34,8 +34,14 @@ def _curl_request(method, url, headers=None, json_data=None):
         print(f"[cURL] Request to {url} timed out.")
         if temp_json_file and os.path.exists(temp_json_file):
             os.remove(temp_json_file)
+    except subprocess.CalledProcessError as e:
+        from shared_tools.log_sanitizer import sanitize
+        print(f"[cURL] Error: {sanitize(str(e))}")
+        if temp_json_file and os.path.exists(temp_json_file):
+            os.remove(temp_json_file)
     except Exception as e:
-        print(f"[cURL] Error: {e}")
+        from shared_tools.log_sanitizer import sanitize
+        print(f"[cURL] Error: {sanitize(str(e))}")
         if temp_json_file and os.path.exists(temp_json_file):
             os.remove(temp_json_file)
     return None

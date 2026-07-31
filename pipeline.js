@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { execSync } = require('child_process');
 
-const API_KEY = process.env.AGNES_API_KEY || "YOUR_API_KEY_HERE";
+const API_KEY = process.env.AGNES_API_KEY || """";
 const ASSETS_DIR = "projects/paperai-series/episode-01/02_raw_assets";
 const FINAL_DIR = "projects/paperai-series/episode-01/04_final_output";
 const OUT_DIR = "../out";

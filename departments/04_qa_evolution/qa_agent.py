@@ -2,7 +2,6 @@ import os
 import json
 import time
 import sys
-import sys
 import glob
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -133,21 +132,26 @@ def audit_chat_context(chat_text):
         return True, ""
     
     return False, result.strip()
-    
-    if issues:
-        return False, "Skill Audit Failed:\n" + "\n".join(issues)
-        
-    return True, "Security + Luban Audit Passed: All skills are safe and well-structured."
 
 def audit_planning(episode_dir, workflow_start_time):
     """
     Quality Gateway 1: Planning Audit via LLM Semantic Review
     Checks if the voiceover text strictly obeys the < 25 chars rule.
     """
-    storyboard_path = os.path.join(episode_dir, "01_storyboards_scripts", "01_storyboard.md")
-    
+    storyboard_dir = os.path.join(episode_dir, "01_storyboards_scripts")
+    storyboard_path = os.path.join(storyboard_dir, "01_storyboard.md")
+    # Dance/hook branches may produce JSON storyboards
     if not os.path.exists(storyboard_path):
-        return False, "QA Planning failed: No storyboard found."
+        json_path = os.path.join(storyboard_dir, "01_storyboard.json")
+        if os.path.exists(json_path):
+            storyboard_path = json_path
+        else:
+            # Also check for any storyboard file pattern
+            candidates = glob.glob(os.path.join(storyboard_dir, "01_storyboard.*"))
+            if candidates:
+                storyboard_path = candidates[0]
+            else:
+                return False, "QA Planning failed: No storyboard found (.md or .json)."
         
     if os.path.getmtime(storyboard_path) < workflow_start_time:
         return False, "QA Planning failed: Time Fingerprint mismatch. Storyboard is older than current workflow."
@@ -230,13 +234,24 @@ def audit_planning(episode_dir, workflow_start_time):
 这是一个纯视觉分支。剧本中必须【绝对禁止】任何旁白(Voiceover)或台词(Dialogue)。如果有台词，必须打回。
 不强制要求特定的 JSON 结构，接受 Markdown 剧本格式。
 """
-    else:
+    is_dance_or_hook = "舞蹈" in format_type or "钩子" in format_type
+    
+    if not is_dance_or_hook:
         system_prompt += """
 【⚠️ 内容强制要求】
 核心营销目标（核心产品或服务）必须在剧本中出现。允许前期的痛点铺垫镜头不展示核心产品，只要在后续镜头中明确展示即可，切勿强求每一幕都出现产品！
 
 【⚠️ 物理动作限制】
 图像建议 (Image Suggestion) 中，不能包含任何复杂的物理动作，比如：走入、穿过、握手、拥抱等会导致 AI 生成变异的词汇。
+"""
+        print(f"  [QA] 规则集: 标准营销卡控 (format_type={format_type})")
+    else:
+        print(f"  [QA] 规则集: 舞蹈/视觉钩子豁免模式 (format_type={format_type})")
+    
+    system_prompt += """
+【🎨 LibLib.tv 画质与运镜规范要求 (LibTV Spec Rules)】
+1. 提示词 (Video Prompt) 中宜包含光影、材质或氛围描述（如 8k, cinematic lighting），避免抽象空洞。
+2. 镜头描述中应明确镜头动作类型（如 Push in, Pull back, Pan left 等）。
 
 【特别豁免声明 (Tolerance Override)】：
 - 诸如“镜头固定”、“无运镜”、“Static pose”等明确表示“不动”的词汇，属于安全指令，绝对不算“违规运镜”。
@@ -244,7 +259,7 @@ def audit_planning(episode_dir, workflow_start_time):
 """
     
     system_prompt += """
-如果完美符合以上规则（包含动态红线），请仅输出“PASS”。
+如果完美符合以上规则（包含动态红线与 LibTV 画质要求），请仅输出“PASS”。
 如果发现任何违规，请输出“FAIL: [具体的违规原因和修改建议]”。
 """
     result = call_llm(system_prompt, f"请质检以下剧本：\n{content}")

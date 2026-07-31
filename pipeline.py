@@ -12,10 +12,13 @@ import time
 import ssl
 
 ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
+if os.environ.get("SKIP_TLS_VERIFY"):
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
 
-API_KEY = os.environ.get("AGNES_API_KEY", "YOUR_API_KEY_HERE")
+API_KEY = os.environ.get("AGNES_API_KEY")
+if not API_KEY:
+    print("Warning: AGNES_API_KEY not found in environment")
 ASSETS_DIR = "projects/paperai-series/episode-01/02_raw_assets"
 FINAL_DIR = "projects/paperai-series/episode-01/04_final_output"
 OUT_DIR = "../out"

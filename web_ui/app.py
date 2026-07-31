@@ -14,7 +14,7 @@ st.set_page_config(page_title="AutoMedia CEO Dashboard", layout="wide")
 st.title("👔 AutoMedia Virtual Company")
 st.markdown("### 首席执行官控制台 (CEO Dashboard)")
 
-tab1, tab2, tab3 = st.tabs(["🎯 目标下达区 (Goal Input)", "📊 执行看板 (Kanban)", "⚖️ 审批中心 (Approval Hub)"])
+tab1, tab2, tab3, tab4 = st.tabs(["🎯 目标下达区 (Goal Input)", "📊 执行看板 (Kanban)", "⚖️ 审批中心 (Approval Hub)", "⚙️ LibLib 引擎设置 (Engine Settings)"])
 
 with tab1:
     st.header("创建新工单 (New Task Ticket)")
@@ -69,6 +69,48 @@ with tab3:
         if st.button("❌ 退回重写 (Reject)"):
             st.error(f"已退回策划部。修改要求：{feedback}")
 
+with tab4:
+    st.header("⚙️ LibLib.tv 开放平台引擎配置")
+    st.markdown("配置后可开启 **【方案一：API 自动化直连渲染】**；若未配置，系统将默认以 **【方案二：免 Key 标准化协同模式】** 稳定运作。")
+    
+    config_file = os.path.join(WORKSPACE_DIR, "liblib_config.json")
+    saved_key = os.environ.get("LIBLIB_ACCESS_KEY", "")
+    saved_secret = os.environ.get("LIBLIB_SECRET_KEY", "")
+    if os.path.exists(config_file):
+        try:
+            with open(config_file, "r", encoding="utf-8") as f:
+                cdata = json.load(f)
+                saved_key = saved_key or cdata.get("LIBLIB_ACCESS_KEY", "")
+                saved_secret = saved_secret or cdata.get("LIBLIB_SECRET_KEY", "")
+        except:
+            pass
+            
+    with st.form("liblib_form"):
+        access_key = st.text_input("LIBLIB Access Key", value=saved_key, type="password")
+        secret_key = st.text_input("LIBLIB Secret Key", value=saved_secret, type="password")
+        save_btn = st.form_submit_button("保存设置 (Save Configuration)")
+        
+        if save_btn:
+            os.environ["LIBLIB_ACCESS_KEY"] = access_key
+            os.environ["LIBLIB_SECRET_KEY"] = secret_key
+            with open(config_file, "w", encoding="utf-8") as f:
+                json.dump({"LIBLIB_ACCESS_KEY": access_key, "LIBLIB_SECRET_KEY": secret_key}, f, indent=2)
+            st.success("✅ LibLib API 配置已保存！激活【方案一：API 自动化直连渲染模式】。")
+
 st.sidebar.markdown("### 系统状态")
 st.sidebar.success("🟢 核心调度引擎：在线")
+
+current_key = os.environ.get("LIBLIB_ACCESS_KEY", "")
+if not current_key and os.path.exists(os.path.join(WORKSPACE_DIR, "liblib_config.json")):
+    try:
+        with open(os.path.join(WORKSPACE_DIR, "liblib_config.json")) as f:
+            current_key = json.load(f).get("LIBLIB_ACCESS_KEY", "")
+    except:
+        pass
+
+if current_key:
+    st.sidebar.info("🟢 引擎模式：方案一 (API 自动化直连渲染)")
+else:
+    st.sidebar.warning("🔵 引擎模式：方案二 (免 Key 标准化协同模式 / 默认)")
+
 st.sidebar.info("下一轮热点寻源触发时间：08:00 AM")

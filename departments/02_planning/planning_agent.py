@@ -1,7 +1,6 @@
 import os
 import json
 import time
-import time
 import sys
 try:
     import readline
@@ -556,7 +555,6 @@ def run_requirements_gathering(ticket):
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         while True:
-            import os
             web_project_id = os.environ.get("CURRENT_WEB_PROJECT_ID")
             
             if web_project_id:

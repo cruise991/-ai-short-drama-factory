@@ -1,7 +1,7 @@
 {
-  "audience": "18-30岁城市青年（学生/初入职群体），高压场景下的情绪代偿型观众，偏好沉浸、解压与审美向短视频的用户",
-  "style": "纯情绪循环舞蹈（无叙事/纯肢体+环境共振），高对比色调+动态材质同步形变，无缝AI Loop，搭配Ambient/Lo-fi电子乐与环境采样",
+  "audience": "通用受众",
+  "style": "高级感营销",
   "format": "AI舞蹈与视觉钩子",
   "character": "default",
-  "chat_summary": "\n\nAudience: 18-30岁城市青年（学生/初入职群体），高压场景下的情绪代偿型观众，偏好沉浸、解压与审美向短视频的用户\nStyle: 纯情绪循环舞蹈（无叙事/纯肢体+环境共振），高对比色调+动态材质同步形变，无缝AI Loop，搭配Ambient/Lo-fi电子乐与环境采样\nCharacter: default"
+  "chat_summary": "Audience: 通用受众\nStyle: 高级感营销\nCharacter: default"
 }

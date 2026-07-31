@@ -1,7 +1,7 @@
 ## 研究结果: 爆款短视频 舞蹈 趋势
 
 **⚠️ 近期数据较少** — 近 30 天内可确认的讨论不多。
-仅 0 条可确认日期在 2026-06-26 至 2026-07-26 之间。
+仅 2 条可确认日期在 2026-06-26 至 2026-07-26 之间。
 下列结果可能含较早或常青内容，请向用户如实说明时效性。
 
 **日期范围:** 2026-06-26 ~ 2026-07-26
@@ -11,16 +11,34 @@
 
 **错误:** weibo 搜索超时 (30s)
 
+### B站视频
+
+**BL5** (得分:47) 土豆YUM (2026-07-24) [12,330播放, 1弹幕, 84收藏, 139点赞]
+  梦的翅膀受了伤舞蹈原版
+  https://www.bilibili.com/video/BV1xMge6wEnf
+  *B站视频：梦的翅膀受了伤舞蹈原版*
+
+**BL8** (得分:30) 棱量守恒神论 (2026-07-23) [1,363播放, 31收藏, 44点赞]
+  《反乌托邦》舞蹈镜面➕慢动作（自用）
+  https://www.bilibili.com/video/BV1U1gm6VEg8
+  *B站视频：《反乌托邦》舞蹈镜面➕慢动作（自用）*
+
+**BL9** (得分:13) 小姨妈舞蹈教学 [429,465播放, 0点赞]
+  舞蹈教程合集+基本功大全（入门经典课）
+  https://www.bilibili.com/cheese/play/ss64476?query_from=0&search_id=6743835033676241892&search_query=%E7%88%86%E6%AC%BE+%E7%9F%AD+%E8%A7%86%E9%A2%91+++%E8%88%9E%E8%B9%88+++%E8%B6%8B%E5%8A%BF
+  *B站视频：舞蹈教程合集+基本功大全（入门经典课）*
+
 ### 百度搜索结果
 
 **BD1** [百度] (得分:0) www.baidu.com (日期未知) [日期:low]
   2026年舞蹈新趋势:扎实基本功成就出圈作品_视频_专业_那支广
-  http://www.baidu.com/link?url=bBK3EkA25LvGw1APTmpGNq7OCN8DxZ4BqHVWabhlJeXPTs04zCWpNYEPY9vy666qpxzdCLKiKD56ovMK_N2i_a
+  http://www.baidu.com/link?url=1c2HzrWNASad5w_8Bci0rE6tixAPL1vJwMoVipUbkbsGpBMSAxKN8FXSivcO_FwpsiMFLkcd9onw1eE7d7XWgq
   ...
   *百度：2026年舞蹈新趋势:扎实基本功成就出圈作品_视频_专业_那支广*
 
 ---
 **来源:**
   ❌ 微博: 错误 — weibo 搜索超时 (30s)
+  ✅ B站: 3 条（0 条含字幕/文稿）
   ✅ 百度: 1 条
 

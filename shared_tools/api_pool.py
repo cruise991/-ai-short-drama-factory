@@ -155,9 +155,8 @@ def call_llm(system_prompt, user_prompt):
     import urllib.request
     import json
     import ssl
+    # SSL context preserved for potential urllib fallback, using system CAs
     ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
     
     keys = get_agnes_keys()
     for attempt in range(3):
@@ -209,7 +208,8 @@ def call_llm(system_prompt, user_prompt):
             cmd = [
                 "/usr/bin/curl",
                 "-sS",
-                "-k",
+                # Only skip TLS verification in development via SKIP_TLS_VERIFY=1
+                *(["--cacert", "/etc/ssl/cert.pem"] if not os.environ.get("SKIP_TLS_VERIFY") else ["-k"]),
                 "--http1.1",
                 "-X", "POST",
                 endpoint,
@@ -259,7 +259,8 @@ def call_llm(system_prompt, user_prompt):
                 content = data["choices"][0]["message"]["content"]
             return content
         except Exception as e:
-            print(f"  [LLM API Error] {e}")
+            from shared_tools.log_sanitizer import sanitize
+            print(f"  [LLM API Error] {sanitize(str(e))}")
             record_429(api_key, resource_type="text")
             
     print("  [LLM Pool] All API keys failed, falling back to mock")
