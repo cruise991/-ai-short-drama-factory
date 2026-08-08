@@ -202,7 +202,29 @@ def evaluate(storyboard: Union[dict, str],
     # 支持传入文件路径
     if isinstance(storyboard, str):
         with open(storyboard, "r", encoding="utf-8") as f:
-            storyboard = json.load(f)
+            content = f.read().strip()
+            if content.startswith("```"):
+                import re
+                content = re.sub(r"^```(?:json)?\n?", "", content)
+                content = re.sub(r"\n?```$", "", content)
+            storyboard = json.loads(content)
+
+    # V2.0 格式兼容归一化
+    if "stage_2_video" in storyboard and "timeline" in storyboard["stage_2_video"]:
+        v2_shots = storyboard["stage_2_video"]["timeline"]
+        normalized_shots = []
+        for s in v2_shots:
+            s_copy = dict(s)
+            if "visual_prompt" not in s_copy:
+                s_copy["visual_prompt"] = storyboard.get("stage_1_image", {}).get("prompt", "")
+            normalized_shots.append(s_copy)
+        
+        storyboard = dict(storyboard)
+        storyboard["shots"] = normalized_shots
+        if "anchor_prompt" not in storyboard:
+            storyboard["anchor_prompt"] = storyboard.get("stage_1_image", {}).get("prompt", "")
+        if "negative_prompt" not in storyboard:
+            storyboard["negative_prompt"] = storyboard.get("stage_1_image", {}).get("negative_prompt", "")
 
     # 加载权重配置
     cfg = _load_quality_weights()

@@ -247,7 +247,7 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 
         # ─── 调用 LLM 动态切割 Timeline ───────────────────────────────────────
         custom_beats = None
-        timeline_sys_prompt = f"你是一个顶级的短片剪辑师。用户需要一个总长为 {_total_dur} 秒的动态视频。根据 V2.0 规范，单个镜头的上限为 18 秒。请你根据音乐张力和动作连贯性，自主将 {_total_dur} 秒拆分为几个镜头（可长可短，比如 [15, 15] 或 [8, 12, 10]）。请直接返回一个由数字组成的 JSON 数组，要求总和严格等于 {_total_dur}。不要输出任何其他 Markdown 或解释文本。"
+        timeline_sys_prompt = f"你是一个顶级的短片剪辑师。用户需要一个总长为 {_total_dur} 秒的动态视频。根据 V2.0 规范，单个镜头的上限为 18 秒。请你根据音乐张力和动作连贯性，自主将 {_total_dur} 秒拆分为【至少 3 个、至多 6 个】镜头（可长可短，比如 [8, 12, 10] 或 [5, 8, 7, 5, 5]）。绝对不能少于 3 个镜头。请直接返回一个由数字组成的 JSON 数组，要求总和严格等于 {_total_dur}。不要输出任何其他 Markdown 或解释文本。"
         timeline_user_prompt = f"目标：{goal_text}。总时长：{_total_dur} 秒。请输出时间分割数组："
         try:
             raw_beats = call_llm(timeline_sys_prompt, timeline_user_prompt)
@@ -259,14 +259,27 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
                 if sum(custom_beats) != _total_dur:
                     print(f"  [Planning Dept] ⚠️ LLM sum {sum(custom_beats)} != {_total_dur}, using fallback.")
                     custom_beats = None
+                elif len(custom_beats) < 3:
+                    max_idx = custom_beats.index(max(custom_beats))
+                    longest = custom_beats[max_idx]
+                    half1 = round(longest / 2)
+                    half2 = longest - half1
+                    custom_beats[max_idx:max_idx+1] = [half1, half2]
+                    print(f"  [Planning Dept] ⚠️ Beats count < 3, split longest → {custom_beats}")
         except Exception as e:
             print(f"  [Planning Dept] ⚠️ LLM duration parsing error: {e}")
             custom_beats = None
 
         # ─── 调用导演引擎（Layer 4+5）─────────────────────────────────────────
+        if feedback:
+            import random
+            random.seed()
+            _de_mod._CACHE.clear()
+            print(f"[Planning Dept] ⚠️ QA feedback detected in dance branch, re-randomizing: {feedback[:80]}...")
+
         print(f"[Planning Dept] 🎬 Director Engine 启动: {_char_id}, {_total_dur}s, trend={_trend_id}")
         try:
-            _decision = _de_mod.direct(_char_id, _total_dur, _trend_id, custom_beats=custom_beats)
+            _decision = _de_mod.direct(_char_id, _total_dur, _trend_id, module_params=ticket.get("module_params"), custom_beats=custom_beats)
         except Exception as _de_err:
             print(f"[Planning Dept] ⚠️  Director Engine 异常: {_de_err}，使用默认参数重试")
             _decision = _de_mod.direct("C001_Luna", 12, None)
@@ -276,19 +289,26 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
         loop_pattern = _decision.get("stage_2_video", {}).get("loop_pattern", "")
         vibe = _decision.get("metadata", {}).get("vibe", "pure")
         
-        speed_modifier = "moves smoothly, fluidly, slow and alluring rhythm"
+        speed_modifier = "moves smoothly, fluidly, elegant and graceful rhythm"
         if vibe in ["energy", "psychedelic"]:
             speed_modifier = "moves rapidly, explosively, sharp and dynamic rhythm"
         
         # 极简 Stage 2 Video Prompt 组装
+        _cam_descriptions = []
+        for _s in stage_2_timeline:
+            _cp = _s.get("camera_prompt", "")
+            if _cp:
+                _cam_descriptions.append(f"shot {_s['shot']}: {_cp}")
+        _camera_summary = ". ".join(_cam_descriptions) if _cam_descriptions else "Locked camera, no camera movement"
+        
         stage_2_prompt = (
             f"The video begins exactly from the input image. She steps back to reveal full body, "
             f"executes the {loop_pattern} dance move. She {speed_modifier}. "
-            f"She leans intimately towards the camera during the transition. "
+            f"Camera work: {_camera_summary}. Keep camera mostly static to focus on the dance, avoid extreme panning or rapid zooming. "
             f"Spend the last 2 seconds smoothly returning limbs and body to the exact interactive anchor pose from the first frame, locking into it perfectly for seamless loop. "
             f"Constant intense eye contact with the viewer throughout the entire video. "
-            f"Locked camera, no panning, no zooming, no camera movement. "
-            f"Consistent facial features and expressions, no face morphing."
+            f"Consistent facial features and expressions, no face morphing. "
+            f"Consistent clothing, outfit remains exactly the same throughout the entire video, no clothing changes."
         )
         
         task_data = {

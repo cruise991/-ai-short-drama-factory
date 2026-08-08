@@ -11,39 +11,37 @@ import concurrent.futures
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 def _curl_request(method, url, headers=None, json_data=None):
-
-    cmd = ["curl", "-s", "-X", method, url]
-    if headers:
-        for k, v in headers.items():
-            cmd.extend(["-H", f"{k}: {v}"])
+    import requests
+    import json
     
-    temp_json_file = None
-    if json_data:
-        import tempfile
-        fd, temp_json_file = tempfile.mkstemp(suffix='.json')
-        with os.fdopen(fd, 'w') as f:
-            json.dump(json_data, f)
-        cmd.extend(["-d", f"@{temp_json_file}"])
-        
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
+    
+    session = requests.Session()
+    retry = Retry(connect=5, backoff_factor=1)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=120)
-        if temp_json_file and os.path.exists(temp_json_file):
-            os.remove(temp_json_file)
-        return json.loads(result.stdout)
-    except subprocess.TimeoutExpired:
-        print(f"[cURL] Request to {url} timed out.")
-        if temp_json_file and os.path.exists(temp_json_file):
-            os.remove(temp_json_file)
-    except subprocess.CalledProcessError as e:
-        from shared_tools.log_sanitizer import sanitize
-        print(f"[cURL] Error: {sanitize(str(e))}")
-        if temp_json_file and os.path.exists(temp_json_file):
-            os.remove(temp_json_file)
+        if method.upper() == "POST":
+            resp = session.post(url, headers=headers, json=json_data, timeout=120)
+        else:
+            resp = session.get(url, headers=headers, timeout=120)
+            
+        if resp.status_code != 200:
+            print(f"[Requests] HTTP {resp.status_code} for {url} - {resp.text[:100]}")
+            
+            # The Agnes API sometimes returns truncated JSON on 400 policy violations
+            if "content_policy_violation" in resp.text:
+                return {"error": {"code": "content_policy_violation", "message": resp.text}}
+            
+        return resp.json()
+    except requests.exceptions.Timeout:
+        print(f"[Requests] Request to {url} timed out.")
     except Exception as e:
         from shared_tools.log_sanitizer import sanitize
-        print(f"[cURL] Error: {sanitize(str(e))}")
-        if temp_json_file and os.path.exists(temp_json_file):
-            os.remove(temp_json_file)
+        print(f"[Requests] Error: {sanitize(str(e))}")
     return None
 
 def load_config():
@@ -118,9 +116,11 @@ def check_face_morphing(video_path):
     print(f"  [QA] Global similarity score: {global_score:.3f}")
     
     try:
-        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        gray_first = cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray_first, 1.1, 4)
+        faces = []
+        if hasattr(cv2, "CascadeClassifier") and hasattr(cv2, "data") and cv2.CascadeClassifier is not None:
+            face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+            gray_first = cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray_first, 1.1, 4)
         
         if len(faces) > 0:
             x, y, w, h = faces[0]
@@ -169,7 +169,7 @@ def generate_image_agnes(prompt, output_path, config, size="1024x768", negative_
                     ratio = "16:9"
                 else:
                     ratio = "1:1"
-                api_size = "1K"
+                api_size = "2K"
             except:
                 pass
                 
@@ -182,12 +182,13 @@ def generate_image_agnes(prompt, output_path, config, size="1024x768", negative_
             }
         }
         if negative_prompt:
-            data["negative_prompt"] = negative_prompt
             data["extra_body"]["negative_prompt"] = negative_prompt
             
         if ratio:
             data["ratio"] = ratio
-        print(f"  [AgnesRenderer] Calling REAL Image API for prompt: {prompt[:20]}...")
+        print(f"  [AgnesRenderer] Calling REAL Image API (prompt length: {len(prompt)} chars)...")
+        if _ == 0:  # Only log full prompt on first attempt
+            print(f"  [AgnesRenderer] Full prompt:\n    {prompt[:500]}...")
         resp = _curl_request("POST", "https://apihub.agnes-ai.com/v1/images/generations", headers=headers, json_data=data)
         
         if resp and "error" in resp and resp["error"].get("code") == 429:
@@ -204,6 +205,10 @@ def generate_image_agnes(prompt, output_path, config, size="1024x768", negative_
 
         if not url:
             print(f"  [AgnesRenderer] Image API error. Resp: {resp}")
+            if resp and "error" in resp and resp["error"].get("type") == "invalid_request_error":
+                raise Exception(f"POLICY_VIOLATION: {resp['error'].get('message')}")
+            if resp and resp.get("code") == "content_policy_violation":
+                raise Exception(f"POLICY_VIOLATION: {resp.get('message')}")
             # Do NOT fallback to mock image. Return empty to trigger a retry.
             continue
             
@@ -226,6 +231,12 @@ def generate_video_agnes(image_url, video_prompt, output_path, config, size="115
         width, height = int(width_str), int(height_str)
     except:
         width, height = 1152, 768
+        
+    # Enforce Agnes Video V2.0 num_frames math: <= 441 and 8n+1
+    valid_frames = [81, 121, 241, 441]
+    if num_frames not in valid_frames:
+        # snap to nearest valid frame count
+        num_frames = min(valid_frames, key=lambda x: abs(x - num_frames))
     
     for _ in range(10): # try up to 10 times across different keys
         api_key = get_available_key(keys)
@@ -273,19 +284,40 @@ def generate_video_agnes(image_url, video_prompt, output_path, config, size="115
             
         if not video_id:
             print(f"  [AgnesRenderer] Video API error. Resp: {resp}")
+            if resp and "error" in resp and resp["error"].get("type") == "invalid_request_error":
+                raise Exception(f"POLICY_VIOLATION: {resp['error'].get('message')}")
+            if resp and resp.get("code") == "content_policy_violation":
+                raise Exception(f"POLICY_VIOLATION: {resp.get('message')}")
+            if resp and resp.get("code") == "video_queue_full":
+                print("  [AgnesRenderer] Queue is full, backing off for 30 seconds...")
+                time.sleep(30)
             continue
 
         if video_id:
             # Poll for completion
-            for _ in range(30):
+            for _ in range(120):
                 time.sleep(15)
                 # Official GET endpoint
                 status_resp = _curl_request("GET", f"https://apihub.agnes-ai.com/agnesapi?video_id={video_id}", headers=headers)
                 if status_resp:
-                    # New status structure: "completed" and "url"
+                    print(f"  [AgnesRenderer] GET status: {status_resp}")
+                    err_obj = status_resp.get("error")
+                    if err_obj is not None:
+                        if isinstance(err_obj, dict) and err_obj.get("code") == "content_policy_violation":
+                            raise Exception(f"POLICY_VIOLATION: {err_obj.get('message')}")
+                        elif isinstance(err_obj, str) and ("policy" in err_obj.lower() or "violation" in err_obj.lower()):
+                            raise Exception(f"POLICY_VIOLATION: {err_obj}")
+                        else:
+                            # Try to extract policy violation from string or just break
+                            if isinstance(err_obj, str):
+                                print(f"  [AgnesRenderer] Task error on server: {err_obj}")
+                            break
+
+                    # New status structure: "completed" and "metadata.url"
                     status = status_resp.get("status")
-                    if status == "completed" and "url" in status_resp:
-                        vid_url = status_resp["url"]
+                    metadata = status_resp.get("metadata", {})
+                    if status == "completed" and "url" in metadata:
+                        vid_url = metadata["url"]
                         dl_cmd = ["curl", "-s", "-f", "-o", output_path, vid_url]
                         subprocess.run(dl_cmd)
                         
@@ -304,10 +336,12 @@ def generate_video_agnes(image_url, video_prompt, output_path, config, size="115
                         return True
                     elif status == "failed" or status == "error":
                         # Not a 429, actual task failure
+                        print(f"  [AgnesRenderer] Task failed on server. Status: {status}")
                         break
             
             # If we fall through the polling loop without returning, it's a timeout or failure
-            break
+            print(f"  [AgnesRenderer] Polling loop ended without success. Retrying generation...")
+            continue
             
     # Should not reach here because of fallback
     raise Exception(f"Video generation failed for {output_path}. API response was invalid or rate limited.")
@@ -362,6 +396,7 @@ def process_ticket(episode_dir):
                         "phase": "Anchor_Image_And_First_Dance",
                         "image_suggestion": stage_1.get("prompt", ""),
                         "negative_prompt": stage_1.get("negative_prompt", ""),
+                        "reference_image": stage_1.get("reference_image", ""),
                         "video_prompt": vid_prompt,
                         "time_range": f"0:00 - 0:{first_t_shot.get('duration', 5)}",
                         "duration": first_t_shot.get("duration", 5)
@@ -385,6 +420,7 @@ def process_ticket(episode_dir):
                         "phase": "Anchor_Image_And_First_Dance",
                         "image_suggestion": stage_1.get("prompt", ""),
                         "negative_prompt": stage_1.get("negative_prompt", ""),
+                        "reference_image": stage_1.get("reference_image", ""),
                         "video_prompt": stage_2.get("video_prompt", ""),
                         "time_range": f"0:00 - 0:{ticket.get('total_duration', 12)}",
                         "duration": ticket.get('total_duration', 12)
@@ -523,6 +559,12 @@ def process_ticket(episode_dir):
         vid_prompt_base = shot.get("video_prompt", "")
         negative_prompt = shot.get("negative_prompt", "")
         
+        # Check reference image early
+        ref_image_rel = shot.get("reference_image", "")
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        ref_image_path = os.path.join(root_dir, "assets/dance/01_characters/ips", ref_image_rel) if ref_image_rel else ""
+        has_ref_image = bool(ref_image_path and os.path.exists(ref_image_path))
+        
         if is_dance and locks:
             char_anchor = locks.get("character_anchor", "")
             costume = locks.get("costume_lock", "")
@@ -530,36 +572,60 @@ def process_ticket(episode_dir):
             style_desc = ticket.get("style", "")
             full_prompt = locks.get("image_suggestion_full", "")
             
-            # 强制开启中景镜头锁定 (Enforce medium shot camera lock)
-            camera_lock = "Static medium shot from waist up to thighs, character occupies 60-70% of the frame, stable focal length, action and limbs clearly visible. No camera zoom in, no camera zoom out, no camera tilt, only slight pan following the character. (No close-up, no portrait, no extreme wide shot, do not change distance)"
+            # 强制开启新版固定镜头与光影锁定 (Enforce fixed 50mm camera and low-key lighting)
+            camera_lock = "50mm standard lens, f/2.8 aperture, fixed camera, no camera movement, no zoom, no pan, low-key lighting, high contrast, cold tone dark environment, single-side hard side light from the right"
+            
+            # 强制注入 Pinterest 启发的服化道和背景
+            pinterest_aesthetic = "Korean actress aesthetic, K-pop idol, wearing stylish denim mini skirt and crop top, flawless glowing skin, in front of blurred white matte cabinets, shallow depth of field"
             
             # The T2I needs full character, costume, scene context, and style (following Agnes API structure)
             if full_prompt:
-                img_prompt = f"{camera_lock}. {full_prompt}"
+                img_prompt = f"{camera_lock}. {pinterest_aesthetic}. {full_prompt}"
             else:
-                img_prompt = f"{camera_lock}. {char_anchor}, wearing {costume}, standing in {scene}, style: {style_desc}, masterpiece, best quality, highly detailed"
+                img_prompt = f"{camera_lock}. {pinterest_aesthetic}. {char_anchor}, style: {style_desc}, masterpiece, best quality, highly detailed, photorealistic, 8k, commercial fashion photography"
             
             # For I2V Keyframes mode, we pass the full character/costume/scene to keep it perfectly consistent
             dance_action = shot.get("image_suggestion", "")
-            if full_prompt:
-                vid_prompt = f"{camera_lock}. {full_prompt} | {vid_prompt_base}"
+            if has_ref_image or anchor_img_url or last_video_path:
+                vid_prompt = f"{camera_lock}. {vid_prompt_base}"
             else:
-                vid_prompt = f"{camera_lock}. {char_anchor}, wearing {costume}, in {scene} | {dance_action} | {vid_prompt_base}, style: {style_desc}"
+                if full_prompt:
+                    vid_prompt = f"{camera_lock}. {pinterest_aesthetic}. {full_prompt} | {vid_prompt_base}"
+                else:
+                    vid_prompt = f"{camera_lock}. {pinterest_aesthetic}. {char_anchor} | {dance_action} | {vid_prompt_base}, style: {style_desc}"
+                    
+            # 强制覆盖负面提示词 (Enforce global negative prompt for dance)
+            negative_prompt = "Cartoon, CG, over-smoothed skin, bad anatomy, messy background, extra fingers, deformed arms, exaggerated body proportions, text, watermark, logo"
         else:
             img_prompt = shot.get("image_suggestion", "")
             if not img_prompt:
                 img_prompt = vid_prompt_base
-            vid_prompt = f"{img_prompt} | {vid_prompt_base}" if img_prompt != vid_prompt_base else vid_prompt_base
+            
+            if has_ref_image:
+                vid_prompt = vid_prompt_base
+            else:
+                vid_prompt = f"{img_prompt} | {vid_prompt_base}" if img_prompt != vid_prompt_base else vid_prompt_base
         
         img_out = os.path.join(assets_dir, f"{shot_id}.png")
         vid_out = os.path.join(assets_dir, f"{shot_id}.mp4")
         
         if os.path.exists(vid_out) and os.path.getsize(vid_out) > 0:
-            print(f"\n>> Skipping {shot_id}, video already exists in cache.")
-            skip_url = anchor_img_url
-            if not skip_url and os.path.exists(img_out):
-                skip_url = upload_image_to_temp_host(img_out)
-            return True, "", skip_url or "cached_placeholder"
+            # [CRITICAL FIX] 即使视频已缓存，也要确保 PNG 存在
+            # QA 对 Anchor_Image_And_First_Dance 镜头要求 png + mp4 同时存在
+            if not os.path.exists(img_out):
+                print(f"\n>> {shot_id} video cached, but PNG missing. Extracting first frame...")
+                subprocess.run(["ffmpeg", "-y", "-i", vid_out, "-vframes", "1", "-update", "1", img_out], capture_output=True)
+                if not os.path.exists(img_out):
+                    print(f"  [FFmpeg] Failed to extract first frame. Deleting cached video to force full regeneration.")
+                    os.remove(vid_out)
+                else:
+                    print(f"  [FFmpeg] Successfully extracted first frame to {img_out}")
+            if os.path.exists(vid_out):
+                print(f"\n>> Skipping {shot_id}, video already exists in cache.")
+                skip_url = anchor_img_url
+                if not skip_url and os.path.exists(img_out):
+                    skip_url = upload_image_to_temp_host(img_out)
+                return True, "", skip_url or "cached_placeholder"
             
         print(f"\n>> Processing {shot_id} ...")
         
@@ -582,13 +648,24 @@ def process_ticket(episode_dir):
                 # Fallback, just create a blank or copy
                 pass
         else:
-            time.sleep(random.uniform(0, 2)) # Jitter to prevent rate limit stamping
-            if hasattr(renderer, "generate_image_with_neg"):
-                img_url = renderer.generate_image_with_neg(img_prompt, img_out, config, size=target_size, negative_prompt=negative_prompt)
+            if has_ref_image:
+                print(f"[Production Dept] Found reference image {ref_image_rel}, bypassing text-to-image generation.")
+                from PIL import Image
+                img = Image.open(ref_image_path)
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                img.save(img_out, 'PNG')
+                img_url = upload_image_to_temp_host(img_out)
             else:
-                img_url = renderer.generate_image(img_prompt, img_out, config, size=target_size)
+                if ref_image_rel:
+                    print(f"[Production Dept] Warning: Reference image {ref_image_path} not found. Falling back to text-to-image.")
+                time.sleep(random.uniform(0, 2)) # Jitter to prevent rate limit stamping
+                if hasattr(renderer, "generate_image_with_neg"):
+                    img_url = renderer.generate_image_with_neg(img_prompt, img_out, config, size=target_size, negative_prompt=negative_prompt)
+                else:
+                    img_url = renderer.generate_image(img_prompt, img_out, config, size=target_size)
             if not img_url:
-                print(f"[Production Dept] Error: Failed to generate image for {shot_id}.")
+                print(f"[Production Dept] Error: Failed to generate or upload image for {shot_id}.")
                 return False, f"Failed to generate image for {shot_id}.", ""
             
         if not vid_prompt_base:
@@ -625,14 +702,37 @@ def process_ticket(episode_dir):
                 config["GLOBAL_REFERENCE_URL"] = global_reference_url
                 
             is_last_shot = (idx == len(shots) - 1)
-            success, msg, img_url = process_single_shot(
-                shot, anchor_img_url, last_video_path, 
-                is_last_shot=is_last_shot, 
-                target_last_frame_url=global_reference_url
-            )
+            try:
+                success, msg, img_url = process_single_shot(
+                    shot, anchor_img_url, last_video_path, 
+                    is_last_shot=is_last_shot, 
+                    target_last_frame_url=global_reference_url
+                )
+            except Exception as exc:
+                if is_last_shot and "POLICY_VIOLATION" in str(exc):
+                    print(f"\\n[Production Dept] 🚨 POLICY_VIOLATION in keyframes mode! Falling back to ti2vid (is_last_shot=False) for safety.")
+                    try:
+                        success, msg, img_url = process_single_shot(
+                            shot, anchor_img_url, last_video_path, 
+                            is_last_shot=False, 
+                            target_last_frame_url=None
+                        )
+                    except Exception as fallback_exc:
+                        import traceback
+                        traceback.print_exc()
+                        success = False
+                        msg = str(fallback_exc)
+                        img_url = ""
+                else:
+                    import traceback
+                    traceback.print_exc()
+                    success = False
+                    msg = str(exc)
+                    img_url = ""
+                
             if not success:
                 has_error = True
-                error_msg += msg + "\\n"
+                error_msg += msg + "\n"
                 break
             
             # Lock the first frame as the global aesthetic reference
@@ -660,6 +760,29 @@ def process_ticket(episode_dir):
                     error_msg += f"Exception processing {shot['id']}: {exc}\\n"
                     
     if has_error:
+        print(f"[Production Dept] Error encountered: {error_msg.strip()}")
+        if "POLICY_VIOLATION" in error_msg:
+            retries = ticket.get("api_policy_retries", 0)
+            print(f"[Production Dept] 🚨 Policy Violation detected! Auto-recovering. Retry: {retries+1}/3")
+            if retries < 3:
+                ticket["api_policy_retries"] = retries + 1
+                ticket["status"] = "Drafting"
+                ticket["qa_feedback"] = f"【CRITICAL - PRODUCTION API BLOCKED】由于前次生成的 prompt 触碰了 API 的内容安全审核（NSFW/低俗），被强制拦截。请务必将提示词修改得极其保守、安全、符合审查规范（例如去除非必要的身体部位描写，增加常规服饰描述）。具体报错：{error_msg.strip()}"
+                
+                # Clear cached raw assets so old policy-violating images are not reused
+                import glob
+                for f_path in glob.glob(os.path.join(assets_dir, "*")):
+                    try:
+                        os.remove(f_path)
+                    except Exception:
+                        pass
+
+                with open(ticket_path, "w", encoding="utf-8") as f:
+                    json.dump(ticket, f, ensure_ascii=False, indent=2)
+                return False
+            else:
+                print(f"[Production Dept] 🚨 Policy Violation retries exhausted ({retries}). Halting.")
+                
         ticket["status"] = "Paused_By_Error"
         ticket["error_message"] = error_msg.strip()
         with open(ticket_path, "w", encoding="utf-8") as f:

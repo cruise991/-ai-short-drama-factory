@@ -62,6 +62,10 @@ QA打回原因: {error_msg}"""
     new_rule = call_llm("你是一个专门查新并提取系统教训的 AI。", prompt)
     if new_rule and new_rule.strip():
         new_rule = new_rule.strip()
+        # 过滤无效规则（过短或明显无意义）
+        if len(new_rule) < 4 or new_rule in ["空字符串", "无", "N/A", "none"]:
+            print(f"  [QA Evolution] Skipped invalid rule: {new_rule}")
+            return
         if new_rule not in memory["negative_patterns"]:
             memory["negative_patterns"].append(new_rule)
             memory["negative_patterns"] = compress_memory(memory["negative_patterns"])

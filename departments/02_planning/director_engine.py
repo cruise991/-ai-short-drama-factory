@@ -72,6 +72,7 @@ def load_dance_assets() -> dict:
 
     assets["outfits"] = _load_dir("02_outfits")
     assets["scenes"] = _load_dir("03_scenes")
+    assets["templates"] = _load_dir("07_templates")
 
     # 加载所有角色 IP
     chars_dir = os.path.join(_DANCE_ASSETS_DIR, "01_characters/ips")
@@ -148,7 +149,7 @@ def _legal_facing(current: str, body_facing_graph: dict) -> list:
 
 
 # ─── Temporal Engine: 主函数 ──────────────────────────────────────────────────
-def apply_temporal_continuity(timeline: list, graph: dict) -> list:
+def apply_temporal_continuity(timeline: list, graph: dict, camera_moves: dict = None) -> list:
     """
     Layer 5: 时间连续性引擎。
     校验并修正相邻 shot 间的动作/运镜/朝向合法性。
@@ -173,17 +174,20 @@ def apply_temporal_continuity(timeline: list, graph: dict) -> list:
             prev_camera = prev_exit.get("camera", "static_wide")
             prev_facing = prev_exit.get("facing", "front")
 
-            # 1. 检查并修正动作合法性
-            legal_actions = dance_graph.get(prev_action, [])
-            if legal_actions and action_id not in legal_actions:
-                action_id = legal_actions[0]
-                shot["action_id"] = action_id
+            # 1. 检查并修正动作合法性 (Disabled because transition_graph uses deprecated flat keys and doesn't update action_prompt)
+            # legal_actions = dance_graph.get(prev_action, [])
+            # if legal_actions and action_id not in legal_actions:
+            #     action_id = legal_actions[0]
+            #     shot["action_id"] = action_id
 
             # 2. 检查并修正运镜合法性
             legal_cameras = camera_graph.get(prev_camera, [])
             if legal_cameras and camera_id not in legal_cameras:
                 camera_id = legal_cameras[0]
                 shot["camera_id"] = camera_id
+                # 同步更新 camera_prompt，防止 ID 与描述矛盾导致 QA 打回
+                if camera_moves:
+                    shot["camera_prompt"] = camera_moves.get(camera_id, {}).get("prompt", "")
 
             # 3. 推断当前朝向并生成连续性前缀
             current_facing = infer_facing(action_id, facing_infer)
@@ -212,6 +216,48 @@ def apply_temporal_continuity(timeline: list, graph: dict) -> list:
     return timeline
 
 
+# ─── Timeline 后处理：消除跨字段运镜矛盾 ─────────────────────────────────────
+import re as _re
+
+# 运镜污染词：出现在 action_prompt 中会与独立的 camera_prompt 产生矛盾
+_CAMERA_POLLUTION_PATTERNS = _re.compile(
+    r'(?:rapid |slow |fast |dramatic |gentle |smooth )?'
+    r'(?:zoom[- ]?in|zoom[- ]?out|dolly[- ]?in|dolly[- ]?out|pull(?:ing)? back|'
+    r'push(?:ing)? forward|pan(?:ning)?|tilt(?:ing)?|orbit(?:al|ing)?|tracking|'
+    r'crane|handheld|fpv|aerial|top[- ]down|wide shot|close[- ]up|medium shot|'
+    r'camera (?:glid|mov|follow|reveal|push|pull|track|orbit|zoom|pan|tilt)\w*)',
+    _re.IGNORECASE
+)
+
+
+def sanitize_timeline(timeline: list, camera_moves: dict) -> list:
+    """
+    最终安全网：在 timeline 组装完毕后统一消毒。
+    1. 强制 camera_prompt = camera_moves[camera_id] 的权威描述（单一数据源）
+    2. 从 action_prompt 中剥离所有运镜/镜头相关描述，防止与 camera_prompt 语义冲突
+    """
+    for shot in timeline:
+        # 1. 强制 camera_prompt 从 camera_moves 字典取权威值
+        cam_id = shot.get("camera_id", "static_wide")
+        canonical_prompt = camera_moves.get(cam_id, {}).get("prompt", "")
+        if canonical_prompt:
+            shot["camera_prompt"] = canonical_prompt
+
+        # 2. 清洗 action_prompt 中的运镜污染词
+        action = shot.get("action_prompt", "")
+        if action:
+            cleaned = _CAMERA_POLLUTION_PATTERNS.sub("", action)
+            # 清理多余空格和悬挂标点
+            cleaned = _re.sub(r'\s{2,}', ' ', cleaned).strip(" ,.")
+            if cleaned:
+                shot["action_prompt"] = cleaned
+            # 如果清洗后为空（纯运镜描述的 hook prompt），保留原始动作关键词
+            elif not cleaned and shot.get("action_id"):
+                shot["action_prompt"] = shot["action_id"].replace("_", " ")
+
+    return timeline
+
+
 # ─── Timeline 组装 ────────────────────────────────────────────────────────────
 def build_timeline(character_id: str, rules: dict, rhythm: dict, shot_template: dict,
                    hooks: dict, dance_moves: dict, camera_moves: dict, poses: dict,
@@ -221,6 +267,18 @@ def build_timeline(character_id: str, rules: dict, rhythm: dict, shot_template: 
     Hook 强制在第一个 shot，Pose 强制在最后一个 shot。
     """
     beats = rhythm.get("beats", [2, 3, 3, 2, 2])
+    
+    # 强制最少 3 个 beat，保证 hook + dance(≥1) + pose 结构
+    while len(beats) < 3:
+        max_idx = beats.index(max(beats))
+        longest = beats[max_idx]
+        if longest <= 2:
+            beats.insert(max_idx + 1, 2)  # 插入最小时长
+        else:
+            half1 = round(longest / 2)
+            half2 = longest - half1
+            beats[max_idx:max_idx + 1] = [half1, half2]
+
     camera_sequence = shot_template.get("sequence", ["static_wide"] * len(beats))
 
     # 确保序列长度匹配
@@ -243,22 +301,20 @@ def build_timeline(character_id: str, rules: dict, rhythm: dict, shot_template: 
     middle_count = n - 2
     middle_moves_pool = []
     
-    # 注入高级 Hook 动作，权重 x3
-    for h_id in hooks:
-        if not h_id.startswith("_"):
-            middle_moves_pool.extend([f"HOOK:{h_id}"] * 3)
+    # 移除 Hook 注入，强化真实舞蹈律动
+    # 增加 body_groove 的权重
             
     for k, v in dance_moves.items():
         if k.startswith("_"): continue
         if "prompt" in v: # flat
-            if "wave" in k or "hip" in k:
-                middle_moves_pool.extend([f"MOVE:{k}"] * 2)
+            if "wave" in k or "hip" in k or "groove" in k:
+                middle_moves_pool.extend([f"MOVE:{k}"] * 3)
             else:
                 middle_moves_pool.append(f"MOVE:{k}")
         else: # nested
             for sub_k, sub_v in v.items():
-                if "wave" in sub_k or "hip" in sub_k:
-                    middle_moves_pool.extend([f"MOVE:{k}/{sub_k}"] * 2)
+                if "wave" in sub_k or "hip" in sub_k or "groove" in k:
+                    middle_moves_pool.extend([f"MOVE:{k}/{sub_k}"] * 3)
                 else:
                     middle_moves_pool.append(f"MOVE:{k}/{sub_k}")
                 
@@ -403,32 +459,83 @@ def direct(character_id: str, total_duration: int,
     music_pace_hint = music_genre_data.get("style", "")
     music_style     = genre_id if music_genres else ""
 
-    # Layer 4: 导演引擎 — 节奏 + 镜头序列选择
-    if custom_beats:
-        rhythm = {"total_seconds": sum(custom_beats), "beats": custom_beats, "desc": "Custom LLM Beats"}
-        rhythm_id = "custom_llm_beats"
+    vibe = module_params.get("vibe", "pure") if module_params else "pure"
+    
+    # ─── 尝试匹配 07_templates ───
+    chosen_dance_template = None
+    if assets.get("templates"):
+        vibe_tag_map = {
+            "psychedelic": ["魔性", "抽象", "手势舞", "洗脑"],
+            "sad": ["悲伤", "芭蕾", "延伸", "慢摇", "抒情"],
+            "pure": ["纯欲", "kpop", "甜美", "丝滑", "女团", "科目三"],
+            "energy": ["hiphop", "力量", "燃向", "街舞", "挑战"]
+        }
+        target_tags = vibe_tag_map.get(vibe, [])
+        matched_templates = [t for t in assets["templates"].values() if any(tag in t.get("tags", []) for tag in target_tags)]
+        
+        if matched_templates:
+            chosen_dance_template = random.choice(matched_templates)
+
+    if chosen_dance_template:
+        print(f"[Director Engine] Matched dance template: {chosen_dance_template.get('name')}")
+        enriched_timeline = []
+        
+        timeline_data = chosen_dance_template.get("timeline", [])
+        total_shots = len(timeline_data)
+        
+        for idx, shot in enumerate(timeline_data):
+            dur = 5 # Default roughly
+            
+            # 满足 M3 门禁规则结构闭环
+            if total_shots >= 3:
+                if idx == 0:
+                    shot_type = "hook"
+                elif idx == total_shots - 1:
+                    shot_type = "pose"
+                else:
+                    shot_type = "dance"
+            elif total_shots == 2:
+                shot_type = "hook" if idx == 0 else "pose"
+            else:
+                shot_type = "dance"
+                
+            enriched_timeline.append({
+                "shot": idx + 1,
+                "duration": dur,
+                "camera_id": "template_camera",
+                "continuity_prefix": "",
+                "exit_state": {},
+                "type": shot_type,
+                "action_id": shot.get("name", "dance"),
+                "action_prompt": shot.get("action_prompt", ""),
+                "camera_prompt": chosen_dance_template.get("camera_and_edit", {}).get("camera", "FRONT_EYE_LEVEL, MEDIUM_SHOT") + ", Slow Push in"
+            })
     else:
-        rhythm_id, rhythm = select_rhythm(
-            character_id, assets["rules"], assets["rhythm_templates"], total_duration
+        # Fallback to dynamic timeline
+        if custom_beats:
+            rhythm = {"total_seconds": sum(custom_beats), "beats": custom_beats, "desc": "Custom LLM Beats"}
+            rhythm_id = "custom_llm_beats"
+        else:
+            rhythm_id, rhythm = select_rhythm(
+                character_id, assets["rules"], assets["rhythm_templates"], total_duration
+            )
+
+        template_candidates = char_rules.get("preferred_shot_templates", [k for k in assets["shot_templates"].keys() if not k.startswith("_")])
+        template_id = list_weighted_sample([t for t in template_candidates if t in assets["shot_templates"] and not t.startswith("_")]
+                                           or [k for k in assets["shot_templates"].keys() if not k.startswith("_")])
+        shot_template = assets["shot_templates"][template_id]
+
+        raw_timeline = build_timeline(
+            character_id, assets["rules"], rhythm, shot_template,
+            assets["hooks"], assets["dance_moves"], assets["camera_moves"],
+            assets["poses"], char_rules
         )
 
-    template_candidates = char_rules.get("preferred_shot_templates", [k for k in assets["shot_templates"].keys() if not k.startswith("_")])
-    template_id = list_weighted_sample([t for t in template_candidates if t in assets["shot_templates"] and not t.startswith("_")]
-                                       or [k for k in assets["shot_templates"].keys() if not k.startswith("_")])
-    shot_template = assets["shot_templates"][template_id]
-
-    # Layer 4: 组装原始 Timeline
-    raw_timeline = build_timeline(
-        character_id, assets["rules"], rhythm, shot_template,
-        assets["hooks"], assets["dance_moves"], assets["camera_moves"],
-        assets["poses"], char_rules
-    )
-
-    # Layer 5: Temporal Engine — 注入帧间连续性
-    enriched_timeline = apply_temporal_continuity(raw_timeline, assets["transition_graph"])
+        enriched_timeline = apply_temporal_continuity(raw_timeline, assets["transition_graph"], assets["camera_moves"])
+        enriched_timeline = sanitize_timeline(enriched_timeline, assets["camera_moves"])
 
     # 负面提示词 (Stage 1) - 强力防模糊 + 防扭曲防暴露 + 防暗调 + 强化解剖学防变异 + 防背包配饰 + 审美红线
-    stage_1_negative = "nsfw, nude, cleavage exposure, explicit, deformed, unnatural proportions, bad anatomy, broken limbs, motion blur, dancing, running, floating hair, dynamic pose, mid-air, depth of field blur, action lines, flying clothes, blur, watermark, changing clothes, ugly, poor quality, heavy makeup, strong lip gloss, water drops on lips, strong light, high contrast, smooth plastic skin, unnatural lighting, dark lighting, poorly drawn face, face morphing, dirty background, extra arms, three arms, extra hands, extra legs, three legs, mutated legs, deformed legs, missing limbs, mutated hands, multiple people, cloned body, blush, red cheeks, excessive blush, unnatural red cheeks, plastic skin, oily face, shiny skin, asymmetrical eyes, handbag, bag, backpack, purse, holding bag, holding accessories, messy lighting equipment, messy background"
+    stage_1_negative = "deformed, unnatural proportions, bad anatomy, broken limbs, motion blur, dancing, running, floating hair, dynamic pose, mid-air, depth of field blur, action lines, flying clothes, blur, watermark, changing clothes, ugly, poor quality, heavy makeup, strong lip gloss, water drops on lips, strong light, high contrast, smooth plastic skin, unnatural lighting, dark lighting, poorly drawn face, face morphing, dirty background, extra arms, three arms, extra hands, extra legs, three legs, mutated legs, deformed legs, missing limbs, mutated hands, multiple people, cloned body, blush, red cheeks, excessive blush, unnatural red cheeks, plastic skin, oily face, shiny skin, asymmetrical eyes, handbag, bag, backpack, purse, holding bag, holding accessories, messy lighting equipment, messy background"
 
     # 从热点中解析 BGM 偏好，否则默认 BGM_001
     bgm_id = "BGM_001"
@@ -444,7 +551,7 @@ def direct(character_id: str, total_duration: int,
         },
         "sad": {
             "loop_pattern": "Mirror Symmetry",
-            "anchor_prompt": "one hand gently playing with high ponytail, looking directly at the camera, slightly biting lip, hand naturally returns to hair at the end"
+            "anchor_prompt": "one hand gently playing with high ponytail, looking directly at the camera, soft sweet smile, hand naturally returns to hair at the end"
         },
         "pure": {
             "loop_pattern": "Circle Flow",
@@ -463,10 +570,19 @@ def direct(character_id: str, total_duration: int,
     # 动态注入安全词、细分身材和强质感服装
     safety_words = "sfw, elegant, high fashion, aesthetic, monetizable"
     
-    if vibe in ["energy", "psychedelic"]:
-        costume_modifiers = "stylish athletic wear"
+    # 动态注入安全词、细分身材和强质感服装
+    if "wearing " in char_data.get("anchor_prompt", ""):
+        costume_modifiers = ""
+    elif chosen_dance_template and "recommendations" in chosen_dance_template and "outfit" in chosen_dance_template["recommendations"]:
+        outfit_recs = chosen_dance_template["recommendations"]["outfit"]
+        top = random.choice(outfit_recs.get("top", ["stylish top"])).lower().replace("top_", "").replace("_", " ")
+        bottom = random.choice(outfit_recs.get("bottom", ["stylish bottom"])).lower().replace("bottom_", "").replace("_", " ")
+        costume_modifiers = f"wearing a {top} and {bottom}"
+    elif vibe in ["energy", "psychedelic"]:
+        costume_modifiers = "wearing a stylish oversized t-shirt and loose sweatpants"
     else:
-        costume_modifiers = "casual cute fashion"
+        costume_modifiers = "wearing an elegant blouse and long casual pants"
+
 
     aesthetic_prompt = "hyper-realistic skin texture, clearly visible pores, perfectly even skin tone without blush, raw natural bare face makeup look, soft matte natural lip color without gloss or water drops, no heavy makeup, not painted feeling, no smooth plastic look, shallow depth of field blur for background"
     stage_1_image_prompt = f"{safety_words}. {char_data.get('anchor_prompt', '')}, {golden_anchor}. {aesthetic_prompt}. {costume_modifiers}. {scene_location}. {lighting_prompt}. perfect human anatomy, exactly two arms and two legs."
@@ -479,7 +595,8 @@ def direct(character_id: str, total_duration: int,
         "stage_1_image": {
             "prompt": stage_1_image_prompt,
             "negative_prompt": stage_1_negative,
-            "golden_anchor": golden_anchor
+            "golden_anchor": golden_anchor,
+            "reference_image": char_data.get("reference_image", "")
         },
         
         "stage_2_video": {
