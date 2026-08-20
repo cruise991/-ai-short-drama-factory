@@ -111,7 +111,7 @@ def upload_to_r2(filepath, object_name=None):
     }
 
     req = urllib.request.Request(url, data=content, headers=headers, method='PUT')
-    with urllib.request.urlopen(req) as resp:
+    with urllib.request.urlopen(req, timeout=45) as resp:
         if resp.status in [200, 204]:
             pub_url = f"{public_url_base.rstrip('/')}/{object_name}"
             print(f"  [R2 Upload] Success! Public URL: {pub_url}")
@@ -121,13 +121,21 @@ def upload_to_r2(filepath, object_name=None):
 
 def download_file(url, target_path):
     req = urllib.request.Request(url)
-    with urllib.request.urlopen(req) as resp, open(target_path, 'wb') as out_file:
+    with urllib.request.urlopen(req, timeout=60) as resp, open(target_path, 'wb') as out_file:
         out_file.write(resp.read())
 
 def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url=None, width=768, height=1344, key_idx=0):
     base_url = os.getenv("AGNES_BASE_URL", "https://apihub.agnes-ai.com/v1").rstrip('/')
     
-    for attempt in range(20):
+    negative_prompt = (
+        "long dress, maxi dress, floor length gown, skirt length change, dress covering knees, "
+        "western face, caucasian, mature face, sharp jawline, facial features change, "
+        "room change, furniture, sofas, indoor living room, bright room, "
+        "cropped head, cropped feet, cropped body, top of head cut off, feet cut off, blurry, low quality, "
+        "distorted hands, distorted body, extra limbs, ugly face"
+    )
+
+    for attempt in range(25):
         api_key = get_api_key(key_idx + attempt)
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -136,12 +144,12 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
 
         data = {
             "model": "agnes-video-v2.0",
-            "prompt": prompt + ", starting exactly from reference pose, seamless rhythm motion",
+            "prompt": prompt + ", starting exactly from reference pose, seamless rhythm motion, identical clothing and face",
             "width": width,
             "height": height,
             "num_frames": 121,
             "frame_rate": 24,
-            "negative_prompt": "cropped head, cropped feet, cropped body, top of head cut off, feet cut off, blurry, low quality, distorted hands, distorted body, extra limbs, ugly face, background change, location change"
+            "negative_prompt": negative_prompt
         }
 
         if start_image_url and end_image_url:
@@ -149,23 +157,27 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
             data["extra_body"] = {
                 "image": [start_image_url, end_image_url],
                 "mode": "keyframes",
-                "negative_prompt": data["negative_prompt"]
+                "negative_prompt": negative_prompt
             }
         elif start_image_url:
             data["image"] = start_image_url
             data["image_url"] = start_image_url
 
-        print(f"  [Agnes API] Submitting request (attempt {attempt+1}/20)... Prompt: {prompt[:60]}...")
+        print(f"  [Agnes API] Submitting request (attempt {attempt+1}/25)... Prompt: {prompt[:60]}...")
         req_body = json.dumps(data).encode('utf-8')
         req = urllib.request.Request(f"{base_url}/videos", data=req_body, headers=headers, method="POST")
         
         try:
-            with urllib.request.urlopen(req) as resp:
+            with urllib.request.urlopen(req, timeout=30) as resp:
                 res_json = json.loads(resp.read().decode('utf-8'))
         except urllib.error.HTTPError as err:
             err_body = err.read().decode('utf-8')
             print(f"  [Agnes Warning] HTTP {err.code}: {err_body}")
-            time.sleep(10)
+            time.sleep(8)
+            continue
+        except Exception as e:
+            print(f"  [Agnes Network Warning] {e}")
+            time.sleep(8)
             continue
 
         video_id = res_json.get("data", {}).get("task_id") or res_json.get("id") or res_json.get("task_id")
@@ -175,7 +187,7 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
             time.sleep(8)
             st_req = urllib.request.Request(f"{base_url.replace('/v1', '')}/agnesapi?video_id={video_id}", headers=headers)
             try:
-                with urllib.request.urlopen(st_req) as st_resp:
+                with urllib.request.urlopen(st_req, timeout=30) as st_resp:
                     st_json = json.loads(st_resp.read().decode('utf-8'))
                     status = st_json.get("status")
                     video_url = st_json.get("video_url") or st_json.get("url")
@@ -194,7 +206,7 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
             except Exception as e:
                 print(f"  [Agnes Poll Warning] {e}")
 
-    raise RuntimeError("Failed to generate video shot after 20 attempts")
+    raise RuntimeError("Failed to generate video shot after multiple attempts")
 
 def extract_last_frame(video_path, output_png):
     cmd = ["ffmpeg", "-y", "-sseof", "-0.1", "-i", video_path, "-vframes", "1", "-update", "1", output_png]
@@ -205,7 +217,7 @@ def main():
     parser = argparse.ArgumentParser(description="Character Consistent Dance Skill Pipeline Pro")
     parser.add_argument("--input-image", required=True, help="Path to character reference image")
     parser.add_argument("--duration", type=int, default=30, help="Total video duration in seconds (15, 20, 25, 30, 40)")
-    parser.add_argument("--style", default="fitness", choices=["fitness", "kpop", "street", "luxury"], help="Dance style archetype")
+    parser.add_argument("--style", default="kpop", choices=["fitness", "kpop", "street", "luxury"], help="Dance style archetype")
     parser.add_argument("--prompt-desc", default=None, help="Optional custom character/scene description override")
     parser.add_argument("--bpm", type=int, default=120, help="Music tempo in BPM")
     parser.add_argument("--bgm", default=None, help="Optional path to custom BGM audio file or preset")
@@ -254,9 +266,10 @@ def main():
 
         video_files.append(shot_mp4)
 
-        if not is_last and (not os.path.exists(shot_png) or os.path.getsize(shot_png) < 1000):
-            print(f"  [Extract & Upload] Shot {shot_id} last frame -> R2...")
-            extract_last_frame(shot_mp4, shot_png)
+        if not is_last:
+            if not os.path.exists(shot_png) or os.path.getsize(shot_png) < 1000:
+                print(f"  [Extract & Upload] Shot {shot_id} last frame -> R2...")
+                extract_last_frame(shot_mp4, shot_png)
             current_start_url = upload_to_r2(shot_png, f"{args.style}_shot_{shot_id:02d}_last.png")
 
     print("\n>>> Step 5: Audio Director Preparing Master BGM Track <<<")
