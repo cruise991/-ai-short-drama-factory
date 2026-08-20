@@ -313,11 +313,12 @@ def generate_video_agnes(image_url, video_prompt, output_path, config, size="115
                                 print(f"  [AgnesRenderer] Task error on server: {err_obj}")
                             break
 
-                    # New status structure: "completed" and "metadata.url"
+                    # Support both response formats:
+                    # Old: metadata.url  |  New/actual: top-level url
                     status = status_resp.get("status")
                     metadata = status_resp.get("metadata", {})
-                    if status == "completed" and "url" in metadata:
-                        vid_url = metadata["url"]
+                    vid_url = metadata.get("url") or status_resp.get("url")
+                    if status == "completed" and vid_url:
                         dl_cmd = ["curl", "-s", "-f", "-o", output_path, vid_url]
                         subprocess.run(dl_cmd)
                         
