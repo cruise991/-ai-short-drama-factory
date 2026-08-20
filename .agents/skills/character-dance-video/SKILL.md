@@ -1,61 +1,49 @@
 ---
 name: character-dance-video
-description: Generate 20-40s character-consistent seamless looping dance videos with synced BPM music and automated quality audit.
+description: Generate 15-40s character-consistent seamless looping dance videos with dynamic character analysis, professional choreography, multi-layered producer BGM, and automated tri-tier quality audit.
 ---
 
-# Character Dance Video Skill (`character-dance-video`)
+# Character Dance Video Skill (`character-dance-video`) Pro
 
-Use this skill when the user requests generating a 20-40 second upbeat dance video from a character image or reference video, requiring character consistency, seamless head-to-tail looping, synced BPM audio, and zero playable/cropping defects.
+Use this skill when the user requests generating a 15-40 second upbeat dance video from a character image or reference video, requiring character & background consistency, professional dance choreography, seamless head-to-tail looping, high-fidelity music, and zero playable/cropping defects.
 
-## Overview & Architecture
+## Core Architecture (Director-Producer-Engineer Framework)
 
-The skill implements a robust multi-shot chaining pipeline with an automated Quality Audit Gate:
-
-1. **Character Lock & Aspect Ratio Alignment**: Extracts image aspect ratio (9:16 portrait) and locks framing using explicit headroom/feet prompts to prevent cropping.
-2. **Multi-Shot Chaining (5s per Shot)**:
-   - **Shots 1 to N-1**: Sequential chaining using `FFmpeg` last-frame extraction & R2 cloud re-upload.
-   - **Shot N (Final)**: Keyframes mode (`start=Shot N-1 end_frame`, `end=Shot 1 initial_pose`) for forced seamless loop closure.
-3. **BPM Audio Sync Engine**: Generates or aligns continuous 120 BPM upbeat music matching the total video duration.
-4. **Two-Step Safe Muxing**: Decouples video concatenation from audio muxing (`libx264 yuv420p` + AAC stereo) to guarantee 100% video playability across QuickTime and web browsers.
-5. **Quality Audit Gate**: Automated pre-delivery assertions on playability, video stream specs, and non-silent audio amplitude.
+1. **Visual Feature Analyzer (`character_analyzer.py`)**:
+   - Dynamic 4-layer prompt lock: `[Camera Lock + Subject Lock + Outfit Lock + Scene Lock]`.
+   - Eradicates hardcoded prompt cross-contamination.
+2. **Choreography Engine (`choreography_engine.py`)**:
+   - Professional dance structure (Intro -> Groove -> Climax -> Release -> Loop Closure).
+   - Kinetic momentum continuity across shots with safe AI motion rules.
+3. **Audio Director (`audio_director.py`)**:
+   - Multi-layered synthesizer (Kick, Snare/Clap, 16th Hi-Hat, Synth Lead, Sub-Bass).
+   - EBU R128 audio mastering with 0.05s anti-pop micro-fades.
+4. **Multi-Shot Chaining & Loop Closure (`dance_pipeline_pro.py`)**:
+   - Shots 1 to N-1: Frame relay via Cloudflare R2 / S3 storage.
+   - Shot N: Keyframes mode linking final frame back to initial anchor for seamless loop.
+5. **Two-Step Safe Muxing (`video_muxer.py`)**:
+   - Pure video concatenation followed by audio track remux (`libx264 yuv420p` + AAC stereo).
+6. **Tri-Tier Quality Audit Gate (`quality_auditor.py`)**:
+   - Checks container/codec, audio RMS energy, and file integrity.
 
 ---
 
 ## Command Line Usage
 
-### Standard 20s Dance Generation:
 ```bash
-python3 ai-short-drama/.agents/skills/character-dance-video/scripts/dance_pipeline.py \
-    --input-image /path/to/character_reference.jpg \
-    --duration 20 \
+python3 ai-short-drama/.agents/skills/character-dance-video/scripts/dance_pipeline_pro.py \
+    --input-image /path/to/character_ref.png \
+    --duration 30 \
+    --style fitness \
     --bpm 120 \
-    --output /path/to/output_dance_20s.mp4
+    --output /path/to/output_dance_30s.mp4
 ```
 
-### Options & Portable Environment Variables:
-- `--input-image`: Path to the character reference image (PNG/JPEG).
-- `--duration`: Video duration in seconds (default: 20, supports 20, 30, 40).
-- `--bpm`: Music tempo in Beats Per Minute (default: 120).
-- `--output`: Path for the final audited MP4 video.
-
----
-
-## Portability & Environment Setup
-
-To ensure seamless migration across machines or deployment environments, configure the following environment variables in `.env` or system shell:
-
-```env
-# API Keys & Endpoints (Auto-fallback to standard OpenAI/Agnes schemas)
-AGNES_BASE_URL=https://apihub.agnes-ai.com/v1
-AGNES_API_KEY_1=sk-xxx...
-
-# Cloud Asset Storage (AWS S3 / Cloudflare R2 / MinIO compatible)
-R2_ENDPOINT=https://<account_id>.r2.cloudflarestorage.com
-R2_ACCESS_KEY=<access_key>
-R2_SECRET_KEY=<secret_key>
-R2_BUCKET=short-ai
-R2_PUBLIC_URL=https://<public_domain>.r2.dev
-```
+### Supported Styles:
+- `fitness`: Athletic workout / energetic dance (sports bra, leggings, gym/studio).
+- `kpop`: Cute idol point dance with hand flower gestures.
+- `street`: Urban hip-hop & rhythmic footwork.
+- `luxury`: Elegant slow-groove evening cocktail dance.
 
 ---
 
@@ -63,12 +51,13 @@ R2_PUBLIC_URL=https://<public_domain>.r2.dev
 
 ```
 .agents/skills/character-dance-video/
-├── SKILL.md                  # Skill specification and usage guidelines
+├── SKILL.md                  # Skill specification and guidelines
 ├── scripts/
-│   ├── dance_pipeline.py     # Main CLI entrypoint executing full dance pipeline & Quality Gate
-│   ├── bpm_engine.py         # Rhythmic BGM synthesizer and beat matcher
-│   ├── video_muxer.py        # Robust two-step FFmpeg encoder
-│   └── quality_auditor.py    # Automated Quality Audit Gate assertion script
-└── assets/
-    └── bgm_templates/        # Default 120 BPM beat templates
+│   ├── dance_pipeline_pro.py  # Unified CLI orchestrator
+│   ├── character_analyzer.py  # 4-layer prompt builder & style extractor
+│   ├── choreography_engine.py # Professional dance sequence planner
+│   ├── audio_director.py      # Multi-layered producer BGM synthesizer
+│   ├── video_muxer.py         # Two-step safe FFmpeg encoder
+│   └── quality_auditor.py     # Tri-tier Quality Assurance Gate
+└── assets/                   # BGM and style templates
 ```
