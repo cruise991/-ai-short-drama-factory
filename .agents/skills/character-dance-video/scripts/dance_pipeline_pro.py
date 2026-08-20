@@ -15,7 +15,7 @@ import subprocess
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from character_analyzer import analyze_character_and_scene
 from choreography_engine import plan_choreography
-from audio_director import render_producer_dance_track
+from audio_director import prepare_dance_bgm
 from video_muxer import robust_video_concat
 from quality_auditor import quality_audit_gate
 
@@ -208,6 +208,7 @@ def main():
     parser.add_argument("--style", default="fitness", choices=["fitness", "kpop", "street", "luxury"], help="Dance style archetype")
     parser.add_argument("--prompt-desc", default=None, help="Optional custom character/scene description override")
     parser.add_argument("--bpm", type=int, default=120, help="Music tempo in BPM")
+    parser.add_argument("--bgm", default=None, help="Optional path to custom BGM audio file or preset")
     parser.add_argument("--output", required=True, help="Path for final audited output MP4 video")
     args = parser.parse_args()
 
@@ -258,16 +259,16 @@ def main():
             extract_last_frame(shot_mp4, shot_png)
             current_start_url = upload_to_r2(shot_png, f"{args.style}_shot_{shot_id:02d}_last.png")
 
-    print("\n>>> Step 5: Audio Director Producing Multi-Layered Track <<<")
-    bgm_path = os.path.join(out_dir, f"producer_bgm_{args.bpm}bpm_{args.duration}s.wav")
-    render_producer_dance_track(bgm_path, bpm=args.bpm, duration_sec=float(args.duration), style=args.style)
+    print("\n>>> Step 5: Audio Director Preparing Master BGM Track <<<")
+    bgm_path = os.path.join(out_dir, f"master_bgm_{args.duration}s.wav")
+    prepare_dance_bgm(bgm_path, duration_sec=float(args.duration), style=args.style, custom_bgm=args.bgm, bpm=args.bpm)
 
     print("\n>>> Step 6: Safe Two-Step Muxing & Encoding <<<")
     robust_video_concat(video_files, bgm_path, args.output)
 
     print("\n>>> Step 7: Tri-Tier Quality Audit Gate Assertion <<<")
     quality_audit_gate(args.output)
-    print(f"🎉 Skill Test Completed! Output File: {args.output}\n")
+    print(f"🎉 Skill Execution Completed! Output File: {args.output}\n")
 
 if __name__ == "__main__":
     main()
