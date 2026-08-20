@@ -1,0 +1,44 @@
+{
+  "_version": "1.0",
+  "_desc": "节奏拍点模板。定义不同总时长的最优时间分割方案，beats 数组为每个 shot 的时长（秒）。",
+  "kpop_12s": {
+    "total_seconds": 12,
+    "beats": [2, 3, 3, 2, 2],
+    "desc": "K-pop 标准12秒：快起(hook 2s) - 中段(3s) - 高潮(3s) - 收(2s) - 尾 pose(2s)"
+  },
+  "fast_10s": {
+    "total_seconds": 10,
+    "beats": [1.5, 2, 2.5, 2, 2],
+    "desc": "高能快节奏10秒：极短 hook(1.5s) - 连续动作(2s+2.5s) - 收(2s) - 尾(2s)"
+  },
+  "slow_15s": {
+    "total_seconds": 15,
+    "beats": [2, 3, 4, 3, 3],
+    "desc": "慢节奏15秒：沉浸感强，适合 luxury 和 beach 风格"
+  },
+  "medium_18s": {
+    "total_seconds": 18,
+    "beats": [2, 4, 4, 4, 4],
+    "desc": "中速18秒：标准完整舞蹈展示，五段均衡结构"
+  },
+  "hiphop_12s": {
+    "total_seconds": 12,
+    "beats": [1, 2, 2, 3, 4],
+    "desc": "Hip-hop 渐进节奏：由快到慢积攒能量，最后一段给足时间展示高潮"
+  },
+  "energetic_10s": {
+    "total_seconds": 10,
+    "beats": [1, 2, 3, 2, 2],
+    "desc": "极速开场10秒：1秒 hook 立即吸睛，快节奏连贯动作"
+  },
+  "standard_20s": {
+    "total_seconds": 20,
+    "beats": [3, 4, 5, 4, 4],
+    "desc": "标准20秒：更长的高潮展示空间"
+  },
+  "long_30s": {
+    "total_seconds": 30,
+    "beats": [4, 5, 5, 6, 5, 5],
+    "desc": "加长30秒：完整舞蹈展示，多段结构设计"
+  }
+}

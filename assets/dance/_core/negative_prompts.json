@@ -1,0 +1,6 @@
+{
+  "_version": "1.0",
+  "universal": "extra fingers, bad anatomy, duplicate limbs, deformed face, motion artifacts, camera jitter, blur, crooked eyes, text, logo, watermark, ugly, disfigured, low quality, jpeg artifacts, mutated hands, extra limbs, cloned face, asymmetric face, prominent hands, hands toward camera, oily skin, glossy skin, plastic skin, shiny face, three hands, third arm, extra arm growing from body, arm behind back creating extra limb illusion, overlapping arms, arm clipping through torso, phantom limb, more than two arms, more than two hands",
+  "dance_specific": "stiff robotic freezing when should be moving, limbs clipping through body, impossible joint angles, feet floating above ground, dancer falling, off-balance collapse, multiple people in frame, ambiguous hand positions, hands in undefined locations, ghost hands, transparent extra limbs, merged arms, split arm",
+  "face_specific": "asymmetric eyes, melted features, double face, blurry face, distorted smile, drooping eye, unnatural skin texture"
+}

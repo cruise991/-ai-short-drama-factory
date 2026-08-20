@@ -1,0 +1,54 @@
+{
+  "_version": "1.0",
+  "_desc": "组合动作序列库",
+  "flower_standard": {
+    "duration": 13,
+    "sections": [
+      {
+        "time_range": "0-2s",
+        "action": "arms crossed in front of chest, looking directly at camera, standing still",
+        "camera": "static"
+      },
+      {
+        "time_range": "2-8s",
+        "action": "fast wrist rotation, alternating hands, flower hand dance motion continuously",
+        "camera": "static"
+      },
+      {
+        "time_range": "8-11s",
+        "action": "extremely fast one-handed wrist rotation, hip roll",
+        "camera": "slow_dolly_in"
+      },
+      {
+        "time_range": "11-13s",
+        "action": "sudden freeze frame, thumbs up pose, playful wink",
+        "camera": "static"
+      }
+    ]
+  },
+  "flower_advanced": {
+    "duration": 15,
+    "sections": [
+      {
+        "time_range": "0-3s",
+        "action": "slow graceful wrist rotation, gentle body sway",
+        "camera": "static"
+      },
+      {
+        "time_range": "3-10s",
+        "action": "fast wrist rotation, 360 degree body turn, fluid arm wave",
+        "camera": "orbit_close"
+      },
+      {
+        "time_range": "10-13s",
+        "action": "synchronized both hands flower rotation, high side kick",
+        "camera": "tracking_side"
+      },
+      {
+        "time_range": "13-15s",
+        "action": "freeze pose, intense confident stare",
+        "camera": "static"
+      }
+    ]
+  }
+}

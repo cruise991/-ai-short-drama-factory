@@ -1,0 +1,61 @@
+{
+  "dance_id": "DANCE_QING_TIAN_DA_LAO_YE",
+  "name": "青天大老爷",
+  "stats": {
+    "views": "过亿",
+    "difficulty": 1,
+    "virality": 4
+  },
+  "duration_range": [
+    8,
+    12
+  ],
+  "bpm": "100-110",
+  "tags": [
+    "青天大老爷",
+    "手势舞",
+    "萌",
+    "古风",
+    "搞笑"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_OVERSIZED_TEE"
+      ],
+      "bottom": [
+        "BOTTOM_JEANS"
+      ]
+    },
+    "scene": [
+      "SCENE_INDOOR_BEDROOM",
+      "SCENE_CORRIDOR"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-2s",
+      "name": "拱手",
+      "action_prompt": "双手合十拱手姿势，微鞠躬",
+      "expression": "严肃"
+    },
+    {
+      "time": "2-6s",
+      "name": "指天",
+      "action_prompt": "右手食指指天，左手拱手，身体左右摇摆",
+      "expression": "认真"
+    },
+    {
+      "time": "6-9s",
+      "name": "变脸",
+      "action_prompt": "双手比心，小跳",
+      "expression": "萌"
+    },
+    {
+      "time": "9-12s",
+      "name": "收尾",
+      "action_prompt": "恢复拱手姿势",
+      "expression": "wink"
+    }
+  ]
+}

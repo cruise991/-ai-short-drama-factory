@@ -1,0 +1,14 @@
+{
+  "white_studio": {
+    "prompt": "pure white seamless cyclorama studio background, extremely bright and clean, professional high-end fashion photography lighting, minimalist luxury",
+    "style": "luxury"
+  },
+  "color_backdrop": {
+    "prompt": "solid pastel pink seamless paper backdrop, softbox lighting, bright and airy, high-end editorial fashion style",
+    "style": "fashion"
+  },
+  "glass_pavilion": {
+    "prompt": "abstract modern glass pavilion, floating in the clouds, ethereal and bright, cinematic lighting, conceptual luxury design",
+    "style": "luxury"
+  }
+}

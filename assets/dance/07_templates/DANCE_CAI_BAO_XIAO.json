@@ -1,0 +1,83 @@
+{
+  "dance_id": "DANCE_CAI_BAO_XIAO",
+  "name": "白菜对我笑",
+  "stats": {
+    "views": "36亿",
+    "difficulty": 1,
+    "virality": 5
+  },
+  "duration_range": [
+    15,
+    20
+  ],
+  "bpm": "120-130",
+  "tags": [
+    "搞笑",
+    "魔性",
+    "手势舞",
+    "全民挑战"
+  ],
+  "recommendations": {
+    "character": {
+      "age": "AGE_YOUNG_ADULT",
+      "body": [
+        "BODY_SLIM",
+        "BODY_ATHLETIC"
+      ]
+    },
+    "outfit": {
+      "top": [
+        "TOP_CROP_TOP",
+        "TOP_OVERSIZED_TEE"
+      ],
+      "bottom": [
+        "BOTTOM_JEANS",
+        "BOTTOM_MINISKIRT"
+      ],
+      "shoes": [
+        "SHOE_SNEAKERS"
+      ],
+      "accessories": []
+    },
+    "scene": [
+      "SCENE_GRAFFITI_WALL",
+      "SCENE_PARK"
+    ],
+    "music": [
+      "MUSIC_POP",
+      "MUSIC_CHINESE_POP"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-3s",
+      "name": "起手式",
+      "action_prompt": "双手在胸前做抱白菜姿势，身体轻微左右摇摆",
+      "expression": "微笑看镜头"
+    },
+    {
+      "time": "3-8s",
+      "name": "核心白菜摇",
+      "action_prompt": "右手抬起挥手，左手做指白菜手势，身体随节奏左右摇摆幅度加大，原地踏步加轻微滑步，头部配合节奏点头",
+      "expression": "微笑看镜头"
+    },
+    {
+      "time": "8-13s",
+      "name": "变奏加速",
+      "action_prompt": "双手交替做白菜摇，加入360度慢转，滑步加踢腿",
+      "expression": "惊讶眨眼"
+    },
+    {
+      "time": "13-15s",
+      "name": "收尾定格",
+      "action_prompt": "双手比心，身体定格",
+      "expression": "wink加微笑"
+    }
+  ],
+  "camera_and_edit": {
+    "camera": "FRONT_EYE_LEVEL, MEDIUM_SHOT",
+    "edit_effects": [
+      "SPEED_RAMP on Chorus"
+    ]
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "_version": "1.0",
+  "_desc": "质量评估维度及权重。总分 100 分。低于 min_pass_score 则触发自动重试。",
+  "min_pass_score": 70,
+  "max_retries": 3,
+  "dimensions": {
+    "character_consistency": {
+      "weight": 25,
+      "desc": "人物外貌在所有 shot 中是否一致",
+      "check_type": "keyword_presence",
+      "check_desc": "所有 shot 的 visual_prompt 中是否包含 anchor_prompt 的关键词"
+    },
+    "temporal_continuity": {
+      "weight": 20,
+      "desc": "相邻 shot 的动作/运镜是否在 transition_graph 的合法路径上",
+      "check_type": "graph_traversal",
+      "check_desc": "遍历 timeline 验证每对相邻 (action_i, action_i+1) 是否在合法列表中"
+    },
+    "camera_stability": {
+      "weight": 15,
+      "desc": "运镜平滑性和景别节奏合理性",
+      "check_type": "graph_traversal",
+      "check_desc": "验证 camera 转换合法性，且不能连续 3 个相同景别"
+    },
+    "prompt_completeness": {
+      "weight": 15,
+      "desc": "每个 shot 的 Prompt 包含全部核心维度关键信息",
+      "check_type": "keyword_coverage",
+      "required_keywords": ["wearing", "in ", "performing", "camera"],
+      "check_desc": "检查 visual_prompt 中关键词覆盖率"
+    },
+    "hook_pose_presence": {
+      "weight": 10,
+      "desc": "第一个 shot 为 hook 类型，最后一个 shot 为 pose 类型",
+      "check_type": "type_check",
+      "check_desc": "timeline[0].type == hook AND timeline[-1].type == pose"
+    },
+    "prompt_length": {
+      "weight": 5,
+      "desc": "每个 Prompt 长度在 60-250 词之间",
+      "check_type": "length_range",
+      "min_words": 60,
+      "max_words": 250,
+      "check_desc": "60 <= word_count(visual_prompt) <= 250"
+    },
+    "diversity_score": {
+      "weight": 5,
+      "desc": "timeline 中动作多样性，不重复",
+      "check_type": "uniqueness_ratio",
+      "min_ratio": 0.6,
+      "check_desc": "len(set(action_ids)) / len(action_ids) >= 0.6"
+    },
+    "negative_prompt_present": {
+      "weight": 5,
+      "desc": "是否附带了有效的 negative prompt",
+      "check_type": "field_presence",
+      "check_desc": "negative_prompt 字段非空且长度 > 20 字符"
+    },
+    "action_id_prompt_consistency": {
+      "weight": 10,
+      "desc": "action_id 必须与 action_prompt 内容语义匹配",
+      "check_type": "semantic_match",
+      "check_desc": "从 hooks.json/poses.json/basic_moves.json 查找 action_id 对应的标准 prompt，与 storyboard 中 action_prompt 做文本相似度匹配，相似度 < 0.5 则判定不通过"
+    },
+    "limb_lock_presence": {
+      "weight": 10,
+      "desc": "每个 image prompt 中必须包含明确的肢体位置锁定描述",
+      "check_type": "keyword_presence",
+      "required_keywords": ["two arms", "two hands"],
+      "check_desc": "检查 image_prompt 和 golden_anchor 中是否包含肢体数量约束关键词"
+    }
+  }
+}

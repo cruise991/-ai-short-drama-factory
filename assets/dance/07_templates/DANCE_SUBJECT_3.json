@@ -1,0 +1,79 @@
+{
+  "dance_id": "DANCE_SUBJECT_3",
+  "name": "科目三",
+  "stats": {
+    "views": "病毒传播",
+    "difficulty": 3,
+    "virality": 5
+  },
+  "duration_range": [
+    15,
+    30
+  ],
+  "bpm": "130-140",
+  "tags": [
+    "科目三",
+    "崴脚步",
+    "丝滑",
+    "全球挑战",
+    "抽象"
+  ],
+  "recommendations": {
+    "character": {
+      "age": "AGE_YOUNG_ADULT"
+    },
+    "outfit": {
+      "top": [
+        "TOP_OVERSIZED_TEE"
+      ],
+      "bottom": [
+        "BOTTOM_JEANS",
+        "WIDE_LEG"
+      ],
+      "shoes": [
+        "SHOE_SNEAKERS"
+      ]
+    },
+    "scene": [
+      "SCENE_PARK",
+      "SCENE_STAIRS",
+      "SCENE_ROOFTOP"
+    ],
+    "music": [
+      "MUSIC_HIPHOP",
+      "CHINESE_DJ"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-3s",
+      "name": "起手式",
+      "action_prompt": "双脚并拢微蹲，双手胸前交叉",
+      "expression": "神秘微笑"
+    },
+    {
+      "time": "3-10s",
+      "name": "崴脚步核心",
+      "action_prompt": "脚踝内旋外滑之字步，上半身平稳手臂自然摆动，速度加快",
+      "expression": "神秘微笑"
+    },
+    {
+      "time": "10-18s",
+      "name": "丝滑手部",
+      "action_prompt": "双手做波浪动作，头部跟随，扭胯 Hip Roll",
+      "expression": "神秘微笑"
+    },
+    {
+      "time": "18-25s",
+      "name": "全身波浪",
+      "action_prompt": "从头到脚 Body Wave，180度转身，崴脚步加速",
+      "expression": "神秘微笑"
+    },
+    {
+      "time": "25-30s",
+      "name": "收尾",
+      "action_prompt": "双手展开定格",
+      "expression": "自信微笑"
+    }
+  ]
+}

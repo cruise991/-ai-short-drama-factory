@@ -1,0 +1,69 @@
+company_info:
+  name: "AutoMedia Virtual Company"
+  version: "1.0.0"
+  description: "A self-evolving AI media company driven by LangGraph state machine."
+
+global_kpi:
+  target_platform: ["TikTok", "YouTube Shorts"]
+  daily_video_output: 3
+  minimum_completion_rate: 0.35 # 35% target
+
+dance_factory:
+  default_duration_sec: 35
+  setup_duration_sec: 5
+  transition_duration_sec: 2
+  outro_duration_sec: 5
+  target_shot_count: 10
+  max_routine_level: 2
+  enable_pose_control: false
+  default_aspect_ratio: "9:16"
+  image_size: "768x1344"
+
+departments:
+  - id: "01_orchestration"
+    name: "Strategy & Task Breakdown Dept"
+    role: "Producer"
+    kpi: "Task Breakdown Accuracy & Deadline Met"
+    mcp_endpoints: []
+
+  - id: "02_planning"
+    name: "Content Planning Dept"
+    role: "Chief Editor & Scriptwriter"
+    kpi: "Script First-Pass Approval Rate"
+    mcp_endpoints:
+      - "mcp://web_scraper"
+      - "mcp://rag_knowledge"
+
+  - id: "03_production"
+    name: "Production Dept"
+    role: "Director & Sound Engineer"
+    kpi: "Asset Generation Speed & Low Defect Rate"
+    mcp_endpoints:
+      - "mcp://comfyui_flux"
+      - "mcp://kling_video"
+      - "mcp://fishspeech_tts"
+
+  - id: "04_qa_evolution"
+    name: "QA & Evolution Dept"
+    role: "Quality Assurance Specialist & Evolution Analyst"
+    kpi: "Video Sync Accuracy & Evolution Suggestion Rate"
+
+  - id: "05_supervisor"
+    name: "Supervisor Daemon Dept"
+    role: "Process Guardian & Tooling Supervisor"
+    kpi: "Deadlock Prevention & Health Monitoring"
+
+  - id: "06_post_production"
+    name: "Post-Production Dept"
+    role: "Montage Editor & Audio/Subtitle Mixer"
+    kpi: "Export Quality & Audio-Visual Alignment"
+
+  - id: "07_market_feedback"
+    name: "Market Feedback Dept"
+    role: "Market Analyst & Pattern Extraction Specialist"
+    kpi: "Feedback Loop Latency & Positive Pattern Yield"
+
+shared_resources:
+  - "projects/"
+  - "shared_tools/"
+  - "assets/"

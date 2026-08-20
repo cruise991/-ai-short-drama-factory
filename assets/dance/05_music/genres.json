@@ -1,0 +1,36 @@
+{
+  "_version": "1.0",
+  "_desc": "音乐模块，影响整体节奏与编排",
+  "genres": {
+    "hip_hop": {
+      "bpm_range": "80-110",
+      "style": "strong beats, clear rhythm",
+      "recommended_actions": ["HAND_FLOWER_BASIC", "BODY_BOUNCE", "ARM_CROSS"]
+    },
+    "pop": {
+      "bpm_range": "110-130",
+      "style": "melodic, electronic beats",
+      "recommended_actions": ["HAND_HEART", "HAND_WINK", "BODY_SWAY_LEFT_RIGHT"]
+    },
+    "kpop": {
+      "bpm_range": "120-140",
+      "style": "high energy, strong drops",
+      "recommended_actions": ["BODY_TURN", "FOOT_KICK", "HAND_FLOWER_BASIC"]
+    },
+    "electronic": {
+      "bpm_range": "120-130",
+      "style": "synthesizers, intense drops",
+      "recommended_actions": ["ARM_WAVE", "BODY_SHOULDER_SHIMMY", "FOOT_SLIDE"]
+    },
+    "rnb": {
+      "bpm_range": "60-90",
+      "style": "smooth, groovy",
+      "recommended_actions": ["BODY_HIP_ROLL", "ARM_CIRCLE", "FOOT_STEP_IN_PLACE"]
+    },
+    "chinese_pop": {
+      "bpm_range": "90-120",
+      "style": "catchy melody, resonant",
+      "recommended_actions": ["HAND_HEART", "HAND_THUMBS_UP", "BODY_SWAY_FORWARD_BACK"]
+    }
+  }
+}

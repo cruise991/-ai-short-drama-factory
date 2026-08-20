@@ -1,0 +1,34 @@
+{
+  "_version": "1.0",
+  "_desc": "镜头序列模板。Director Engine 直接调用这些经过验证的镜头排列顺序，而非随机选择。序列中的元素对应 camera_moves.json 的 key。",
+  "tiktok_classic": {
+    "name": "TikTok Classic",
+    "desc": "最经典的 TikTok 镜头节奏：脸部特写开场 → 半身 → 全身 → 脚部 → 脸部收尾，首尾呼应",
+    "sequence": ["slow_dolly_in", "static_wide", "orbit_wide", "tilt_up", "slow_dolly_in"],
+    "framing_sequence": ["close", "half_body", "full_body", "feet_close", "close"]
+  },
+  "reveal_build": {
+    "name": "Reveal Build",
+    "desc": "由远及近逐步揭示：先展示场景 → 中景引入人物 → 近景面部 → 中景动作 → 全景定格",
+    "sequence": ["dolly_out", "static_wide", "slow_dolly_in", "orbit_close", "static_wide"],
+    "framing_sequence": ["wide", "full_body", "medium", "medium_close", "wide"]
+  },
+  "orbit_showcase": {
+    "name": "Orbit Showcase",
+    "desc": "环绕展示型：适合展示服装和场景的立体感",
+    "sequence": ["slow_dolly_in", "orbit_close", "orbit_wide", "slow_dolly_in"],
+    "framing_sequence": ["close", "medium", "wide", "close"]
+  },
+  "power_impact": {
+    "name": "Power Impact",
+    "desc": "力量感镜头：低机位仰拍营造压迫感，适合健身和力量舞蹈",
+    "sequence": ["low_angle_push", "tilt_up", "static_wide", "orbit_close", "static_wide"],
+    "framing_sequence": ["low_close", "full_body", "wide", "medium", "wide"]
+  },
+  "dynamic_follow": {
+    "name": "Dynamic Follow",
+    "desc": "跟随动感型：手持和 FPV 营造临场感，适合街舞和高能动作",
+    "sequence": ["fpv_follow", "tracking_side", "handheld_close", "orbit_close", "slow_dolly_in"],
+    "framing_sequence": ["full_body", "medium", "close", "medium", "close"]
+  }
+}

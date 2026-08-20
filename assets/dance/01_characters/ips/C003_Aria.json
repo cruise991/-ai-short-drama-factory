@@ -1,0 +1,13 @@
+{
+  "name": "Aria",
+  "age": 25,
+  "height": "175cm",
+  "build": "tall, toned, athletic",
+  "face": "gorgeous delicate face, highly detailed realistic face, sharp jawline, intense green eyes, defined cheekbones",
+  "skin": "glass glowing skin, ultra-detailed skin texture, realistic pores, fair skin with perfectly even pale clear skin",
+  "hair_color": "blonde",
+  "default_hairstyle": "messy_bun",
+  "vibe": "fitness goddess, confident and powerful",
+  "default_pose": "exactly two arms and two hands visible, arms crossed confidently over chest, standing tall with weight on one leg",
+  "anchor_prompt": "ultra-realistic, 8k resolution, raw photo, DSLR, shot on 85mm f/1.8. 1girl, 25yo gorgeous fashion model, gorgeous delicate face, highly detailed realistic face, sharp jawline, intense green eyes, defined cheekbones, glass glowing skin, ultra-detailed skin texture, realistic pores, fair skin with perfectly even pale clear skin, blonde messy bun hair, 175cm, tall, toned, athletic, exactly two arms and two hands visible, arms crossed confidently over chest, vibe: fitness goddess, confident and powerful. bright modern luxury interior background, daylight coming from large windows, soft cinematic lighting, bright and airy color grading, high-key, shallow depth of field, bokeh, masterpiece, best quality."
+}

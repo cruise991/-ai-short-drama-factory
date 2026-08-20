@@ -1,0 +1,86 @@
+{
+  "_version": "1.0",
+  "_desc": "热点库。每个热点代表当前平台主流内容方向，priority 越高越优先选择。",
+  "2026_kpop_fastcut": {
+    "name": "K-pop Fast Cut",
+    "desc": "Korean idol style fast-paced cuts with face close-up hooks",
+    "music_style": "Fast K-pop",
+    "hook": "face_closeup_stare",
+    "preferred_dance": ["hip_bounce", "shoulder_roll", "body_wave"],
+    "preferred_camera": "slow_dolly_in",
+    "cut_pace": "0.6s per cut",
+    "priority": 0.9,
+    "tags": ["tiktok", "reels", "shorts", "douyin"]
+  },
+  "2026_cyber_dance": {
+    "name": "Cyberpunk Dance",
+    "desc": "Mechanical dance moves in neon-lit environments",
+    "music_style": "Electro / Trap",
+    "hook": "turn_from_back",
+    "preferred_dance": ["chest_pop", "body_wave", "robot_iso"],
+    "preferred_camera": "orbit_close",
+    "cut_pace": "1.5s per cut",
+    "priority": 0.7,
+    "tags": ["tiktok", "douyin"]
+  },
+  "2026_fitness_power": {
+    "name": "Fitness Power Move",
+    "desc": "Strength-based athletic dance moves in gym/studio",
+    "music_style": "Hip-hop / EDM",
+    "hook": "fast_zoom_in",
+    "preferred_dance": ["squat_bounce", "kick", "arm_swing"],
+    "preferred_camera": "low_angle_push",
+    "cut_pace": "2s per cut",
+    "preferred_style": "sporty",
+    "priority": 0.6,
+    "tags": ["reels", "xiaohongshu"]
+  },
+  "2026_luxury_slow": {
+    "name": "Luxury Slow Motion",
+    "desc": "Elegant slow-motion dance with premium fashion and cinematic lighting",
+    "music_style": "Slow R&B / Jazz",
+    "hook": "hair_flip_reveal",
+    "preferred_dance": ["body_wave", "hip_sway", "arm_swing"],
+    "preferred_camera": "orbit_wide",
+    "cut_pace": "3s per cut",
+    "priority": 0.5,
+    "tags": ["xiaohongshu", "reels"]
+  },
+  "2026_street_hiphop": {
+    "name": "Street Hip-hop",
+    "desc": "Raw street energy with dynamic hip-hop choreography",
+    "music_style": "Trap / Hip-hop",
+    "hook": "mirror_reflection",
+    "preferred_dance": ["foot_shuffle", "hip_bounce", "spin"],
+    "preferred_camera": "fpv_follow",
+    "cut_pace": "1s per cut",
+    "priority": 0.65,
+    "tags": ["tiktok", "douyin", "reels"]
+  },
+  "2026_kemuzisan_viral": {
+    "name": "科目三 Viral Dance",
+    "desc": "China's most viral street dance trend, hip-circle rotation, knee bounce, hair toss, endlessly loopable and addictive",
+    "music_style": "CN-Viral Phonk / 科目三 Remix",
+    "hook": "hair_flip_reveal",
+    "preferred_dance": ["hip_circle", "knee_bounce", "hair_toss", "hip_sway"],
+    "preferred_camera": "low_angle_pan",
+    "cut_pace": "1.5s per cut",
+    "preferred_style": "kemuzisan",
+    "preferred_bgm": "BGM_001",
+    "priority": 0.95,
+    "tags": ["douyin", "tiktok", "xiaohongshu", "shorts"]
+  },
+  "2026_guofeng_hanfu": {
+    "name": "国潮古风汉服",
+    "desc": "Chinese cultural revival aesthetic, flowing hanfu sleeves, traditional settings, ethereal feminine energy",
+    "music_style": "Ancient CN HipHop / 国风纯音乐",
+    "hook": "turn_from_back",
+    "preferred_dance": ["sleeve_wave", "spin", "body_wave"],
+    "preferred_camera": "orbit_wide",
+    "cut_pace": "2.5s per cut",
+    "preferred_style": "kemuzisan",
+    "preferred_bgm": "BGM_004",
+    "priority": 0.75,
+    "tags": ["xiaohongshu", "douyin", "bilibili"]
+  }
+}

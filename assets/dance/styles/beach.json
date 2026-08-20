@@ -1,0 +1,45 @@
+{
+  "style_id": "beach",
+  "name": "Beach & Summer",
+  "scenes": {
+    "golden_beach": {
+      "prompt": "pristine sandy beach at golden hour, gentle ocean waves, warm amber sunset light, relaxed and vibrant summer atmosphere",
+      "weight": 0.40
+    },
+    "beach_boardwalk": {
+      "prompt": "colorful beach boardwalk with palm trees, vibrant summer light, festive holiday atmosphere, blue sky and ocean in background",
+      "weight": 0.30
+    },
+    "poolside": {
+      "prompt": "luxury outdoor pool with turquoise water, sun loungers, clear blue sky, Mediterranean villa atmosphere",
+      "weight": 0.30
+    }
+  },
+  "lighting": {
+    "golden_sunset": { "prompt": "warm golden sunset light, long horizontal rays, beautiful sun flare, summer magic hour", "weight": 0.45 },
+    "bright_noon": { "prompt": "bright midday tropical sun, high-key natural lighting, vivid and saturated colors", "weight": 0.30 },
+    "blue_sky_ambient": { "prompt": "clear blue sky ambient daylight, soft and flattering natural fill light", "weight": 0.25 }
+  },
+  "costumes": {
+    "bikini_coverup": { "prompt": "colorful bikini top with flowy beach coverup skirt, strappy sandals, summer beach style", "weight": 0.35 },
+    "summer_mini_dress": { "prompt": "floral mini dress, wedge sandals, straw hat, effortless summer look", "weight": 0.35 },
+    "athletic_swimwear": { "prompt": "sporty one-piece swimsuit, athletic beach shorts, surf-style outfit", "weight": 0.30 }
+  },
+  "hairstyles": {
+    "beach_waves": { "prompt": "natural beach waves, sun-kissed and tousled, effortless summer hair", "weight": 0.40 },
+    "half_up_messy": { "prompt": "half-up messy bun with loose beach waves, casual and carefree", "weight": 0.35 },
+    "braided_back": { "prompt": "loose braids swept back, beachy boho style, free-spirited look", "weight": 0.25 }
+  },
+  "expressions": {
+    "joyful_smile": { "prompt": "bright joyful smile, eyes squinting in sunlight, pure summer happiness", "weight": 0.45 },
+    "carefree_laugh": { "prompt": "carefree laughing expression, head thrown back slightly, genuine summer joy", "weight": 0.30 },
+    "sultry_sun": { "prompt": "sultry sun-basking expression, half-closed eyes, sensual summer glow", "weight": 0.25 }
+  },
+  "effects": {
+    "prompt": "warm summer cinematic grade, golden tones, high saturation, 8K, lens flare, vacation photography aesthetic, vibrant and alive",
+    "negative": "cold tones, dark moody lighting, urban gritty look, winter atmosphere"
+  },
+  "music_style": "Latin Pop / House / Reggaeton",
+  "pace": "upbeat and groovy, 110-130 BPM feel",
+  "music_pace_hint": "latin pop groove, beach house vibes, carefree summer energy"
+}

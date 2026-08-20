@@ -1,0 +1,61 @@
+{
+  "style_id": "kemuzisan",
+  "name": "科目三 Viral Street",
+  "scenes": {
+    "basketball_court": {
+      "prompt": "outdoor basketball court at dusk, orange glow sunset, chain-link fence, urban street culture vibe, warm pavement light",
+      "weight": 0.35
+    },
+    "city_rooftop_night": {
+      "prompt": "city rooftop at night, glittering skyline background, cool urban breeze atmosphere, neon reflections on ground",
+      "weight": 0.30
+    },
+    "street_crosswalk": {
+      "prompt": "busy city crosswalk at night, bokeh car lights, neon shop signs reflecting on wet road, lively street energy",
+      "weight": 0.20
+    },
+    "dance_plaza": {
+      "prompt": "open-air urban plaza with smooth tiles, scattered spectators blurred in background, public street dance space, golden hour",
+      "weight": 0.15
+    }
+  },
+  "lighting": {
+    "warm_street_dusk": { "prompt": "warm amber dusk street light, long leading shadows, urban sunset golden backlight", "weight": 0.40 },
+    "neon_night_glow": { "prompt": "multicolored neon sign reflections, cool night city glow, dynamic light and shadow play", "weight": 0.35 },
+    "harsh_spotlight": { "prompt": "harsh overhead street spotlight on dancer, strong contrast shadow, street performance lighting", "weight": 0.25 }
+  },
+  "costumes": {
+    "kemuzisan_classic": {
+      "prompt": "oversized hip-hop cropped hoodie, high-waist black mini skirt, visible midriff, chunky platform sneakers, cap sideways, street style, showing waist",
+      "weight": 0.40
+    },
+    "mini_skirt_street": {
+      "prompt": "fitted crop top, ultra-mini A-line skirt, sneakers, casual streetwear accessories, energetic dance-ready outfit",
+      "weight": 0.35
+    },
+    "latin_street_fusion": {
+      "prompt": "form-fitting crop top, high-waist flared mini skirt, bold accessories, street dance fusion style, dynamic movement-friendly",
+      "weight": 0.25
+    }
+  },
+  "hairstyles": {
+    "loose_bouncy": { "prompt": "loose bouncy hair, swaying freely with movement, natural and energetic", "weight": 0.35 },
+    "high_ponytail": { "prompt": "high swinging ponytail, dynamic and sporty, hair trailing in motion", "weight": 0.30 },
+    "space_buns_street": { "prompt": "two messy space buns, street-ready playful hairstyle, youthful and bold", "weight": 0.20 },
+    "cap_hair": { "prompt": "backward baseball cap over loose hair, street hip-hop attitude", "weight": 0.15 }
+  },
+  "expressions": {
+    "viral_energy": { "prompt": "infectious viral energy, wide cheeky smile, totally in-the-zone dance face", "weight": 0.40 },
+    "cool_swag": { "prompt": "cool effortless swag, slight smirk, eyes confident and playful", "weight": 0.35 },
+    "intense_groove": { "prompt": "intense rhythmic focus, eyebrows raised, body fully surrendered to the beat", "weight": 0.25 }
+  },
+  "effects": {
+    "prompt": "cinematic vertical 9:16 framing, punchy vibrant colors, slight motion blur on limbs, street photography energy, high visual impact, masterpiece",
+    "negative": "static pose, no movement, studio white background, too formal, stiff expression"
+  },
+  "music_style": "科目三 Remix / Phonk-CN / Viral HipHop",
+  "pace": "groove-driven, 120-135 BPM",
+  "music_pace_hint": "infectious viral dance beat, strong hip groove, 科目三 rhythm energy, crowd-pleasing hook",
+  "preferred_bgm": "BGM_003",
+  "motion_hints": ["hip circle rotation", "knee bounce rhythm", "hair swaying side to side", "smooth hip sway walking", "figure-eight hip rotation"]
+}

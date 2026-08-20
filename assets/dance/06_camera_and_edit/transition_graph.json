@@ -1,0 +1,74 @@
+{
+  "_version": "1.0",
+  "_desc": "动作/运镜状态机。有向图定义合法衔接关系。key = 当前结束状态，value = 允许过渡到的下一状态列表（按流畅度降序）。非法过渡自动替换为列表第一个节点。",
+
+  "dance_transitions": {
+    "_comment": "动作过渡合法性图。避免突兀跳变如 hip_sway -> kick",
+    "hip_sway":       ["body_wave", "shoulder_roll", "hair_flip", "spin"],
+    "body_wave":      ["chest_pop", "hip_sway", "arm_swing", "spin"],
+    "chest_pop":      ["shoulder_roll", "body_wave", "arm_swing"],
+    "shoulder_roll":  ["hip_sway", "body_wave", "chest_pop", "hair_flip"],
+    "hair_flip":      ["spin", "hip_sway", "body_wave"],
+    "spin":           ["hip_sway", "squat_bounce", "arm_swing"],
+    "kick":           ["squat_bounce", "foot_shuffle", "hip_bounce"],
+    "squat_bounce":   ["hip_bounce", "kick", "body_wave"],
+    "arm_swing":      ["body_wave", "chest_pop", "spin"],
+    "hip_bounce":     ["hip_sway", "foot_shuffle", "squat_bounce"],
+    "robot_iso":      ["chest_pop", "body_wave", "arm_swing"],
+    "foot_shuffle":   ["hip_bounce", "kick", "spin"],
+    "face_closeup_stare": ["body_wave", "shoulder_roll", "hip_sway"],
+    "turn_from_back":     ["body_wave", "hip_sway", "chest_pop"],
+    "hair_flip_reveal":   ["body_wave", "shoulder_roll", "spin"],
+    "hand_block_reveal":  ["shoulder_roll", "hip_sway", "body_wave"],
+    "blink_wink":         ["hip_sway", "body_wave", "shoulder_roll"],
+    "mirror_reflection":  ["body_wave", "hip_sway", "shoulder_roll"],
+    "fast_zoom_in":       ["body_wave", "chest_pop", "hip_sway"]
+  },
+
+  "camera_transitions": {
+    "_comment": "运镜过渡合法性图。避免景别突变如 orbit_wide -> top_down",
+    "static_wide":     ["slow_dolly_in", "tilt_up", "tracking_side", "dolly_out"],
+    "slow_dolly_in":   ["orbit_close", "static_wide", "handheld_close"],
+    "dolly_out":       ["static_wide", "orbit_wide", "crane_down"],
+    "orbit_close":     ["orbit_wide", "slow_dolly_in", "static_wide"],
+    "orbit_wide":      ["orbit_close", "dolly_out", "static_wide"],
+    "low_angle_push":  ["tilt_up", "orbit_close", "static_wide"],
+    "tracking_side":   ["static_wide", "orbit_wide", "handheld_close"],
+    "fpv_follow":      ["tracking_side", "orbit_wide", "static_wide"],
+    "crane_down":      ["static_wide", "slow_dolly_in", "orbit_close"],
+    "handheld_close":  ["static_wide", "dolly_out", "orbit_close"],
+    "top_down":        ["crane_down", "static_wide", "dolly_out"],
+    "tilt_up":         ["static_wide", "orbit_close", "slow_dolly_in"]
+  },
+
+  "body_facing": {
+    "_comment": "朝向过渡合法性图。front 不能直接跳到 back，必须经过 side 过渡。",
+    "front":       ["front", "side_left", "side_right"],
+    "side_left":   ["front", "back", "side_left"],
+    "side_right":  ["front", "back", "side_right"],
+    "back":        ["side_left", "side_right", "back"]
+  },
+
+  "facing_infer": {
+    "_comment": "根据动作 key 推断默认的身体朝向",
+    "hip_sway":       "front",
+    "hair_flip":      "side_left",
+    "body_wave":      "front",
+    "chest_pop":      "front",
+    "shoulder_roll":  "front",
+    "spin":           "side_right",
+    "kick":           "side_left",
+    "squat_bounce":   "front",
+    "arm_swing":      "front",
+    "hip_bounce":     "front",
+    "robot_iso":      "front",
+    "foot_shuffle":   "front",
+    "face_closeup_stare": "front",
+    "turn_from_back":     "back",
+    "hair_flip_reveal":   "side_left",
+    "hand_block_reveal":  "front",
+    "blink_wink":         "front",
+    "mirror_reflection":  "back",
+    "fast_zoom_in":       "front"
+  }
+}

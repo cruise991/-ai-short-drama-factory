@@ -1,0 +1,71 @@
+{
+  "dance_id": "DANCE_LEMONADE_AESPA",
+  "name": "Lemonade",
+  "stats": {
+    "views": "千万级",
+    "difficulty": 3,
+    "virality": 4
+  },
+  "duration_range": [
+    15,
+    20
+  ],
+  "bpm": "120-125",
+  "tags": [
+    "aespa",
+    "Kpop",
+    "挤柠檬",
+    "女团舞",
+    "酷飒"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_CROP_TOP"
+      ],
+      "bottom": [
+        "BOTTOM_LEGGINGS"
+      ],
+      "shoes": [
+        "SHOE_HEELS",
+        "SHOE_SNEAKERS"
+      ],
+      "accessories": [
+        "ACCESSORY_NECKLACE"
+      ]
+    },
+    "scene": [
+      "SCENE_DANCE_STUDIO",
+      "SCENE_PARKING_LOT"
+    ],
+    "music": [
+      "MUSIC_KPOP"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-3s",
+      "name": "起手",
+      "action_prompt": "双手头顶做柠檬形状，微蹲",
+      "expression": "冷酷"
+    },
+    {
+      "time": "3-8s",
+      "name": "挤柠檬",
+      "action_prompt": "双手向下挤压，Body Wave，左右滑步，头部侧倾",
+      "expression": "冷酷"
+    },
+    {
+      "time": "8-13s",
+      "name": "加速段",
+      "action_prompt": "挤柠檬加速，转身，手臂波浪",
+      "expression": "自信微笑"
+    },
+    {
+      "time": "13-15s",
+      "name": "收尾",
+      "action_prompt": "双手放下定格",
+      "expression": "酷飒眼神"
+    }
+  ]
+}

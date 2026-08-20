@@ -1,0 +1,14 @@
+{
+  "name": "Lili",
+  "age": 23,
+  "height": "163cm",
+  "build": "fit healthy figure, well-proportioned",
+  "face": "gorgeous East Asian face, delicate features, soft rounded face, full cheeks, big bright eyes, sweet smiling expression, soft natural makeup",
+  "skin": "flawless glass glowing skin, ultra-detailed skin texture, realistic pores, fair skin, perfectly even clear skin",
+  "hair_color": "chestnut brown",
+  "default_hairstyle": "long voluminous wavy chestnut brown hair draped gracefully over shoulders",
+  "vibe": "sweet, energetic, elegant fashion model",
+  "default_pose": "standing straight facing camera, arms naturally at sides, gentle sweet smile, exactly two arms and two hands",
+  "anchor_prompt": "ultra-realistic, 8k resolution, raw photo, DSLR, shot on 85mm f/1.8. 1girl, 23yo gorgeous East Asian fashion model, soft rounded face, full cheeks, delicate features, big bright eyes, sweet smiling expression, flawless glass glowing skin, ultra-detailed skin texture, long voluminous wavy chestnut brown hair draped gracefully over shoulders, 163cm, fit healthy figure, well-proportioned, wearing a grey oversized t-shirt and dusty-pink sweatpants, standing in a clean minimalist modern interior room, soft natural indoor lighting, shallow depth of field, masterpiece, best quality.",
+  "reference_image": "images/C005_Lili_ref.jpeg"
+}

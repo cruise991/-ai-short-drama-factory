@@ -1,0 +1,34 @@
+{
+  "_version": "2.0",
+  "_desc": "固定化 Prompt 拼接模板。LLM 只允许按模板拼接，不允许改变结构。{var} 由引擎注入。",
+
+  "image_prompt_template": "Ultra-realistic 8K photorealistic. {character_base}, hair in {hairstyle}, {makeup_style}, {expression}, {limb_lock}, wearing {top_type} with {bottom_type} and {shoe_type}, accessories: {accessories}, in {scene_location}, {lighting}, {effects}, masterpiece, highly detailed",
+
+  "video_prompt_template": "Smooth tracking shot, ultra-realistic 8K resolution. {character_base}, hair in {hairstyle}, {makeup_style}, {expression}, {limb_lock}, wearing {top_type} with {bottom_type} and {shoe_type}, accessories: {accessories}, {continuity_prefix}, performing {action_sequence}, {camera_move}, in {scene_location}, {lighting}, {effects}, {music_pace_hint}, masterpiece, high visual density, cinematic",
+
+  "negative_template": "{universal_negative}, {dance_negative}, {style_negative}",
+
+  "slot_descriptions": {
+    "character_base": "从 characters.json 的 base_attributes 中抽样的基础外貌描述",
+    "hairstyle": "从 characters.json 的 hairstyles 中抽样的发型",
+    "makeup_style": "从 characters.json 的 makeup 中抽样的妆容",
+    "expression": "表情 prompt 字符串",
+    "limb_lock": "肢体位置锁定描述，明确每只手/臂的具体位置。来自角色 IP 的 default_pose 字段或由 Director Engine 根据 action 动态生成。格式示例: 'exactly two arms and two hands visible, right hand [位置], left hand [位置]'",
+    "top_type": "从 outfits.json 中抽样的上装",
+    "bottom_type": "从 outfits.json 中抽样的下装",
+    "shoe_type": "从 outfits.json 中抽样的鞋履",
+    "accessories": "从 outfits.json 中抽样的配饰",
+    "continuity_prefix": "Temporal Engine 生成的帧间连续性描述，第一帧为空字符串",
+    "action_sequence": "从 dance_moves.json 组装的动作描述",
+    "camera_move": "从 camera_moves.json 抽样的运镜描述",
+    "scene_location": "从 scenes.json 中抽样的场景描述",
+    "lighting": "灯光 prompt 字符串",
+    "effects": "特效/后处理 prompt 字符串",
+    "music_pace_hint": "音乐节奏 hint",
+    "universal_negative": "来自 negative_prompts.json 的 universal 字段",
+    "dance_negative": "来自 negative_prompts.json 的 dance_specific 字段",
+    "style_negative": "来自当前 style pack 的 effects.negative 字段"
+  },
+
+  "llm_system_prompt": "You are a Prompt Renderer. You do NOT make any creative decisions.\n\nYou will receive a JSON object with all creative decisions already made by the Director Engine. Your ONLY task:\n1. For each shot in the timeline, assemble the visual_prompt by filling in the fixed template:\n   \"{character_base}, hair in {hairstyle}, {makeup_style}, {expression}, wearing {top_type} with {bottom_type} and {shoe_type}, accessories: {accessories}, {continuity_prefix}, performing {action_sequence}, {camera_move}, in {scene_location}, {lighting}, {effects}, {music_pace_hint}, masterpiece, high visual density, cinematic\"\n2. For the first shot (hook), omit {continuity_prefix} slot entirely if it is null.\n3. You MAY adjust verb tense and minor prepositions to make the sentence grammatically smooth, but you MUST NOT add, remove, or change any key descriptors.\n4. Assemble the negative_prompt using: \"{universal_negative}, {dance_negative}, {style_negative}\"\n5. Output pure valid JSON with the same structure as input, only filling in visual_prompt and negative_prompt fields for each shot.\n6. Do NOT add any explanation, commentary, or extra text outside the JSON."
+}

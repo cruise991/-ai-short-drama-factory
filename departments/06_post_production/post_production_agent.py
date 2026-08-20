@@ -13,9 +13,7 @@ FFmpegWrapper = importlib.import_module("departments.06_post_production.tools.ff
 
 def _do_concat(workspace_dir, episode_dir, is_dance, beat_drop, clips, out_path, ffmpeg):
     if os.environ.get("RENDER_ENGINE") == "remotion":
-        import sys
-        sys.path.append(os.path.join(workspace_dir, "departments", "05_post_production"))
-        import montage_adapter
+        import departments.06_post_production.montage_adapter as montage_adapter
         beat_drops = [beat_drop] if beat_drop > 0.0 else []
         branch = "dance" if is_dance else "short_drama"
         montage_adapter.render_with_openmontage(

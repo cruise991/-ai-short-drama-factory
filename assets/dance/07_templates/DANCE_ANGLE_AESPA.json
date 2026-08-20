@@ -1,0 +1,64 @@
+{
+  "dance_id": "DANCE_ANGLE_AESPA",
+  "name": "Angel",
+  "stats": {
+    "views": "千万级",
+    "difficulty": 2,
+    "virality": 4
+  },
+  "duration_range": [
+    12,
+    15
+  ],
+  "bpm": "115-120",
+  "tags": [
+    "aespa",
+    "Angel",
+    "天使",
+    "梦幻",
+    "女团"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_SHIRT"
+      ],
+      "bottom": [
+        "BOTTOM_MAXI_SKIRT"
+      ],
+      "shoes": [
+        "SHOE_HEELS"
+      ]
+    },
+    "scene": [
+      "SCENE_ROOFTOP",
+      "SCENE_PARK"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-2s",
+      "name": "天使降临",
+      "action_prompt": "双手背后做收翼状，微蹲",
+      "expression": "神秘"
+    },
+    {
+      "time": "2-7s",
+      "name": "展翅",
+      "action_prompt": "双臂向两侧展开，慢慢站起，头部仰望，向前迈一步",
+      "expression": "神秘"
+    },
+    {
+      "time": "7-11s",
+      "name": "旋转",
+      "action_prompt": "360度旋转，手臂保持展开",
+      "expression": "微笑"
+    },
+    {
+      "time": "11-13s",
+      "name": "收尾",
+      "action_prompt": "双手放胸前定格",
+      "expression": "温柔"
+    }
+  ]
+}

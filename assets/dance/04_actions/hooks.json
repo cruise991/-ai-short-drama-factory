@@ -1,0 +1,53 @@
+{
+  "_version": "1.0",
+  "_desc": "开场钩子库。前2秒决定60%播放量。Director Engine 强制将 hook 注入第一个 shot。",
+  "face_closeup_stare": {
+    "prompt": "extreme close-up of face staring directly and intensely into camera lens, slight confident head tilt, eyes wide with magnetic pull",
+    "duration": 1.5,
+    "camera_key": "dolly_out",
+    "camera_prompt": "extreme face close-up starting static then slowly pulling back to reveal",
+    "energy": "high"
+  },
+  "turn_from_back": {
+    "prompt": "subject standing with back to camera in opening stance, then dramatically turns around with hair flying outward, eyes locking onto camera with direct confident gaze",
+    "duration": 2.0,
+    "camera_key": "static_wide",
+    "camera_prompt": "medium static shot from behind, subject turns to face camera",
+    "energy": "high"
+  },
+  "hair_flip_reveal": {
+    "prompt": "dramatic slow-motion hair flip to one side, hair fanning through air, face revealed underneath with fierce confident expression",
+    "duration": 1.5,
+    "camera_key": "orbit_close",
+    "camera_prompt": "close-up side angle with gentle orbital movement",
+    "energy": "medium"
+  },
+  "hand_block_reveal": {
+    "prompt": "palm of hand blocks camera view entirely in close-up, hand slowly pulls aside to reveal face with a bright smile and direct eye contact",
+    "duration": 1.5,
+    "camera_key": "slow_dolly_in",
+    "camera_prompt": "extreme close-up palm fill frame then reveal",
+    "energy": "medium"
+  },
+  "blink_wink": {
+    "prompt": "direct sustained eye contact with camera, slow deliberate blink, then playful confident wink at camera with slight smile",
+    "duration": 1.0,
+    "camera_key": "static_wide",
+    "camera_prompt": "face close-up, static and intimate",
+    "energy": "low"
+  },
+  "mirror_reflection": {
+    "prompt": "camera reveals subject's reflection in mirror first, subject seen in reflection with their back or side to us, then pans 180 degrees to reveal real subject facing forward",
+    "duration": 2.0,
+    "camera_key": "tracking_side",
+    "camera_prompt": "tracking shot from mirror reflection to reveal real subject",
+    "energy": "medium"
+  },
+  "fast_zoom_in": {
+    "prompt": "dramatic rapid zoom-in from full wide body shot to extreme face close-up in one fast continuous motion, landing on direct eye contact",
+    "duration": 1.0,
+    "camera_key": "slow_dolly_in",
+    "camera_prompt": "slow smooth dolly in movement, camera gliding from wide shot to extreme face close-up",
+    "energy": "high"
+  }
+}

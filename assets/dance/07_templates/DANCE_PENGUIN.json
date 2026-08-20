@@ -1,0 +1,64 @@
+{
+  "dance_id": "DANCE_PENGUIN",
+  "name": "企鹅舞",
+  "stats": {
+    "views": "千万级",
+    "difficulty": 1,
+    "virality": 4
+  },
+  "duration_range": [
+    10,
+    15
+  ],
+  "bpm": "110-120",
+  "tags": [
+    "企鹅",
+    "库里之歌",
+    "呆萌",
+    "简单好学",
+    "健身"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_HOODIE"
+      ],
+      "bottom": [
+        "BOTTOM_LEGGINGS"
+      ],
+      "shoes": [
+        "SHOE_CANVAS"
+      ]
+    },
+    "scene": [
+      "SCENE_SOLID_COLOR",
+      "SCENE_PARK_SNOW"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-2s",
+      "name": "企鹅亮相",
+      "action_prompt": "双臂紧贴身体两侧，双脚并拢，身体微前倾",
+      "expression": "呆萌"
+    },
+    {
+      "time": "2-7s",
+      "name": "企鹅摇摆",
+      "action_prompt": "身体髋部左右摇摆，小碎步左右移动，手臂夹紧",
+      "expression": "呆萌"
+    },
+    {
+      "time": "7-12s",
+      "name": "企鹅加速",
+      "action_prompt": "摇摆幅度加大，360度转身，手臂偶尔打开再合上",
+      "expression": "开心大笑"
+    },
+    {
+      "time": "12-15s",
+      "name": "定格",
+      "action_prompt": "恢复企鹅姿势，双手比V",
+      "expression": "wink"
+    }
+  ]
+}

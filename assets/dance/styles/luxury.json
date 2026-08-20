@@ -1,0 +1,49 @@
+{
+  "style_id": "luxury",
+  "name": "Luxury Editorial",
+  "scenes": {
+    "luxury_penthouse": {
+      "prompt": "ultra-modern luxury penthouse interior, floor-to-ceiling windows with city view, white marble floors, minimalist high-end furniture, evening blue hour light",
+      "weight": 0.35
+    },
+    "hotel_corridor": {
+      "prompt": "grand hotel corridor, ornate golden lighting fixtures, plush carpet, mirrored walls, opulent and timeless atmosphere",
+      "weight": 0.30
+    },
+    "rooftop_pool": {
+      "prompt": "infinity rooftop pool at sunset, glass edge overlooking city skyline, warm amber light reflecting on water, ultra-luxury atmosphere",
+      "weight": 0.20
+    },
+    "art_gallery": {
+      "prompt": "minimalist white art gallery space, gallery lighting on artwork, polished concrete floors, exclusive and sophisticated",
+      "weight": 0.15
+    }
+  },
+  "lighting": {
+    "blue_hour_luxury": { "prompt": "cinematic blue hour ambient light from panoramic windows, soft and sophisticated", "weight": 0.40 },
+    "warm_editorial": { "prompt": "warm editorial lighting, professional fashion photography style, dimensional and flattering", "weight": 0.35 },
+    "candlelight_glow": { "prompt": "warm intimate candlelight glow, soft shadows, luxurious and sensual atmosphere", "weight": 0.25 }
+  },
+  "costumes": {
+    "silk_dress": { "prompt": "flowing red silk slit dress, minimalist silver jewelry, strappy heels, elegant and glamorous evening wear", "weight": 0.35 },
+    "power_suit": { "prompt": "tailored cream blazer suit, cropped trousers, pointed-toe heels, powerful and refined", "weight": 0.30 },
+    "designer_coord": { "prompt": "matching designer coordinated set, structured crop top and high-waist skirt, statement earrings, high fashion", "weight": 0.35 }
+  },
+  "hairstyles": {
+    "sleek_low_bun": { "prompt": "sleek low chignon bun, polished and elegant, strands pulled tight", "weight": 0.35 },
+    "old_hollywood_waves": { "prompt": "old Hollywood glamour waves, perfectly coiffed, timeless sophistication", "weight": 0.35 },
+    "straight_sleek": { "prompt": "pin-straight ultra-sleek hair with center part, sharp and refined", "weight": 0.30 }
+  },
+  "expressions": {
+    "editorial_cold": { "prompt": "high fashion editorial cold expression, distant and untouchable, model intensity", "weight": 0.40 },
+    "seductive_smile": { "prompt": "subtle seductive smile, knowing eyes, mysterious allure", "weight": 0.35 },
+    "confident_gaze": { "prompt": "confident composed gaze, refined and commanding presence", "weight": 0.25 }
+  },
+  "effects": {
+    "prompt": "luxury editorial cinematic quality, rich color grade, creamy skin tones, 8K ultra detail, shallow depth of field, premium fashion photography standard",
+    "negative": "casual street look, flat lighting, low contrast, grunge aesthetic, athletic wear"
+  },
+  "music_style": "Slow R&B / Jazz Funk / Chill",
+  "pace": "slow and deliberate, 70-90 BPM feel",
+  "music_pace_hint": "slow jazz R&B groove, luxurious and unhurried pace, editorial sophistication"
+}

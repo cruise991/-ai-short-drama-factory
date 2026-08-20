@@ -1,0 +1,22 @@
+{
+  "bedroom": {
+    "prompt": "inside a luxurious, bright, airy modern Korean-style bedroom, high-end white furniture, sunlight streaming through sheer curtains, warm and inviting atmosphere, elegant aesthetic",
+    "style": "luxury"
+  },
+  "living_room": {
+    "prompt": "spacious luxury apartment living room, minimalist Korean design, large floor-to-ceiling windows, bright natural light, neutral beige and white tones, high-end furniture",
+    "style": "luxury"
+  },
+  "dance_studio": {
+    "prompt": "high-end pristine white dance studio, massive wall mirrors, polished light wood floor, extremely bright softbox lighting, commercial grade, airy atmosphere",
+    "style": "professional"
+  },
+  "walk_in_closet": {
+    "prompt": "bright elegant walk-in closet, high-end fashion boutique style, meticulously organized designer clothes, soft flattering LED lighting, pristine white cabinets",
+    "style": "luxury"
+  },
+  "cafe": {
+    "prompt": "chic aesthetic Korean cafe interior, pastel colors, bright sunlight, modern minimalist decor, elegant atmosphere",
+    "style": "casual"
+  }
+}

@@ -1,8 +1,7 @@
 import json
 import glob
-import os
-
-base_path = "/Users/workspace/ai_short_company/ai-short-drama/assets/dance/01_characters/ips/"
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+base_path = os.path.join(base_dir, "assets", "dance", "01_characters", "ips", "")
 files = glob.glob(base_path + "*.json")
 
 aesthetic_prefix = "ultra-realistic, 8k resolution, raw photo, DSLR, shot on 85mm f/1.8. "

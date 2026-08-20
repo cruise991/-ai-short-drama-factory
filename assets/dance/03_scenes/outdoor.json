@@ -1,0 +1,18 @@
+{
+  "street": {
+    "prompt": "high-end pristine commercial shopping street, modern glass architecture in background, bright daylight, cinematic depth of field, clean luxury aesthetic",
+    "style": "luxury"
+  },
+  "park": {
+    "prompt": "beautiful manicured green park, cherry blossoms, bright sunny natural lighting, airy and fresh atmosphere, cinematic Korean drama style",
+    "style": "fresh"
+  },
+  "rooftop": {
+    "prompt": "luxury penthouse rooftop, modern infinity pool and glass railings, bright golden hour sunlight, clear sky, cinematic high-end aesthetic",
+    "style": "luxury"
+  },
+  "resort": {
+    "prompt": "luxury tropical resort pathway, palm trees and pristine white architecture, extremely bright and sunny, vibrant natural colors, cinematic vacation vibe",
+    "style": "luxury"
+  }
+}

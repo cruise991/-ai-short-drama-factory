@@ -1,0 +1,61 @@
+{
+  "dance_id": "DANCE_HIME_ME_SHAKE",
+  "name": "姬芽摇",
+  "stats": {
+    "views": "千万级",
+    "difficulty": 1,
+    "virality": 4
+  },
+  "duration_range": [
+    10,
+    12
+  ],
+  "bpm": "130-140",
+  "tags": [
+    "姬芽摇",
+    "萌系",
+    "甜妹",
+    "可爱",
+    "手势舞"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_CROP_TOP"
+      ],
+      "bottom": [
+        "BOTTOM_MINISKIRT"
+      ]
+    },
+    "scene": [
+      "SCENE_PARK",
+      "SCENE_INDOOR_BEDROOM"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-2s",
+      "name": "亮相",
+      "action_prompt": "双手脸颊旁做花朵状，微蹲",
+      "expression": "甜美微笑"
+    },
+    {
+      "time": "2-6s",
+      "name": "核心摇摆",
+      "action_prompt": "双手胸前交替开花，身体快速左右摇摆，小碎步",
+      "expression": "甜美微笑"
+    },
+    {
+      "time": "6-9s",
+      "name": "变奏",
+      "action_prompt": "转身，双手做蝴蝶飞",
+      "expression": "开心大笑"
+    },
+    {
+      "time": "9-12s",
+      "name": "收尾",
+      "action_prompt": "双手比心定格",
+      "expression": "wink甜笑"
+    }
+  ]
+}
