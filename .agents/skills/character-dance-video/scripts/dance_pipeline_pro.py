@@ -128,8 +128,10 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
     base_url = os.getenv("AGNES_BASE_URL", "https://apihub.agnes-ai.com/v1").rstrip('/')
     
     negative_prompt = (
+        "plaid, large checkered pattern, large squares, windowpane check, thick lines, "
+        "belt, waistband, waist tie, bow, ribbon, drawstring, rope, belt buckle, elastic band on waist, "
+        "two-piece top, separated skirt, apron look, skirt length change, long dress, maxi dress, "
         "crouching, squatting, bent knees, hunchback, short legs, compressed height, lowered body, sinking posture, "
-        "long dress, maxi dress, floor length gown, skirt length change, dress covering knees, "
         "western face, caucasian, mature face, sharp jawline, facial features change, "
         "room change, furniture, sofas, indoor living room, bright room, "
         "cropped head, cropped feet, cropped body, top of head cut off, feet cut off, blurry, low quality, "
@@ -209,8 +211,13 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
 
     raise RuntimeError("Failed to generate video shot after multiple attempts")
 
-def extract_last_frame(video_path, output_png):
-    cmd = ["ffmpeg", "-y", "-sseof", "-0.1", "-i", video_path, "-vframes", "1", "-update", "1", output_png]
+def extract_last_frame_lossless(video_path, output_png):
+    cmd = [
+        "ffmpeg", "-y", "-sseof", "-0.1", "-i", video_path,
+        "-vf", "unsharp=3:3:0.5:3:3:0.0",
+        "-pix_fmt", "rgb24",
+        "-vframes", "1", "-update", "1", output_png
+    ]
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return output_png
 
@@ -268,8 +275,8 @@ def main():
         video_files.append(shot_mp4)
 
         if not is_last:
-            print(f"  [Extract & Upload] Shot {shot_id} last frame -> R2...")
-            extract_last_frame(shot_mp4, shot_png)
+            print(f"  [Extract & Upload] Shot {shot_id} last frame (Lossless + Unsharp) -> R2...")
+            extract_last_frame_lossless(shot_mp4, shot_png)
             current_start_url = upload_to_r2(shot_png, f"{args.style}_shot_{shot_id:02d}_last.png")
 
     print("\n>>> Step 5: Audio Director Preparing Master BGM Track <<<")

@@ -3,27 +3,33 @@ import os
 import re
 
 ARCHETYPES = {
+    'street': {
+        'subject': 'A gorgeous 20-year-old East Asian Japanese woman with shoulder-length dark brown straight hair and wispy bangs, cheerful radiant smile and voluptuous curvy figure',
+        'outfit': 'wearing a seamless one-piece grey and white micro-houndstooth textured sleeveless micro mini sundress with deep scoop neckline, flat smooth unembellished waistline with strictly NO belt, NO waist-tie, and NO elastic band, ultra-fine delicate micro-dot fabric texture, bare legs, and ankle-strap high heel sandals',
+        'scene': 'outdoor traditional Japanese wooden town street background with rustic wooden houses, pavement road and warm sunny daytime lighting, consistent architecture',
+        'style_keywords': ['street', 'town', 'japanese', 'houndstooth', 'sundress', 'wooden']
+    },
     'kpop': {
-        'subject': 'A gorgeous 20-year-old East Asian Korean female idol with short dark brown bob hair, soft delicate facial features, bright sweet joyful smile',
-        'outfit': 'wearing a white spaghetti-strap tank top, a high-waisted bright yellow pleated micro mini tennis skirt ending firmly at upper thighs, bare legs, and yellow high heel pumps',
+        'subject': 'A gorgeous 20-year-old East Asian Korean female idol with styled dark hair, soft delicate facial features, bright sweet joyful smile',
+        'outfit': 'wearing a fitted micro mini dress ending firmly at upper thighs, bare legs, and platform heels',
         'scene': 'pure minimalist dark stage background, subtle reflective floor, soft ambient rim lighting, no furniture, no rooms',
-        'style_keywords': ['kpop', 'idol', 'yellow skirt', 'mini skirt', 'tennis skirt', 'stage']
+        'style_keywords': ['kpop', 'idol', 'stage']
     },
     'fitness': {
-        'subject': 'A gorgeous 20-year-old East Asian athletic woman with long wavy dark brown hair, soft youthful sweet features, radiant smile',
+        'subject': 'A gorgeous 20-year-old East Asian athletic woman with long wavy dark brown hair, healthy glowing skin, radiant smile',
         'outfit': 'wearing a sports top and athletic compression leggings, bare legs or socks, and high heels',
-        'scene': 'clean minimalist light grey photo studio background, soft studio diffused lighting, solid neutral color palette',
+        'scene': 'clean minimalist light grey photo studio background, soft studio diffused lighting',
         'style_keywords': ['fitness', 'gym', 'athletic', 'leggings', 'sports', 'bra']
     }
 }
 
 CAMERA_LOCK = 'Full body shot, head to toe completely visible in frame, ample headroom above head, shoes visible, ultra tall slender 9-head model proportions, straight fully extended long legs, upright erect posture, stable fixed camera angle'
 
-def analyze_character_and_scene(image_path, user_desc=None, style_hint='kpop'):
+def analyze_character_and_scene(image_path, user_desc=None, style_hint='street'):
     filename = os.path.basename(image_path).lower() if image_path else ''
     desc_lower = (user_desc or '').lower()
     
-    selected_style = 'kpop'
+    selected_style = 'street'
     if style_hint and style_hint in ARCHETYPES:
         selected_style = style_hint
     else:
@@ -35,7 +41,7 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='kpop'):
     
     if user_desc:
         subject_layer = user_desc
-        parts = [CAMERA_LOCK, subject_layer, 'Exact same setting and 100% consistent character face, tall stature, and clothing length across all frames']
+        parts = [CAMERA_LOCK, subject_layer, 'Exact same setting and 100% consistent character face, tall stature, unembellished smooth waistline, and exact clothing texture across all frames']
     else:
         subject_layer = base_meta['subject']
         outfit_layer = base_meta['outfit']
@@ -54,5 +60,5 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='kpop'):
 if __name__ == '__main__':
     import sys
     test_img = sys.argv[1] if len(sys.argv) > 1 else 'test.png'
-    meta = analyze_character_and_scene(test_img, style_hint='kpop')
+    meta = analyze_character_and_scene(test_img, style_hint='street')
     print(meta['full_prompt_lock'])
