@@ -128,6 +128,7 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
     base_url = os.getenv("AGNES_BASE_URL", "https://apihub.agnes-ai.com/v1").rstrip('/')
     
     negative_prompt = (
+        "crouching, squatting, bent knees, hunchback, short legs, compressed height, lowered body, sinking posture, "
         "long dress, maxi dress, floor length gown, skirt length change, dress covering knees, "
         "western face, caucasian, mature face, sharp jawline, facial features change, "
         "room change, furniture, sofas, indoor living room, bright room, "
@@ -144,7 +145,7 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
 
         data = {
             "model": "agnes-video-v2.0",
-            "prompt": prompt + ", starting exactly from reference pose, seamless rhythm motion, identical clothing and face",
+            "prompt": prompt + ", standing ultra tall with long straight legs, seamless rhythm motion, identical clothing and face",
             "width": width,
             "height": height,
             "num_frames": 121,
@@ -216,10 +217,10 @@ def extract_last_frame(video_path, output_png):
 def main():
     parser = argparse.ArgumentParser(description="Character Consistent Dance Skill Pipeline Pro")
     parser.add_argument("--input-image", required=True, help="Path to character reference image")
-    parser.add_argument("--duration", type=int, default=30, help="Total video duration in seconds (15, 20, 25, 30, 40)")
+    parser.add_argument("--duration", type=int, default=20, help="Total video duration in seconds (15, 20, 25, 30, 40)")
     parser.add_argument("--style", default="kpop", choices=["fitness", "kpop", "street", "luxury"], help="Dance style archetype")
     parser.add_argument("--prompt-desc", default=None, help="Optional custom character/scene description override")
-    parser.add_argument("--bpm", type=int, default=120, help="Music tempo in BPM")
+    parser.add_argument("--bpm", type=int, default=128, help="Music tempo in BPM")
     parser.add_argument("--bgm", default=None, help="Optional path to custom BGM audio file or preset")
     parser.add_argument("--output", required=True, help="Path for final audited output MP4 video")
     args = parser.parse_args()
@@ -254,22 +255,18 @@ def main():
         shot_mp4 = os.path.join(out_dir, f"skill_shot_{shot_id:02d}.mp4")
         shot_png = os.path.join(out_dir, f"skill_shot_{shot_id:02d}_last_frame.png")
 
-        if os.path.exists(shot_mp4) and os.path.getsize(shot_mp4) > 100000:
-            print(f"  [Shot {shot_id}/{num_shots} Cached] {shot_mp4} exists. Skipping API call.")
+        if is_last:
+            print(f"\n  [Shot {shot_id}/{num_shots}] Keyframes Loop Closure Mode...")
+            generate_video_shot(shot["prompt"], shot_mp4, current_start_url, end_url, key_idx=i)
         else:
-            if is_last:
-                print(f"\n  [Shot {shot_id}/{num_shots}] Keyframes Loop Closure Mode...")
-                generate_video_shot(shot["prompt"], shot_mp4, current_start_url, end_url, key_idx=i)
-            else:
-                print(f"\n  [Shot {shot_id}/{num_shots}] Chaining Mode...")
-                generate_video_shot(shot["prompt"], shot_mp4, current_start_url, key_idx=i)
+            print(f"\n  [Shot {shot_id}/{num_shots}] Chaining Mode...")
+            generate_video_shot(shot["prompt"], shot_mp4, current_start_url, key_idx=i)
 
         video_files.append(shot_mp4)
 
         if not is_last:
-            if not os.path.exists(shot_png) or os.path.getsize(shot_png) < 1000:
-                print(f"  [Extract & Upload] Shot {shot_id} last frame -> R2...")
-                extract_last_frame(shot_mp4, shot_png)
+            print(f"  [Extract & Upload] Shot {shot_id} last frame -> R2...")
+            extract_last_frame(shot_mp4, shot_png)
             current_start_url = upload_to_r2(shot_png, f"{args.style}_shot_{shot_id:02d}_last.png")
 
     print("\n>>> Step 5: Audio Director Preparing Master BGM Track <<<")

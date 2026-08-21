@@ -3,33 +3,21 @@ import os
 import re
 
 ARCHETYPES = {
+    'kpop': {
+        'subject': 'A gorgeous 20-year-old East Asian Korean female idol with short dark brown bob hair, soft delicate facial features, bright sweet joyful smile',
+        'outfit': 'wearing a white spaghetti-strap tank top, a high-waisted bright yellow pleated micro mini tennis skirt ending firmly at upper thighs, bare legs, and yellow high heel pumps',
+        'scene': 'pure minimalist dark stage background, subtle reflective floor, soft ambient rim lighting, no furniture, no rooms',
+        'style_keywords': ['kpop', 'idol', 'yellow skirt', 'mini skirt', 'tennis skirt', 'stage']
+    },
     'fitness': {
         'subject': 'A gorgeous 20-year-old East Asian athletic woman with long wavy dark brown hair, soft youthful sweet features, radiant smile',
-        'outfit': 'wearing a black and red sports crop top bra, high-waisted white compression athletic leggings, black over-the-knee high socks, and red high heel shoes',
+        'outfit': 'wearing a sports top and athletic compression leggings, bare legs or socks, and high heels',
         'scene': 'clean minimalist light grey photo studio background, soft studio diffused lighting, solid neutral color palette',
-        'style_keywords': ['fitness', 'gym', 'athletic', 'leggings', 'sports', 'bra', 'workout']
-    },
-    'street': {
-        'subject': 'A stylish 20-year-old East Asian young woman with long dark wavy hair, delicate natural facial features, smiling charmingly',
-        'outfit': 'wearing a black sleeveless turtleneck crop top, a high-waisted white asymmetrical slit midi skirt, gold necklace, and silver high heel pumps',
-        'scene': 'outdoor modern city street background with high-rise buildings and sunny daytime lighting, consistent urban architecture',
-        'style_keywords': ['street', 'city', 'urban', 'skirt', 'slit', 'outdoor']
-    },
-    'kpop': {
-        'subject': 'A charming 20-year-old East Asian Korean female idol with long styled dark hair, soft delicate facial features, bright sweet joyful smile',
-        'outfit': 'wearing a white sleeveless micro mini dress ending firmly at upper thighs with side pleated detail, legs fully visible, and platform peep-toe heels',
-        'scene': 'pure minimalist dark stage background, subtle reflective floor, soft ambient rim lighting, no furniture, no rooms',
-        'style_keywords': ['kpop', 'idol', 'whitedress', 'mini dress', 'stage', 'dark stage']
-    },
-    'luxury': {
-        'subject': 'An elegant 20-year-old East Asian woman with soft delicate features, styled long dark wavy hair, poised sweet smile',
-        'outfit': 'wearing a white sleeveless micro mini dress ending at upper thighs, legs fully visible, and high heel platform pumps',
-        'scene': 'pure dark minimalist studio stage background with soft floor reflection, no furniture, no walls',
-        'style_keywords': ['luxury', 'glamour', 'dress', 'cocktail']
+        'style_keywords': ['fitness', 'gym', 'athletic', 'leggings', 'sports', 'bra']
     }
 }
 
-CAMERA_LOCK = 'Full body shot, head to toe completely visible in frame, ample headroom above head, shoes visible, centered composition, stable fixed camera angle'
+CAMERA_LOCK = 'Full body shot, head to toe completely visible in frame, ample headroom above head, shoes visible, ultra tall slender 9-head model proportions, straight fully extended long legs, upright erect posture, stable fixed camera angle'
 
 def analyze_character_and_scene(image_path, user_desc=None, style_hint='kpop'):
     filename = os.path.basename(image_path).lower() if image_path else ''
@@ -45,12 +33,9 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='kpop'):
                 break
     base_meta = ARCHETYPES[selected_style]
     
-    # If user provides description, 100% honor user input and DO NOT append conflicting archetype scenes
     if user_desc:
         subject_layer = user_desc
-        scene_layer = ''
-        outfit_layer = ''
-        parts = [CAMERA_LOCK, subject_layer, 'Exact same setting and 100% consistent character face and clothing length across all frames']
+        parts = [CAMERA_LOCK, subject_layer, 'Exact same setting and 100% consistent character face, tall stature, and clothing length across all frames']
     else:
         subject_layer = base_meta['subject']
         outfit_layer = base_meta['outfit']
@@ -63,8 +48,6 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='kpop'):
         'style': selected_style,
         'camera_lock': CAMERA_LOCK,
         'subject_layer': subject_layer,
-        'outfit_layer': outfit_layer,
-        'scene_layer': scene_layer,
         'full_prompt_lock': prompt_lock
     }
 
