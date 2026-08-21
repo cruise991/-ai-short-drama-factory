@@ -217,10 +217,11 @@ def extract_last_frame(video_path, output_png):
 def main():
     parser = argparse.ArgumentParser(description="Character Consistent Dance Skill Pipeline Pro")
     parser.add_argument("--input-image", required=True, help="Path to character reference image")
-    parser.add_argument("--duration", type=int, default=20, help="Total video duration in seconds (15, 20, 25, 30, 40)")
-    parser.add_argument("--style", default="kpop", choices=["fitness", "kpop", "street", "luxury"], help="Dance style archetype")
+    parser.add_argument("--duration", type=int, default=30, help="Total video duration in seconds (15, 20, 25, 30, 40)")
+    parser.add_argument("--template", default=None, help="Dance template ID or name from assets/dance/07_templates (e.g. DANCE_THAI_SWAY)")
+    parser.add_argument("--style", default="street", choices=["fitness", "kpop", "street", "luxury"], help="Dance style archetype")
     parser.add_argument("--prompt-desc", default=None, help="Optional custom character/scene description override")
-    parser.add_argument("--bpm", type=int, default=128, help="Music tempo in BPM")
+    parser.add_argument("--bpm", type=int, default=115, help="Music tempo in BPM")
     parser.add_argument("--bgm", default=None, help="Optional path to custom BGM audio file or preset")
     parser.add_argument("--output", required=True, help="Path for final audited output MP4 video")
     args = parser.parse_args()
@@ -230,7 +231,9 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
 
     print(f"\n========================================================")
-    print(f"🚀 Character Dance Skill Pipeline Pro ({args.duration}s, {num_shots} Shots, {args.style.upper()} Style, {args.bpm} BPM)")
+    print(f"🚀 Character Dance Skill Pipeline Pro ({args.duration}s, {num_shots} Shots, Style: {args.style.upper()}, BPM: {args.bpm})")
+    if args.template:
+        print(f"🎯 Template Mode: {args.template}")
     print(f"========================================================\n")
 
     print(">>> Step 1: Character & Scene Feature Analysis <<<")
@@ -242,7 +245,7 @@ def main():
     initial_url = upload_to_r2(args.input_image)
 
     print("\n>>> Step 3: Planning Professional Choreography <<<")
-    shots = plan_choreography(style=args.style, duration=args.duration, bpm=args.bpm, char_lock_prompt=char_lock_prompt)
+    shots = plan_choreography(style=args.style, duration=args.duration, bpm=args.bpm, char_lock_prompt=char_lock_prompt, template_id=args.template)
 
     video_files = []
     current_start_url = initial_url
