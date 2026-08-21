@@ -10,7 +10,12 @@ from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/dance", tags=["dance"])
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+# Auto-adapt for Docker (/workspace) or local host filesystem
+if os.path.exists("/workspace/assets/dance/07_templates"):
+    BASE_DIR = "/workspace"
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 TEMPLATES_DIR = os.path.join(BASE_DIR, "assets", "dance", "07_templates")
 OUT_DIR = os.path.join(BASE_DIR, "out", "web_dance_studio")
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -128,7 +133,6 @@ async def generate_dance_video(
             try:
                 with open(t_path, "r", encoding="utf-8") as tf:
                     t_data = json.load(tf)
-                    # If bpm string is e.g. '120-125', take middle or first
                     raw_bpm = t_data.get("bpm", "128")
                     if "-" in str(raw_bpm):
                         bpm = int(raw_bpm.split("-")[0].strip())

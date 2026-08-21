@@ -7,7 +7,6 @@ import asyncio
 
 app = FastAPI(title="AI Short Drama & Dance API", version="1.0.0")
 
-app.add_middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,7 +15,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if os.path.exists("/workspace/out"):
+    BASE_DIR = "/workspace"
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 OUT_DIR = os.path.join(BASE_DIR, "out")
 PROJECTS_DIR = os.path.join(BASE_DIR, "projects")
 os.makedirs(OUT_DIR, exist_ok=True)
