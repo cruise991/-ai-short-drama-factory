@@ -1,0 +1,61 @@
+company_info:
+  description: A self-evolving AI media company driven by LangGraph state machine.
+  name: AutoMedia Virtual Company
+  version: 1.0.0
+dance_factory:
+  default_aspect_ratio: '9:16'
+  default_duration_sec: 35
+  enable_pose_control: false
+  image_size: 768x1344
+  max_routine_level: 2
+  outro_duration_sec: 5
+  setup_duration_sec: 5
+  target_shot_count: 10
+  transition_duration_sec: 2
+departments:
+- id: 01_orchestration
+  kpi: Task Breakdown Accuracy & Deadline Met
+  mcp_endpoints: []
+  name: Strategy & Task Breakdown Dept
+  role: Producer
+- id: 02_planning
+  kpi: Script First-Pass Approval Rate
+  mcp_endpoints:
+  - mcp://web_scraper
+  - mcp://rag_knowledge
+  name: Content Planning Dept
+  role: Chief Editor & Scriptwriter
+- id: 03_production
+  kpi: Asset Generation Speed & Low Defect Rate
+  mcp_endpoints:
+  - mcp://comfyui_flux
+  - mcp://kling_video
+  - mcp://fishspeech_tts
+  name: Production Dept
+  role: Director & Sound Engineer
+- id: 04_qa_evolution
+  kpi: Video Sync Accuracy & Evolution Suggestion Rate
+  name: QA & Evolution Dept
+  role: Quality Assurance Specialist & Evolution Analyst
+- id: 05_supervisor
+  kpi: Deadlock Prevention & Health Monitoring
+  name: Supervisor Daemon Dept
+  role: Process Guardian & Tooling Supervisor
+- id: 06_post_production
+  kpi: Export Quality & Audio-Visual Alignment
+  name: Post-Production Dept
+  role: Montage Editor & Audio/Subtitle Mixer
+- id: 07_market_feedback
+  kpi: Feedback Loop Latency & Positive Pattern Yield
+  name: Market Feedback Dept
+  role: Market Analyst & Pattern Extraction Specialist
+global_kpi:
+  daily_video_output: 3
+  minimum_completion_rate: 0.35
+  target_platform:
+  - TikTok
+  - YouTube Shorts
+shared_resources:
+- projects/
+- shared_tools/
+- assets/

@@ -8,3 +8,5 @@ langgraph>=0.0.26
 boto3>=1.28.0
 ffmpeg-python>=0.2.0
 websockets>=11.0.3
+
+python-multipart>=0.0.9

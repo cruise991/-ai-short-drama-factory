@@ -6,9 +6,22 @@ from typing import Dict, Any
 
 router = APIRouter(prefix="/api/config", tags=["config"])
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ENV_PATH = os.path.join(BASE_DIR, ".env")
-YAML_PATH = os.path.join(BASE_DIR, "company_config.yaml")
+if os.path.exists("/workspace"):
+    BASE_DIR = "/workspace"
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+def get_env_path():
+    for p in ["/app/.env", os.path.join(BASE_DIR, ".env")]:
+        if os.path.exists(p) and not os.path.isdir(p):
+            return p
+    return os.path.join(BASE_DIR, ".env")
+
+def get_yaml_path():
+    for p in ["/app/company_config.yaml", os.path.join(BASE_DIR, "config", "company_config.yaml"), os.path.join(BASE_DIR, "company_config.yaml")]:
+        if os.path.exists(p) and not os.path.isdir(p):
+            return p
+    return os.path.join(BASE_DIR, "config", "company_config.yaml")
 
 class ConfigUpdate(BaseModel):
     env_vars: Dict[str, str] = {}
@@ -17,8 +30,9 @@ class ConfigUpdate(BaseModel):
 @router.get("/")
 def get_config():
     env_data = {}
-    if os.path.exists(ENV_PATH):
-        with open(ENV_PATH, "r", encoding="utf-8") as f:
+    env_path = get_env_path()
+    if os.path.exists(env_path) and not os.path.isdir(env_path):
+        with open(env_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -28,8 +42,9 @@ def get_config():
                     env_data[k.strip()] = v.strip()
                     
     yaml_data = {}
-    if os.path.exists(YAML_PATH):
-        with open(YAML_PATH, "r", encoding="utf-8") as f:
+    yaml_path = get_yaml_path()
+    if os.path.exists(yaml_path) and not os.path.isdir(yaml_path):
+        with open(yaml_path, "r", encoding="utf-8") as f:
             yaml_data = yaml.safe_load(f) or {}
 
     return {
@@ -39,11 +54,12 @@ def get_config():
 
 @router.post("/")
 def update_config(payload: ConfigUpdate):
+    env_path = get_env_path()
     # Update .env
     if payload.env_vars:
         env_lines = []
-        if os.path.exists(ENV_PATH):
-            with open(ENV_PATH, "r", encoding="utf-8") as f:
+        if os.path.exists(env_path) and not os.path.isdir(env_path):
+            with open(env_path, "r", encoding="utf-8") as f:
                 env_lines = f.readlines()
         
         updated_keys = set()
@@ -65,21 +81,22 @@ def update_config(payload: ConfigUpdate):
                     new_lines.append("\n")
                 new_lines.append(f"{k}={v}\n")
                 
-        with open(ENV_PATH, "w", encoding="utf-8") as f:
+        with open(env_path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)
             
     # Update company_config.yaml
     if payload.yaml_vars:
+        yaml_path = get_yaml_path()
         yaml_data = {}
-        if os.path.exists(YAML_PATH):
-            with open(YAML_PATH, "r", encoding="utf-8") as f:
+        if os.path.exists(yaml_path) and not os.path.isdir(yaml_path):
+            with open(yaml_path, "r", encoding="utf-8") as f:
                 yaml_data = yaml.safe_load(f) or {}
                 
         # Deep merge payload.yaml_vars into yaml_data
         for k, v in payload.yaml_vars.items():
             yaml_data[k] = v
             
-        with open(YAML_PATH, "w", encoding="utf-8") as f:
+        with open(yaml_path, "w", encoding="utf-8") as f:
             yaml.dump(yaml_data, f, allow_unicode=True, default_flow_style=False)
             
     return {"status": "success", "message": "Configuration updated successfully"}

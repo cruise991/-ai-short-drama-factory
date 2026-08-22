@@ -1,0 +1,6 @@
+interface:
+  display_name: "AIGC剧本证据化会诊"
+  short_description: "结合用户整片反应，给出证据化诊断、修订合同和复验结论"
+  default_prompt: "Use $diagnose-aigc-screenplay to combine my whole-film response with textual evidence, show the root revision package, and wait for scope alignment before revision."
+policy:
+  allow_implicit_invocation: true

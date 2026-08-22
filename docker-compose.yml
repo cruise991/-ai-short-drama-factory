@@ -21,7 +21,7 @@ services:
       - ./server:/app
       - .:/workspace
       - ./.env:/app/.env
-      - ./company_config.yaml:/app/company_config.yaml
+      - ./config/company_config.yaml:/app/company_config.yaml
       - ./projects:/app/projects
       - ./data:/app/data # SQLite Database storage
     restart: unless-stopped

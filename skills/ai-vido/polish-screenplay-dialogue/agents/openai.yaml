@@ -1,0 +1,6 @@
+interface:
+  display_name: "AIGC台词与表演共创"
+  short_description: "先与用户对齐表演声音模式，再精修台词、沉默、节奏和口型"
+  default_prompt: "Use $polish-screenplay-dialogue to align the performance and voice mode with me before merging the full dialogue and behavior pass."
+policy:
+  allow_implicit_invocation: true
