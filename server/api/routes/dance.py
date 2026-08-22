@@ -56,7 +56,7 @@ def get_dance_templates():
             print(f"Error reading template {fpath}: {e}")
     return templates
 
-def run_dance_generation(task_id: str, input_image_path: str, duration: int, style: str, prompt_desc: Optional[str], bpm: int):
+def run_dance_generation(task_id: str, input_image_path: str, duration: int, style: str, prompt_desc: Optional[str], bpm: int, template_id: Optional[str] = None):
     try:
         dance_tasks[task_id]["status"] = "processing"
         dance_tasks[task_id]["progress"] = 10
@@ -75,6 +75,8 @@ def run_dance_generation(task_id: str, input_image_path: str, duration: int, sty
         ]
         if prompt_desc:
             cmd.extend(["--prompt-desc", prompt_desc])
+        if template_id:
+            cmd.extend(["--template", template_id])
         
         dance_tasks[task_id]["progress"] = 25
         dance_tasks[task_id]["message"] = "Generating sequential dance shots with keyframes loop closure..."
@@ -152,7 +154,7 @@ async def generate_dance_video(
         "video_url": None
     }
     
-    background_tasks.add_task(run_dance_generation, task_id, saved_img_path, duration, style, prompt_desc, bpm)
+    background_tasks.add_task(run_dance_generation, task_id, saved_img_path, duration, style, prompt_desc, bpm, template_id)
     return {"task_id": task_id, "status": "queued"}
 
 @router.get("/tasks/{task_id}")

@@ -281,7 +281,7 @@ def main():
 
     print("\n>>> Step 5: Audio Director Preparing Master BGM Track <<<")
     bgm_path = os.path.join(out_dir, f"master_bgm_{args.duration}s.wav")
-    prepare_dance_bgm(bgm_path, duration_sec=float(args.duration), style=args.style, custom_bgm=args.bgm, bpm=args.bpm)
+    prepare_dance_bgm(bgm_path, duration_sec=float(args.duration), style=args.style, template_id=args.template, custom_bgm=args.bgm, bpm=args.bpm)
 
     print("\n>>> Step 6: Safe Two-Step Muxing & Encoding <<<")
     robust_video_concat(video_files, bgm_path, args.output)
