@@ -43,7 +43,7 @@ export default function DanceStudio() {
 
   const fetchTemplates = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/api/dance/templates')
+      const res = await axios.get('http://localhost:8008/api/dance/templates')
       setTemplates(res.data)
       if (res.data.length > 0) {
         setSelectedTemplate(res.data[0])
@@ -93,7 +93,7 @@ export default function DanceStudio() {
         formData.append('prompt_desc', promptDesc.trim())
       }
 
-      const res = await axios.post('http://localhost:8000/api/dance/generate', formData)
+      const res = await axios.post('http://localhost:8008/api/dance/generate', formData)
       const taskId = res.data.task_id
       pollTaskStatus(taskId)
     } catch (err: any) {
@@ -105,7 +105,7 @@ export default function DanceStudio() {
   const pollTaskStatus = (taskId: string) => {
     const interval = setInterval(async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/api/dance/tasks/${taskId}`)
+        const res = await axios.get(`http://localhost:8008/api/dance/tasks/${taskId}`)
         const taskData = res.data
         setCurrentTask(taskData)
 
@@ -332,7 +332,7 @@ export default function DanceStudio() {
                 <div className="mt-4 pt-4 border-t border-gray-800 flex flex-col md:flex-row gap-6 items-center">
                   <div className="w-full md:w-64 aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl border border-gray-800">
                     <video 
-                      src={`http://localhost:8000${currentTask.video_url}`} 
+                      src={`http://localhost:8008${currentTask.video_url}`} 
                       controls 
                       autoPlay 
                       loop 
@@ -348,7 +348,7 @@ export default function DanceStudio() {
                     </ul>
                     <div className="pt-2">
                       <a
-                        href={`http://localhost:8000${currentTask.video_url}`}
+                        href={`http://localhost:8008${currentTask.video_url}`}
                         download
                         className="inline-flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-green-500/20 transition-all"
                       >
