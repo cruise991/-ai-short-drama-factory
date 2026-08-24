@@ -7,20 +7,25 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.pa
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'assets', 'dance', '07_templates')
 
 ACTION_TRANSLATIONS = {
-    '预备': 'standing ultra tall and poised with fully extended long legs, subtle rhythmic shoulder groove',
-    '起手': 'standing ultra tall, raising hands gracefully to chest level and swaying rhythmically on beat',
-    '起手式': 'standing perfectly erect with long legs, doing subtle head groove and wrist rotation',
-    '灵魂摇摆': 'smooth rhythmic side-to-side hip sway, body wave, and gentle arm arcs while keeping tall posture',
-    '核心摇摆': 'dynamic rhythmic hip groove and stylish arm gestures, swaying gently to the beat with bright smile',
-    '挤柠檬': 'stylish downward hand groove, body wave, rhythmic side-stepping with straight legs',
-    '崴脚步核心': 'stylish rhythmic sliding footwork, smooth side-to-side body groove with tall posture',
-    '丝滑手部': 'fluid wrist rotations and graceful arm wave isolations on beat',
-    '加速': 'energetic rhythmic hip sway, bouncing step-touch and cheerful smile timed to the beat',
-    '加速段': 'faster upbeat body groove, snappy arm movements and cheerful radiant expression',
-    '变奏': 'stylish 360-degree slow spin and graceful body wave while maintaining full height',
-    '变奏加速': 'bouncy rhythmic dance steps, dynamic hand claps and waist sway on the drop',
-    '定格': 'smoothly straightening both legs, lowering arms naturally to sides or waist, standing perfectly upright for a seamless loop',
-    '收尾': 'smoothly straightening both legs, lowering arms naturally to sides, standing perfectly upright in starting pose for a seamless loop'
+    '预备': 'standing ultra tall with straight long legs, engaging in snappy rhythmic shoulder pops and stylish head bobbing to the fast beat',
+    '起手': 'standing ultra tall, quickly raising hands in sharp stylish K-pop point dance pose, bouncing actively to the fast tempo',
+    '起手式': 'standing tall with long straight legs, performing rapid stylish wrist isolations and energetic dynamic waist sway to the beat',
+    '跳跃段': 'doing energetic light bouncy dance hops, rhythmic arm arcs and rapid snappy hip groove on the high-energy drop',
+    '手臂波浪': 'performing rapid fluid arm waves, snappy body wave isolations and active rhythmic step-touch footwork on beat',
+    '灵魂摇摆': 'performing fast-paced dynamic hip sway, agile step-touch footwork and lively arm movements timed to the upbeat rhythm',
+    '核心摇摆': 'executing rapid snappy hip roll, dynamic chest pops and fast rhythmic side-stepping with vibrant cheerful expression',
+    '挤柠檬': 'performing snappy downward hand groove isolations, fast torso body wave and rapid syncopated sliding footwork',
+    '崴脚步核心': 'performing fast stylish foot sliding, rapid snappy ankle groove and dynamic hip wave isolations on fast beat',
+    '丝滑手部': 'performing fast fluid wrist rotations, sharp finger gestures, and energetic continuous body wave to the rhythm',
+    '全身波浪': 'performing snappy full body wave, rapid 180-degree stylish turn and fast-paced agile footwork',
+    '加速': 'doing fast-paced high-energy bouncing steps, rapid hip snaps, and cheerful radiant expression to the fast tempo',
+    '加速段': 'executing rapid snappy choreography, high-speed arm gestures, and lively energetic body bounce',
+    '变奏': 'performing snappy stylish spin, agile body wave and rapid rhythmic step isolations while maintaining full upright height',
+    '变奏加速': 'executing fast bouncy rhythmic footwork, dynamic hip snaps and rapid energetic body groove on the drop',
+    '交叉挥动': 'executing rapid sharp arm crosses and snappy outward swings, fast syncopated foot sliding and energetic body groove',
+    '定格': 'smoothly straightening both legs to full tall height, lowering arms naturally to sides, standing upright into exact starting pose for a seamless loop',
+    '收尾': 'smoothly straightening both legs to full tall height, lowering arms naturally to sides, standing upright into exact starting pose for a seamless loop',
+    '收尾定格': 'smoothly straightening both legs to full tall height, lowering arms naturally to sides, standing upright into exact starting pose for a seamless loop'
 }
 
 def load_template_actions(template_name_or_id):
@@ -70,20 +75,21 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
         raw_actions = tpl_data['actions']
         print(f"  [Choreography Engine] Loaded Dance Template: {tpl_data['name']} ({len(raw_actions)} key steps)")
         selected = []
+        core_actions = raw_actions[:-1] if len(raw_actions) > 1 else raw_actions
         for i in range(num_shots - 1):
-            action_idx = min(i, len(raw_actions) - 2) if len(raw_actions) > 2 else 0
-            selected.append(f"Phase {i+1}: The woman standing ultra tall with long legs, performs {raw_actions[action_idx]}")
+            action_idx = i % len(core_actions)
+            selected.append(f"Phase {i+1} (Fast Energy): The woman standing ultra tall with long slender legs, executes fast-paced snappy {core_actions[action_idx]}")
         
         # Final closure step
-        selected.append("Phase Convergence: The woman smoothly straightens both legs to full tall height, lowers arms naturally to sides or hips, turning straight forward to settle 100% into her exact original starting posture for a seamless loop")
+        selected.append("Phase Convergence: The woman smoothly straightens both legs to full tall height, lowers arms naturally to sides, turning straight forward to settle 100% into her exact original starting posture for a seamless loop")
     else:
-        # Default high-robustness choreography pattern
+        # Default high-energy fast-paced choreography pattern
         patterns = [
-            'Phase 1 Intro: The woman maintains an ultra-tall erect posture with straight long legs, beginning gentle rhythmic groove, swaying hips side-to-side on beat with sweet radiant smile',
-            'Phase 2 Build-up: The woman executes graceful body sway with straight tall posture, doing stylish hip roll and gentle arm waves timed with the upbeat rhythm',
-            'Phase 3 Chorus Drop: The woman grooves with bouncy rhythm, doing stylish wrist rotations, light sliding steps, and cheerful head tilt to the beat',
-            'Phase 4 Climax: The woman continues stylish rhythmic dance with long extended legs, performing smooth torso twist and elegant arm arcs',
-            'Phase 5 Rhythm Release: The woman steps smoothly in place, doing synchronized rhythmic hand claps and cheerful smiling gaze',
+            'Phase 1 Intro (Fast Beat): The woman maintains an ultra-tall posture with straight long legs, beginning fast-paced snappy rhythmic groove, rapid hip pops on beat with radiant smile',
+            'Phase 2 Build-up (High Tempo): The woman executes snappy dynamic body sway, doing fast stylish hip rolls and fluid quick arm waves timed with the rapid beat',
+            'Phase 3 Chorus Drop (Fast Energy): The woman grooves with high-speed bouncy rhythm, doing snappy wrist rotations, fast agile sliding steps to the upbeat tempo',
+            'Phase 4 Climax (Peak Rhythm): The woman continues energetic fast rhythmic dance with long legs, performing dynamic torso waves and sharp stylish arm gestures',
+            'Phase 5 Rhythm Release (Fast Footwork): The woman steps rapidly in place with snappy agile footwork, stylish body groove and cheerful confident gaze',
             'Phase 6 Final Convergence: The woman smoothly straightens both legs to full tall slender height, lowers both arms gracefully to sides, turning straight forward to settle 100% into her exact original starting posture for a seamless loop'
         ]
         if num_shots <= len(patterns):
