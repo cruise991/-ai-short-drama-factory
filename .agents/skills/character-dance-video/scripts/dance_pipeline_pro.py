@@ -263,7 +263,7 @@ def main():
     initial_url = upload_to_r2(args.input_image)
 
     print("\n>>> Step 3: Planning Professional Choreography <<<")
-    shots = plan_choreography(style=args.style, duration=args.duration, bpm=args.bpm, char_lock_prompt=char_lock_prompt, template_id=args.template)
+    shots = plan_choreography(style=args.style, duration=args.duration, bpm=args.bpm, char_lock_prompt=char_lock_prompt, template_id=args.template, is_rear_pose=char_meta.get("is_rear_pose", False))
 
     video_files = []
     current_start_url = initial_url

@@ -61,6 +61,7 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='street')
         'style': selected_style,
         'camera_lock': CAMERA_LOCK,
         'subject_layer': subject_layer,
+        'is_rear_pose': is_rear_pose,
         'full_prompt_lock': prompt_lock
     }
 

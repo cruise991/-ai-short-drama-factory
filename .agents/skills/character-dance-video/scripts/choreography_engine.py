@@ -73,9 +73,14 @@ def load_template_actions(template_name_or_id):
         print(f"[Choreography Engine] Template load error: {e}")
         return None
 
-def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='', template_id=None):
+def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='', template_id=None, is_rear_pose=False):
     num_shots = max(1, duration // 5)
     tpl_data = load_template_actions(template_id) if template_id else None
+    
+    if is_rear_pose:
+        convergence_action = "Phase Convergence: The woman steps smoothly with light agile footwork, executing a coordinated natural full-body pivot and turn, gracefully settling whole body and torso 100% into the exact original 3/4 rear reference orientation with head looking back over shoulder for a seamless loop"
+    else:
+        convergence_action = "Phase Convergence: The woman smoothly straightens both legs to full tall height, lowers arms gracefully to sides or hips, standing straight forward into exact starting pose for a seamless loop"
     
     if tpl_data and tpl_data.get('actions'):
         raw_actions = tpl_data['actions']
@@ -87,7 +92,7 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
             selected.append(f"Phase {i+1} (Fast Energy): The woman standing ultra tall with long slender legs, executes fast-paced snappy {core_actions[action_idx]}")
         
         # Final closure step
-        selected.append("Phase Convergence: The woman smoothly straightens both legs to full tall height, lowers arms gracefully, smoothly turning and settling 100% into her exact original reference starting pose and facing angle for a seamless loop")
+        selected.append(convergence_action)
     else:
         # Default high-energy fast-paced choreography pattern
         patterns = [
@@ -96,7 +101,7 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
             'Phase 3 Chorus Drop (Fast Energy): The woman grooves with high-speed bouncy rhythm, doing snappy wrist rotations, fast agile sliding steps to the upbeat tempo',
             'Phase 4 Climax (Peak Rhythm): The woman continues energetic fast rhythmic dance with long legs, performing dynamic torso waves and sharp stylish arm gestures',
             'Phase 5 Rhythm Release (Fast Footwork): The woman steps rapidly in place with snappy agile footwork, stylish body groove and cheerful confident gaze',
-            'Phase 6 Final Convergence: The woman smoothly straightens both legs to full tall slender height, lowers both arms gracefully, smoothly settling 100% into her exact original reference starting posture for a seamless loop'
+            convergence_action
         ]
         if num_shots <= len(patterns):
             selected = patterns[:num_shots - 1] + [patterns[-1]]
