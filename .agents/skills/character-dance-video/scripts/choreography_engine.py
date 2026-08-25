@@ -87,7 +87,7 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
             selected.append(f"Phase {i+1} (Fast Energy): The woman standing ultra tall with long slender legs, executes fast-paced snappy {core_actions[action_idx]}")
         
         # Final closure step
-        selected.append("Phase Convergence: The woman smoothly straightens both legs to full tall height, lowers arms naturally to sides, turning straight forward to settle 100% into her exact original starting posture for a seamless loop")
+        selected.append("Phase Convergence: The woman smoothly straightens both legs to full tall height, lowers arms gracefully, smoothly turning and settling 100% into her exact original reference starting pose and facing angle for a seamless loop")
     else:
         # Default high-energy fast-paced choreography pattern
         patterns = [
@@ -96,7 +96,7 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
             'Phase 3 Chorus Drop (Fast Energy): The woman grooves with high-speed bouncy rhythm, doing snappy wrist rotations, fast agile sliding steps to the upbeat tempo',
             'Phase 4 Climax (Peak Rhythm): The woman continues energetic fast rhythmic dance with long legs, performing dynamic torso waves and sharp stylish arm gestures',
             'Phase 5 Rhythm Release (Fast Footwork): The woman steps rapidly in place with snappy agile footwork, stylish body groove and cheerful confident gaze',
-            'Phase 6 Final Convergence: The woman smoothly straightens both legs to full tall slender height, lowers both arms gracefully to sides, turning straight forward to settle 100% into her exact original starting posture for a seamless loop'
+            'Phase 6 Final Convergence: The woman smoothly straightens both legs to full tall slender height, lowers both arms gracefully, smoothly settling 100% into her exact original reference starting posture for a seamless loop'
         ]
         if num_shots <= len(patterns):
             selected = patterns[:num_shots - 1] + [patterns[-1]]
