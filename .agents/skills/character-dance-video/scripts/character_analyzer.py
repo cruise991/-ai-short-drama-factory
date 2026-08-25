@@ -29,6 +29,13 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='street')
     filename = os.path.basename(image_path).lower() if image_path else ''
     desc_lower = (user_desc or '').lower()
     
+    # Detect Pose Orientation (Rear 3/4, Side, or Front)
+    is_rear_pose = any(kw in desc_lower or kw in filename for kw in ['back', 'rear', 'shoulder', 'looking back', 'behind', 'backside', '3/4 rear'])
+    if is_rear_pose:
+        orientation_lock = 'Consistent 3/4 rear body orientation, back of outfit strictly facing camera, head gracefully turned looking back over shoulder with natural anatomical neck alignment, strictly NO front chest on back'
+    else:
+        orientation_lock = 'Consistent natural body orientation, upright posture, natural anatomical head-torso alignment'
+    
     selected_style = 'street'
     if style_hint and style_hint in ARCHETYPES:
         selected_style = style_hint
@@ -41,12 +48,12 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='street')
     
     if user_desc:
         subject_layer = user_desc
-        parts = [CAMERA_LOCK, subject_layer, 'Exact same setting and 100% consistent character face, tall stature, identical clothing, accessories, and shoes across all frames']
+        parts = [CAMERA_LOCK, orientation_lock, subject_layer, 'Exact same setting and 100% consistent character face, tall stature, identical clothing, accessories, and shoes across all frames']
     else:
         subject_layer = base_meta['subject']
         outfit_layer = base_meta['outfit']
         scene_layer = base_meta['scene']
-        parts = [CAMERA_LOCK, subject_layer, outfit_layer, f"Exact same {scene_layer}, 100% consistent lighting and background"]
+        parts = [CAMERA_LOCK, orientation_lock, subject_layer, outfit_layer, f"Exact same {scene_layer}, 100% consistent lighting and background"]
         
     prompt_lock = '. '.join([p.strip() for p in parts if p.strip()]) + '.'
     prompt_lock = re.sub(r'\.+', '.', prompt_lock).strip()
