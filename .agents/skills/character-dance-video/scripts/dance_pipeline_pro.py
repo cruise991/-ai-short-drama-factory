@@ -128,9 +128,6 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
     base_url = os.getenv("AGNES_BASE_URL", "https://apihub.agnes-ai.com/v1").rstrip('/')
     
     negative_prompt = (
-        "plaid, large checkered pattern, large squares, windowpane check, thick lines, "
-        "belt, waistband, waist tie, bow, ribbon, drawstring, rope, belt buckle, elastic band on waist, "
-        "two-piece top, separated skirt, apron look, skirt length change, long dress, maxi dress, "
         "crouching, squatting, bent knees, hunchback, short legs, compressed height, lowered body, sinking posture, "
         "western face, caucasian, mature face, sharp jawline, facial features change, "
         "room change, furniture, sofas, indoor living room, bright room, "
@@ -186,28 +183,39 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
         video_id = res_json.get("data", {}).get("task_id") or res_json.get("id") or res_json.get("task_id")
         print(f"  [Agnes API] Task ID: {video_id}. Polling status...")
         
-        for poll_count in range(60):
-            time.sleep(8)
-            st_req = urllib.request.Request(f"{base_url.replace('/v1', '')}/agnesapi?video_id={video_id}", headers=headers)
-            try:
-                with urllib.request.urlopen(st_req, timeout=30) as st_resp:
-                    st_json = json.loads(st_resp.read().decode('utf-8'))
-                    status = st_json.get("status")
-                    video_url = st_json.get("video_url") or st_json.get("url")
-                    
-                    if status in ["completed", "SUCCESS"] or (status is None and video_url):
-                        print(f"  [Agnes Success] Video URL: {video_url}")
-                        download_file(video_url, output_path)
-                        print(f"  [Downloaded] -> {output_path}")
-                        return output_path
-                    elif status in ["FAILED", "failed"]:
-                        print(f"  [Agnes Failed] {st_json}")
-                        break
-                    else:
-                        if poll_count % 2 == 0:
-                            print(f"  [Agnes Polling] Waiting for task {video_id}... status={status}")
-            except Exception as e:
-                print(f"  [Agnes Poll Warning] {e}")
+        poll_endpoints = [
+            f"{base_url}/videos/{video_id}",
+            f"{base_url.replace('/v1', '')}/agnesapi?video_id={video_id}"
+        ]
+        
+        for poll_count in range(80):
+            time.sleep(6)
+            for ep in poll_endpoints:
+                try:
+                    st_req = urllib.request.Request(ep, headers=headers)
+                    with urllib.request.urlopen(st_req, timeout=30) as st_resp:
+                        st_json = json.loads(st_resp.read().decode('utf-8'))
+                        status = st_json.get("status") or st_json.get("internal_status")
+                        video_url = st_json.get("video_url") or st_json.get("url")
+                        
+                        if status in ["completed", "SUCCESS"] or (video_url and status not in ["failed", "FAILED", "processing", "pending", "in_progress"]):
+                            print(f"  [Agnes Success] Video URL: {video_url}")
+                            download_file(video_url, output_path)
+                            print(f"  [Downloaded] -> {output_path}")
+                            return output_path
+                        elif status in ["FAILED", "failed"]:
+                            print(f"  [Agnes Failed] {st_json}")
+                            break
+                        else:
+                            if poll_count % 2 == 0 and ep == poll_endpoints[0]:
+                                print(f"  [Agnes Polling] Waiting for task {video_id}... status={status}")
+                            break
+                except urllib.error.HTTPError as he:
+                    if he.code == 404:
+                        continue
+                    print(f"  [Agnes Poll Warning] HTTP {he.code}: {he}")
+                except Exception as e:
+                    print(f"  [Agnes Poll Warning] {e}")
 
     raise RuntimeError("Failed to generate video shot after multiple attempts")
 

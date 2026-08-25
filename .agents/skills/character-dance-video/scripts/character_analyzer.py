@@ -41,7 +41,7 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='street')
     
     if user_desc:
         subject_layer = user_desc
-        parts = [CAMERA_LOCK, subject_layer, 'Exact same setting and 100% consistent character face, tall stature, unembellished smooth waistline, and exact clothing texture across all frames']
+        parts = [CAMERA_LOCK, subject_layer, 'Exact same setting and 100% consistent character face, tall stature, identical clothing, accessories, and shoes across all frames']
     else:
         subject_layer = base_meta['subject']
         outfit_layer = base_meta['outfit']
