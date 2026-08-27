@@ -276,18 +276,24 @@ def main():
         shot_mp4 = os.path.join(out_dir, f"skill_shot_{shot_id:02d}.mp4")
         shot_png = os.path.join(out_dir, f"skill_shot_{shot_id:02d}_last_frame.png")
 
-        if is_last:
-            print(f"\n  [Shot {shot_id}/{num_shots}] Keyframes Loop Closure Mode...")
-            generate_video_shot(shot["prompt"], shot_mp4, current_start_url, end_url, key_idx=i)
+        if os.path.exists(shot_mp4) and os.path.getsize(shot_mp4) > 200000:
+            print(f"\n  [Shot {shot_id}/{num_shots}] Found existing valid shot -> {shot_mp4} (Skipping API call)")
         else:
-            print(f"\n  [Shot {shot_id}/{num_shots}] Chaining Mode...")
-            generate_video_shot(shot["prompt"], shot_mp4, current_start_url, key_idx=i)
+            if is_last:
+                print(f"\n  [Shot {shot_id}/{num_shots}] Keyframes Loop Closure Mode...")
+                generate_video_shot(shot["prompt"], shot_mp4, current_start_url, end_url, key_idx=i)
+            else:
+                print(f"\n  [Shot {shot_id}/{num_shots}] Chaining Mode...")
+                generate_video_shot(shot["prompt"], shot_mp4, current_start_url, key_idx=i)
 
         video_files.append(shot_mp4)
 
         if not is_last:
-            print(f"  [Extract & Upload] Shot {shot_id} last frame (Lossless + Unsharp) -> R2...")
-            extract_last_frame_lossless(shot_mp4, shot_png)
+            if not (os.path.exists(shot_png) and os.path.getsize(shot_png) > 50000):
+                print(f"  [Extract & Upload] Shot {shot_id} last frame (Lossless + Unsharp) -> R2...")
+                extract_last_frame_lossless(shot_mp4, shot_png)
+            else:
+                print(f"  [Resume] Using existing Shot {shot_id} last frame -> {shot_png}")
             current_start_url = upload_to_r2(shot_png, f"{args.style}_shot_{shot_id:02d}_last.png")
 
     print("\n>>> Step 5: Audio Director Preparing Master BGM Track <<<")

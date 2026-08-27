@@ -29,8 +29,12 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='street')
     filename = os.path.basename(image_path).lower() if image_path else ''
     desc_lower = (user_desc or '').lower()
     
-    # Detect Pose Orientation (Rear 3/4, Side, or Front)
-    is_rear_pose = any(kw in desc_lower or kw in filename for kw in ['back', 'rear', 'shoulder', 'looking back', 'behind', 'backside', '3/4 rear'])
+    # Detect Pose Orientation (Rear 3/4, Side, or Front) with precise phrase matching to avoid matching 'background' or 'backdrop'
+    rear_patterns = [
+        r'\bback view\b', r'\brear view\b', r'\blooking back\b', r'\bfrom behind\b',
+        r'\b3/4 rear\b', r'\bbackside\b', r'\brear pose\b', r'\bover her shoulder\b', r'\bover his shoulder\b'
+    ]
+    is_rear_pose = any(re.search(pat, desc_lower) or re.search(pat, filename) for pat in rear_patterns)
     if is_rear_pose:
         orientation_lock = 'Consistent 3/4 rear body orientation, back of outfit strictly facing camera, head gracefully turned looking back over shoulder with natural anatomical neck alignment, strictly NO front chest on back'
     else:
