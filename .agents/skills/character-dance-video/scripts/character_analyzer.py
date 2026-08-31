@@ -23,7 +23,9 @@ ARCHETYPES = {
     }
 }
 
-CAMERA_LOCK = 'Full body shot, head to toe completely visible in frame, ample headroom above head, shoes visible, ultra tall slender 9-head model proportions, straight fully extended long legs, upright erect posture, stable fixed camera angle'
+CAMERA_LOCK = 'Full body master wide shot, head to toe completely visible with generous headroom above head and shoes fully framed, stable eye-level tripod camera, camera never tilts down, strictly no lower-body close-up, ultra-tall slender 9-head supermodel proportions with straight fully extended long legs and upright erect posture'
+
+FACE_LOCK = 'Strictly 100% consistent gorgeous East Asian face, delicate feminine soft facial features, dark almond eyes, radiant charming smile, identical East Asian ethnicity and facial identity across all shots'
 
 def analyze_character_and_scene(image_path, user_desc=None, style_hint='street'):
     filename = os.path.basename(image_path).lower() if image_path else ''
@@ -52,12 +54,12 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='street')
     
     if user_desc:
         subject_layer = user_desc
-        parts = [CAMERA_LOCK, orientation_lock, subject_layer, 'Exact same setting and 100% consistent character face, tall stature, identical clothing, accessories, and shoes across all frames']
+        parts = [CAMERA_LOCK, FACE_LOCK, orientation_lock, subject_layer, 'Exact same setting and 100% consistent character face, tall slender model proportions, identical clothing, accessories, and shoes across all frames']
     else:
         subject_layer = base_meta['subject']
         outfit_layer = base_meta['outfit']
         scene_layer = base_meta['scene']
-        parts = [CAMERA_LOCK, orientation_lock, subject_layer, outfit_layer, f"Exact same {scene_layer}, 100% consistent lighting and background"]
+        parts = [CAMERA_LOCK, FACE_LOCK, orientation_lock, subject_layer, outfit_layer, f"Exact same {scene_layer}, 100% consistent lighting and background"]
         
     prompt_lock = '. '.join([p.strip() for p in parts if p.strip()]) + '.'
     prompt_lock = re.sub(r'\.+', '.', prompt_lock).strip()

@@ -128,13 +128,15 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
     base_url = os.getenv("AGNES_BASE_URL", "https://apihub.agnes-ai.com/v1").rstrip('/')
     
     negative_prompt = (
+        "cropped head, head cut off, head out of frame, headless body, missing head, missing face, face cut off, "
+        "zoomed-in lower body, torso close-up, bottom half only, lower body only, cropped body, cropped legs, waist-down only, "
+        "caucasian face, western features, european face, mature face, sharp masculine jawline, changed face, altered facial identity, non-asian face, "
+        "short legs, compressed height, lowered body, sinking posture, crouching, squatting, bent knees, hunchback, dwarf proportions, stubby legs, "
         "head turned 180 degrees, backward head, head facing opposite direction of body, neck twist, "
         "head on backwards, exorcist head rotation, broken neck, unnatural spinal twist, chest on back, "
         "back of jacket on front, front clothing on back, torso orientation mismatch, mismatched facing direction, "
-        "crouching, squatting, bent knees, hunchback, short legs, compressed height, lowered body, sinking posture, "
-        "western face, caucasian, mature face, sharp jawline, facial features change, "
         "room change, furniture, sofas, indoor living room, bright room, "
-        "cropped head, cropped feet, cropped body, top of head cut off, feet cut off, blurry, low quality, "
+        "cropped feet, feet cut off, blurry, low quality, "
         "distorted hands, distorted body, extra limbs, ugly face, disjointed limbs, floating head, floating body"
     )
 
