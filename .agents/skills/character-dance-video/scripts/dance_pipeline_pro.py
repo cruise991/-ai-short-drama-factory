@@ -124,21 +124,36 @@ def download_file(url, target_path):
     with urllib.request.urlopen(req, timeout=60) as resp, open(target_path, 'wb') as out_file:
         out_file.write(resp.read())
 
-def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url=None, width=768, height=1344, key_idx=0):
+def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url=None, width=768, height=1344, key_idx=0, is_kneeling_pose=False):
     base_url = os.getenv("AGNES_BASE_URL", "https://apihub.agnes-ai.com/v1").rstrip('/')
     
-    negative_prompt = (
-        "cropped head, head cut off, head out of frame, headless body, missing head, missing face, face cut off, "
-        "zoomed-in lower body, torso close-up, bottom half only, lower body only, cropped body, cropped legs, waist-down only, "
-        "caucasian face, western features, european face, mature face, sharp masculine jawline, changed face, altered facial identity, non-asian face, "
-        "short legs, compressed height, lowered body, sinking posture, crouching, squatting, bent knees, hunchback, dwarf proportions, stubby legs, "
-        "head turned 180 degrees, backward head, head facing opposite direction of body, neck twist, "
-        "head on backwards, exorcist head rotation, broken neck, unnatural spinal twist, chest on back, "
-        "back of jacket on front, front clothing on back, torso orientation mismatch, mismatched facing direction, "
-        "room change, furniture, sofas, indoor living room, bright room, "
-        "cropped feet, feet cut off, blurry, low quality, "
-        "distorted hands, distorted body, extra limbs, ugly face, disjointed limbs, floating head, floating body"
-    )
+    if is_kneeling_pose:
+        negative_prompt = (
+            "cropped head, head cut off, head out of frame, headless body, missing head, missing face, face cut off, "
+            "zoomed-in lower body, torso close-up, bottom half only, lower body only, cropped body, waist-down only, "
+            "caucasian face, western features, european face, mature face, sharp masculine jawline, changed face, altered facial identity, non-asian face, "
+            "dwarf proportions, stubby legs, "
+            "head turned 180 degrees, backward head, head facing opposite direction of body, neck twist, "
+            "head on backwards, exorcist head rotation, broken neck, unnatural spinal twist, chest on back, "
+            "back of jacket on front, front clothing on back, torso orientation mismatch, mismatched facing direction, "
+            "room change, furniture, sofas, indoor living room, bright room, "
+            "blurry, low quality, distorted hands, distorted body, extra limbs, ugly face, disjointed limbs, floating head, floating body"
+        )
+        prompt_suffix = ", graceful fluid anatomical motion, identical clothing and face"
+    else:
+        negative_prompt = (
+            "cropped head, head cut off, head out of frame, headless body, missing head, missing face, face cut off, "
+            "zoomed-in lower body, torso close-up, bottom half only, lower body only, cropped body, cropped legs, waist-down only, "
+            "caucasian face, western features, european face, mature face, sharp masculine jawline, changed face, altered facial identity, non-asian face, "
+            "short legs, compressed height, lowered body, sinking posture, crouching, squatting, bent knees, hunchback, dwarf proportions, stubby legs, "
+            "head turned 180 degrees, backward head, head facing opposite direction of body, neck twist, "
+            "head on backwards, exorcist head rotation, broken neck, unnatural spinal twist, chest on back, "
+            "back of jacket on front, front clothing on back, torso orientation mismatch, mismatched facing direction, "
+            "room change, furniture, sofas, indoor living room, bright room, "
+            "cropped feet, feet cut off, blurry, low quality, "
+            "distorted hands, distorted body, extra limbs, ugly face, disjointed limbs, floating head, floating body"
+        )
+        prompt_suffix = ", standing ultra tall with long straight legs, seamless rhythm motion, identical clothing and face"
 
     for attempt in range(25):
         api_key = get_api_key(key_idx + attempt)
@@ -149,7 +164,7 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
 
         data = {
             "model": "agnes-video-v2.0",
-            "prompt": prompt + ", standing ultra tall with long straight legs, seamless rhythm motion, identical clothing and face",
+            "prompt": prompt + prompt_suffix,
             "width": width,
             "height": height,
             "num_frames": 121,
@@ -265,7 +280,8 @@ def main():
     initial_url = upload_to_r2(args.input_image)
 
     print("\n>>> Step 3: Planning Professional Choreography <<<")
-    shots = plan_choreography(style=args.style, duration=args.duration, bpm=args.bpm, char_lock_prompt=char_lock_prompt, template_id=args.template, is_rear_pose=char_meta.get("is_rear_pose", False))
+    is_kneeling = char_meta.get("is_kneeling_pose", False)
+    shots = plan_choreography(style=args.style, duration=args.duration, bpm=args.bpm, char_lock_prompt=char_lock_prompt, template_id=args.template, is_rear_pose=char_meta.get("is_rear_pose", False), is_kneeling_pose=is_kneeling)
 
     video_files = []
     current_start_url = initial_url
@@ -283,10 +299,10 @@ def main():
         else:
             if is_last:
                 print(f"\n  [Shot {shot_id}/{num_shots}] Keyframes Loop Closure Mode...")
-                generate_video_shot(shot["prompt"], shot_mp4, current_start_url, end_url, key_idx=i)
+                generate_video_shot(shot["prompt"], shot_mp4, current_start_url, end_url, key_idx=i, is_kneeling_pose=is_kneeling)
             else:
                 print(f"\n  [Shot {shot_id}/{num_shots}] Chaining Mode...")
-                generate_video_shot(shot["prompt"], shot_mp4, current_start_url, key_idx=i)
+                generate_video_shot(shot["prompt"], shot_mp4, current_start_url, key_idx=i, is_kneeling_pose=is_kneeling)
 
         video_files.append(shot_mp4)
 

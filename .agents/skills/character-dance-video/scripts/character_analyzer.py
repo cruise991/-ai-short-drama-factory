@@ -31,15 +31,28 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='street')
     filename = os.path.basename(image_path).lower() if image_path else ''
     desc_lower = (user_desc or '').lower()
     
+    # Detect Pose Type (Kneeling/Floor, Rear 3/4, or Standard Standing Front)
+    kneeling_patterns = [
+        r'\bkneeling\b', r'\bkneel\b', r'\bon her knees\b', r'\bon his knees\b',
+        r'\bfloor pose\b', r'\bsitting on knees\b', r'\bground pose\b', r'\b跪\b'
+    ]
+    is_kneeling_pose = any(re.search(pat, desc_lower) or re.search(pat, filename) for pat in kneeling_patterns)
+    
     # Detect Pose Orientation (Rear 3/4, Side, or Front) with precise phrase matching to avoid matching 'background' or 'backdrop'
     rear_patterns = [
         r'\bback view\b', r'\brear view\b', r'\blooking back\b', r'\bfrom behind\b',
         r'\b3/4 rear\b', r'\bbackside\b', r'\brear pose\b', r'\bover her shoulder\b', r'\bover his shoulder\b'
     ]
     is_rear_pose = any(re.search(pat, desc_lower) or re.search(pat, filename) for pat in rear_patterns)
-    if is_rear_pose:
+    
+    if is_kneeling_pose:
+        camera_lock = 'Full body master wide shot, head to knees and floor completely visible with generous headroom above head, stable eye-level tripod camera, camera never tilts down, strictly no partial close-up, slender athletic model proportions'
+        orientation_lock = 'Charming graceful kneeling floor pose on knees, hand gracefully touching hair, natural anatomical alignment'
+    elif is_rear_pose:
+        camera_lock = CAMERA_LOCK
         orientation_lock = 'Consistent 3/4 rear body orientation, back of outfit strictly facing camera, head gracefully turned looking back over shoulder with natural anatomical neck alignment, strictly NO front chest on back'
     else:
+        camera_lock = CAMERA_LOCK
         orientation_lock = 'Consistent natural body orientation, upright posture, natural anatomical head-torso alignment'
     
     selected_style = 'street'
@@ -54,20 +67,21 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='street')
     
     if user_desc:
         subject_layer = user_desc
-        parts = [CAMERA_LOCK, FACE_LOCK, orientation_lock, subject_layer, 'Exact same setting and 100% consistent character face, tall slender model proportions, identical clothing, accessories, and shoes across all frames']
+        parts = [camera_lock, FACE_LOCK, orientation_lock, subject_layer, 'Exact same setting and 100% consistent character face, slender model proportions, identical clothing, accessories, and shoes across all frames']
     else:
         subject_layer = base_meta['subject']
         outfit_layer = base_meta['outfit']
         scene_layer = base_meta['scene']
-        parts = [CAMERA_LOCK, FACE_LOCK, orientation_lock, subject_layer, outfit_layer, f"Exact same {scene_layer}, 100% consistent lighting and background"]
+        parts = [camera_lock, FACE_LOCK, orientation_lock, subject_layer, outfit_layer, f"Exact same {scene_layer}, 100% consistent lighting and background"]
         
     prompt_lock = '. '.join([p.strip() for p in parts if p.strip()]) + '.'
     prompt_lock = re.sub(r'\.+', '.', prompt_lock).strip()
     return {
         'style': selected_style,
-        'camera_lock': CAMERA_LOCK,
+        'camera_lock': camera_lock,
         'subject_layer': subject_layer,
         'is_rear_pose': is_rear_pose,
+        'is_kneeling_pose': is_kneeling_pose,
         'full_prompt_lock': prompt_lock
     }
 

@@ -3,8 +3,21 @@ import os
 import json
 import glob
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-TEMPLATES_DIR = os.path.join(BASE_DIR, 'assets', 'dance', '07_templates')
+def get_templates_dir():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(script_dir, '..', '..', '..', 'assets', 'dance', '07_templates'),
+        os.path.join(script_dir, '..', '..', '..', '..', 'assets', 'dance', '07_templates'),
+        '/Users/workspace/ai_short_company/ai-short-drama/assets/dance/07_templates',
+        '/workspace/assets/dance/07_templates'
+    ]
+    for c in candidates:
+        norm = os.path.abspath(c)
+        if os.path.exists(norm):
+            return norm
+    return os.path.abspath(candidates[0])
+
+TEMPLATES_DIR = get_templates_dir()
 
 ACTION_TRANSLATIONS = {
     '预备': 'standing ultra tall with straight long legs, engaging in snappy rhythmic shoulder pops and stylish head bobbing to the fast beat',
@@ -73,11 +86,13 @@ def load_template_actions(template_name_or_id):
         print(f"[Choreography Engine] Template load error: {e}")
         return None
 
-def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='', template_id=None, is_rear_pose=False):
+def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='', template_id=None, is_rear_pose=False, is_kneeling_pose=False):
     num_shots = max(1, duration // 5)
     tpl_data = load_template_actions(template_id) if template_id else None
     
-    if is_rear_pose:
+    if is_kneeling_pose:
+        convergence_action = "Phase Convergence: The woman smoothly and gracefully descends back down onto the floor, gracefully settling whole body 100% into the exact original kneeling starting pose on knees with hand touching hair for a seamless loop"
+    elif is_rear_pose:
         convergence_action = "Phase Convergence: The woman steps smoothly with light agile footwork, executing a coordinated natural full-body pivot and turn, gracefully settling whole body and torso 100% into the exact original 3/4 rear reference orientation with head looking back over shoulder for a seamless loop"
     else:
         convergence_action = "Phase Convergence: The woman smoothly straightens both legs to full tall height, lowers arms gracefully to sides or hips, standing straight forward into exact starting pose for a seamless loop"
@@ -89,7 +104,12 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
         core_actions = raw_actions[:-1] if len(raw_actions) > 1 else raw_actions
         for i in range(num_shots - 1):
             action_idx = i % len(core_actions)
-            selected.append(f"Phase {i+1} (Fast Energy): The woman standing ultra tall with long slender legs, executes fast-paced snappy {core_actions[action_idx]}")
+            if is_kneeling_pose and i == 0:
+                selected.append("Phase 1 Intro (Kneeling Floor Groove): The woman begins in her charming kneeling floor pose on knees, performing fluid upper body torso waves, stylish shoulder pops and graceful hand gestures to the upbeat beat")
+            elif is_kneeling_pose and i == 1:
+                selected.append("Phase 2 Rising Momentum: The woman smoothly and gracefully rises from kneeling up to full standing height with fluid motion, transitioning actively into energetic bouncy dance steps on beat")
+            else:
+                selected.append(f"Phase {i+1} (Fast Energy): The woman executes fast-paced snappy {core_actions[action_idx]}")
         
         # Final closure step
         selected.append(convergence_action)
