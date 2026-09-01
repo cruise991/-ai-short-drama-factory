@@ -110,14 +110,20 @@ def upload_to_r2(filepath, object_name=None):
         'Authorization': authorization_header
     }
 
-    req = urllib.request.Request(url, data=content, headers=headers, method='PUT')
-    with urllib.request.urlopen(req, timeout=45) as resp:
-        if resp.status in [200, 204]:
-            pub_url = f"{public_url_base.rstrip('/')}/{object_name}"
-            print(f"  [R2 Upload] Success! Public URL: {pub_url}")
-            return pub_url
-        else:
-            raise Exception(f"R2 upload failed status: {resp.status}")
+    for attempt in range(5):
+        try:
+            req = urllib.request.Request(url, data=content, headers=headers, method='PUT')
+            with urllib.request.urlopen(req, timeout=45) as resp:
+                if resp.status in [200, 204]:
+                    pub_url = f"{public_url_base.rstrip('/')}/{object_name}"
+                    print(f"  [R2 Upload] Success! Public URL: {pub_url}")
+                    return pub_url
+                else:
+                    raise Exception(f"R2 upload failed status: {resp.status}")
+        except Exception as e:
+            print(f"  [R2 Upload Warning] Attempt {attempt+1}/5 failed: {e}. Retrying...")
+            time.sleep(3)
+    raise RuntimeError("Failed to upload to R2 after 5 attempts")
 
 def download_file(url, target_path):
     req = urllib.request.Request(url)
