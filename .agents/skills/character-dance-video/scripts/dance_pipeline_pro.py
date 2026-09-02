@@ -138,20 +138,20 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
             "cropped head, head cut off, head out of frame, headless body, missing head, missing face, face cut off, "
             "zoomed-in lower body, torso close-up, bottom half only, lower body only, cropped body, waist-down only, "
             "caucasian face, western features, european face, mature face, sharp masculine jawline, changed face, altered facial identity, non-asian face, "
-            "dwarf proportions, stubby legs, "
+            "dwarf proportions, stubby legs, average height body, normal proportions, 7-head body ratio, compact build, thick short thighs, short torso, "
             "head turned 180 degrees, backward head, head facing opposite direction of body, neck twist, "
             "head on backwards, exorcist head rotation, broken neck, unnatural spinal twist, chest on back, "
             "back of jacket on front, front clothing on back, torso orientation mismatch, mismatched facing direction, "
             "room change, furniture, sofas, indoor living room, bright room, "
             "blurry, low quality, distorted hands, distorted body, extra limbs, ugly face, disjointed limbs, floating head, floating body"
         )
-        prompt_suffix = ", graceful fluid anatomical motion, identical clothing and face"
+        prompt_suffix = ", maintaining ultra-tall willowy 9-head supermodel body proportions throughout with legs occupying 55 percent of total body height when standing, graceful fluid anatomical motion, never compressed shortened or squatting, identical clothing and face"
     else:
         negative_prompt = (
             "cropped head, head cut off, head out of frame, headless body, missing head, missing face, face cut off, "
             "zoomed-in lower body, torso close-up, bottom half only, lower body only, cropped body, cropped legs, waist-down only, "
             "caucasian face, western features, european face, mature face, sharp masculine jawline, changed face, altered facial identity, non-asian face, "
-            "short legs, compressed height, lowered body, sinking posture, crouching, squatting, bent knees, hunchback, dwarf proportions, stubby legs, "
+            "short legs, compressed height, lowered body, sinking posture, crouching, squatting, bent knees, hunchback, dwarf proportions, stubby legs, average height body, normal proportions, 7-head body ratio, compact build, thick short thighs, short torso, "
             "head turned 180 degrees, backward head, head facing opposite direction of body, neck twist, "
             "head on backwards, exorcist head rotation, broken neck, unnatural spinal twist, chest on back, "
             "back of jacket on front, front clothing on back, torso orientation mismatch, mismatched facing direction, "
@@ -159,7 +159,7 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
             "cropped feet, feet cut off, blurry, low quality, "
             "distorted hands, distorted body, extra limbs, ugly face, disjointed limbs, floating head, floating body"
         )
-        prompt_suffix = ", standing ultra tall with long straight legs, seamless rhythm motion, identical clothing and face"
+        prompt_suffix = ", maintaining ultra-tall willowy 9-head supermodel body proportions throughout with legs occupying at least 55 percent of total body height, fully extended straight long legs at all times, never compressed shortened or squatting, seamless rhythm motion, identical clothing and face"
 
     for attempt in range(25):
         api_key = get_api_key(key_idx + attempt)
@@ -255,6 +255,58 @@ def extract_last_frame_lossless(video_path, output_png):
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return output_png
 
+
+def check_body_proportion(frame_png, min_body_ratio=0.72):
+    """Lightweight check: estimate if character fills enough vertical space.
+    Returns True if proportion looks acceptable, False if body appears compressed."""
+    try:
+        cmd = ["ffprobe", "-v", "error", "-show_entries", "stream=height",
+               "-of", "csv=p=0", frame_png]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+        frame_h = int(result.stdout.strip())
+        cmd2 = ["ffmpeg", "-y", "-i", frame_png,
+                "-vf", "format=gray,crop=iw/3:ih:iw/3:0",
+                "-f", "rawvideo", "-pix_fmt", "gray", "-"]
+        proc = subprocess.run(cmd2, capture_output=True, timeout=10)
+        raw = proc.stdout
+        if not raw:
+            return True
+        w = len(raw) // frame_h if frame_h > 0 else 1
+        if w <= 0:
+            return True
+        row_avgs = []
+        for y in range(frame_h):
+            row_start = y * w
+            row_data = raw[row_start:row_start + w]
+            if row_data:
+                row_avgs.append(sum(row_data) / len(row_data))
+            else:
+                row_avgs.append(255)
+        if not row_avgs:
+            return True
+        bg_top = sum(row_avgs[:5]) / 5
+        bg_bot = sum(row_avgs[-5:]) / 5
+        bg_ref = (bg_top + bg_bot) / 2
+        threshold = 30
+        top_body = 0
+        bot_body = frame_h - 1
+        for y in range(frame_h):
+            if abs(row_avgs[y] - bg_ref) > threshold:
+                top_body = y
+                break
+        for y in range(frame_h - 1, -1, -1):
+            if abs(row_avgs[y] - bg_ref) > threshold:
+                bot_body = y
+                break
+        body_h = bot_body - top_body
+        ratio = body_h / frame_h if frame_h > 0 else 1.0
+        print(f"  [Proportion Check] Body occupies {ratio:.1%} of frame (threshold: {min_body_ratio:.0%})")
+        return ratio >= min_body_ratio
+    except Exception as e:
+        print(f"  [Proportion Check] Skipped due to error: {e}")
+        return True
+
+
 def main():
     parser = argparse.ArgumentParser(description="Character Consistent Dance Skill Pipeline Pro")
     parser.add_argument("--input-image", required=True, help="Path to character reference image")
@@ -316,6 +368,9 @@ def main():
             if not (os.path.exists(shot_png) and os.path.getsize(shot_png) > 50000):
                 print(f"  [Extract & Upload] Shot {shot_id} last frame (Lossless + Unsharp) -> R2...")
                 extract_last_frame_lossless(shot_mp4, shot_png)
+                # Fix E: Per-shot body proportion quality check
+                if not check_body_proportion(shot_png):
+                    print(f"  [Proportion Warning] Shot {shot_id} body appears compressed - proportion below threshold")
             else:
                 print(f"  [Resume] Using existing Shot {shot_id} last frame -> {shot_png}")
             current_start_url = upload_to_r2(shot_png, f"{args.style}_shot_{shot_id:02d}_last.png")

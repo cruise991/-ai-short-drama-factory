@@ -107,9 +107,12 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
             if is_kneeling_pose and i == 0:
                 selected.append("Phase 1 Intro (Kneeling Floor Groove): The woman begins in her charming kneeling floor pose on knees, performing fluid upper body torso waves, stylish shoulder pops and graceful hand gestures to the upbeat beat")
             elif is_kneeling_pose and i == 1:
-                selected.append("Phase 2 Rising Momentum: The woman smoothly and gracefully rises from kneeling up to full standing height with fluid motion, transitioning actively into energetic bouncy dance steps on beat")
+                selected.append("Phase 2 Rising Momentum: The woman smoothly and gracefully rises from kneeling up to her full ultra-tall standing height revealing extremely long slender legs, 9-head supermodel proportions where legs occupy at least 55 percent of total body height, willowy tall figure with fully extended straight knees, transitioning actively into energetic bouncy dance steps on beat")
             else:
-                selected.append(f"Phase {i+1} (Fast Energy): The woman executes fast-paced snappy {core_actions[action_idx]}")
+                if is_kneeling_pose and i >= 2:
+                    selected.append(f"Phase {i+1} (Fast Energy): The woman, now standing at her full ultra-tall 9-head supermodel height with extremely long straight legs, executes fast-paced snappy {core_actions[action_idx]}")
+                else:
+                    selected.append(f"Phase {i+1} (Fast Energy): The woman executes fast-paced snappy {core_actions[action_idx]}")
         
         # Final closure step
         selected.append(convergence_action)

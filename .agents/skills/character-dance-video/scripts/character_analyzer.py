@@ -24,6 +24,9 @@ ARCHETYPES = {
 }
 
 CAMERA_LOCK = 'Full body master wide shot, head to toe completely visible with generous headroom above head and shoes fully framed, stable eye-level tripod camera, camera never tilts down, strictly no lower-body close-up, ultra-tall slender 9-head supermodel proportions with straight fully extended long legs and upright erect posture'
+CAMERA_LOCK_MODERATE = 'Full body master wide shot, head to toe completely visible with moderate headroom (approximately 10 percent of frame height) above head and shoes fully framed on floor, stable eye-level tripod camera, camera never tilts down, strictly no lower-body close-up, ultra-tall slender 9-head supermodel proportions with straight fully extended long legs occupying at least 55 percent of total body height and upright erect posture'
+
+CAMERA_LOCK_STANDING_AFTER_KNEELING = 'Full body master wide shot, head to toe completely visible with moderate headroom (approximately 10 percent of frame height) above head and shoes fully framed, stable eye-level tripod camera, camera never tilts down, strictly no lower-body close-up, ultra-tall slender willowy 9-head supermodel proportions with extremely long straight legs occupying at least 55 percent of total body height, fully extended knees, upright erect posture'
 
 FACE_LOCK = 'Strictly 100% consistent gorgeous East Asian face, delicate feminine soft facial features, dark almond eyes, radiant charming smile, identical East Asian ethnicity and facial identity across all shots'
 
@@ -46,13 +49,13 @@ def analyze_character_and_scene(image_path, user_desc=None, style_hint='street')
     is_rear_pose = any(re.search(pat, desc_lower) or re.search(pat, filename) for pat in rear_patterns)
     
     if is_kneeling_pose:
-        camera_lock = 'Full body master wide shot, head to knees and floor completely visible with generous headroom above head, stable eye-level tripod camera, camera never tilts down, strictly no partial close-up, slender athletic model proportions'
+        camera_lock = 'Full body master wide shot, head to knees and floor completely visible with moderate headroom above head, stable eye-level tripod camera, camera never tilts down, strictly no partial close-up, slender athletic model proportions'
         orientation_lock = 'Charming graceful kneeling floor pose on knees, hand gracefully touching hair, natural anatomical alignment'
     elif is_rear_pose:
-        camera_lock = CAMERA_LOCK
+        camera_lock = CAMERA_LOCK_MODERATE
         orientation_lock = 'Consistent 3/4 rear body orientation, back of outfit strictly facing camera, head gracefully turned looking back over shoulder with natural anatomical neck alignment, strictly NO front chest on back'
     else:
-        camera_lock = CAMERA_LOCK
+        camera_lock = CAMERA_LOCK_MODERATE
         orientation_lock = 'Consistent natural body orientation, upright posture, natural anatomical head-torso alignment'
     
     selected_style = 'street'
