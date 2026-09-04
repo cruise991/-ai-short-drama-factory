@@ -91,11 +91,11 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
     tpl_data = load_template_actions(template_id) if template_id else None
     
     if is_kneeling_pose:
-        convergence_action = "Phase Convergence: The woman smoothly and gracefully descends back down onto the floor, gracefully settling whole body 100% into the exact original kneeling starting pose on knees with hand touching hair for a seamless loop"
+        convergence_action = "Phase Convergence (Seamless Loop Closure): During the final 1.5 seconds, the woman smoothly and gradually decelerates all dancing motion, gracefully descending back down onto the floor and settling whole body and arms 100% into the exact original kneeling starting pose on knees with hand touching hair, perfectly holding and freezing steady on the final beat for a seamless loop"
     elif is_rear_pose:
-        convergence_action = "Phase Convergence: The woman steps smoothly with light agile footwork, executing a coordinated natural full-body pivot and turn, gracefully settling whole body and torso 100% into the exact original 3/4 rear reference orientation with head looking back over shoulder for a seamless loop"
+        convergence_action = "Phase Convergence (Seamless Loop Closure): During the final 1.5 seconds, the woman smoothly and gradually decelerates all dancing motion, executing a coordinated natural full-body pivot and turn, gracefully settling whole body and torso 100% into the exact original 3/4 rear reference orientation with head looking back over shoulder, perfectly holding and freezing steady on the final beat for a seamless loop"
     else:
-        convergence_action = "Phase Convergence: The woman smoothly straightens both legs to full tall height, lowers arms gracefully to sides or hips, standing straight forward into exact starting pose for a seamless loop"
+        convergence_action = "Phase Convergence (Seamless Loop Closure): During the final 1.5 seconds, the woman smoothly and gradually decelerates all dancing motion, bringing her arms, body, upright posture, and smiling expression 100% back into the exact original reference starting pose, standing ultra-tall with long straight legs and holding perfectly steady on the final beat for a flawless seamless loop"
     
     if tpl_data and tpl_data.get('actions'):
         raw_actions = tpl_data['actions']

@@ -50,9 +50,7 @@ def get_bgm_library_paths():
     p2 = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))), 'assets', 'dance', '05_music', 'tracks')
     return [p1, p2]
 
-def master_audio_track(src_audio_path, output_wav_path, duration_sec=30.0, target_bpm=None, base_bpm=None):
-    fade_out_start = max(0.0, duration_sec - 0.3)
-    
+def master_audio_track(src_audio_path, output_wav_path, duration_sec=30.0, target_bpm=None, base_bpm=None, seamless_loop=True):
     filters = []
     # Dynamic BPM Tempo Stretch if base_bpm and target_bpm are provided
     if target_bpm and base_bpm and base_bpm > 0:
@@ -61,8 +59,14 @@ def master_audio_track(src_audio_path, output_wav_path, duration_sec=30.0, targe
             filters.append(f"atempo={ratio:.4f}")
             print(f"  [Audio Director] Applying Tempo Alignment ({base_bpm} -> {target_bpm} BPM, factor: {ratio:.3f})")
             
-    filters.append(f"afade=t=in:ss=0:d=0.08")
-    filters.append(f"afade=t=out:st={fade_out_start:.2f}:d=0.3")
+    if not seamless_loop:
+        fade_out_start = max(0.0, duration_sec - 0.3)
+        filters.append("afade=t=in:ss=0:d=0.08")
+        filters.append(f"afade=t=out:st={fade_out_start:.2f}:d=0.3")
+    else:
+        # Micro envelope to eliminate DC clicks while maintaining 100% continuous loop energy
+        filters.append("afade=t=in:ss=0:d=0.005")
+        filters.append(f"afade=t=out:st={duration_sec-0.005:.3f}:d=0.005")
     filters.append("loudnorm=I=-14:TP=-1.5:LRA=11")
     af_str = ",".join(filters)
     
@@ -201,7 +205,7 @@ def synthesize_studio_dance_track(wav_path, bpm=128, duration_sec=30.0, style='k
         wf.setframerate(SAMPLE_RATE)
         wf.writeframes(frames)
         
-    master_filter = f"afade=t=in:ss=0:d=0.08,afade=t=out:st={duration_sec-0.3:.2f}:d=0.3,loudnorm=I=-14:TP=-1.5:LRA=11"
+    master_filter = f"afade=t=in:ss=0:d=0.005,afade=t=out:st={duration_sec-0.005:.3f}:d=0.005,loudnorm=I=-14:TP=-1.5:LRA=11"
     cmd = ['ffmpeg', '-y', '-i', raw_wav_path, '-af', master_filter, '-ar', '44100', '-ac', '2', wav_path]
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     if os.path.exists(raw_wav_path):
