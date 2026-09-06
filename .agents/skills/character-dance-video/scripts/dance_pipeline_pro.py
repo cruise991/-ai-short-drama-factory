@@ -149,17 +149,17 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
     else:
         negative_prompt = (
             "cropped head, head cut off, head out of frame, headless body, missing head, missing face, face cut off, "
-            "zoomed-in lower body, torso close-up, bottom half only, lower body only, cropped body, cropped legs, waist-down only, "
-            "caucasian face, western features, european face, mature face, sharp masculine jawline, changed face, altered facial identity, non-asian face, "
+            "zoomed-in lower body, torso close-up, bottom half only, lower body only, cropped body, waist-down only, "
+            "caucasian face, western features, european face, mature face, sharp masculine jawline, sharp angular jawline, prominent high cheekbones, deep nasolabial folds, mature aged face, sunken cheeks, harsh facial lighting, changed face, altered facial identity, non-asian face, "
             "short legs, compressed height, lowered body, sinking posture, crouching, squatting, bent knees, hunchback, dwarf proportions, stubby legs, average height body, normal proportions, 7-head body ratio, compact build, thick short thighs, short torso, "
             "head turned 180 degrees, backward head, head facing opposite direction of body, neck twist, "
             "head on backwards, exorcist head rotation, broken neck, unnatural spinal twist, chest on back, "
-            "back of jacket on front, front clothing on back, torso orientation mismatch, mismatched facing direction, "
+            "back of jacket on front, front clothing on back, torso orientation mismatch, mismatched facing direction, unnatural body rotation, spinning away, "
+            "shoes on beach, random shoes, sneakers on sand, misplaced footwear, floating shoes, shoes on ground, "
             "room change, furniture, sofas, indoor living room, bright room, "
-            "cropped feet, feet cut off, blurry, low quality, "
-            "distorted hands, distorted body, extra limbs, ugly face, disjointed limbs, floating head, floating body"
+            "blurry, low quality, distorted hands, distorted body, extra limbs, ugly face, disjointed limbs, floating head, floating body"
         )
-        prompt_suffix = ", maintaining ultra-tall willowy 9-head supermodel body proportions throughout with legs occupying at least 55 percent of total body height, fully extended straight long legs at all times, never compressed shortened or squatting, seamless rhythm motion, identical clothing and face"
+        prompt_suffix = ", soft youthful East Asian face with delicate sweet smile, natural coastal ocean breeze with fluttering hair strands, maintaining graceful upright proportions throughout, fully extended legs, never compressed shortened or squatting, seamless rhythm motion, identical clothing and face"
 
     for attempt in range(25):
         api_key = get_api_key(key_idx + attempt)

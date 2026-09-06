@@ -20,12 +20,12 @@ def get_templates_dir():
 TEMPLATES_DIR = get_templates_dir()
 
 ACTION_TRANSLATIONS = {
-    '亮相起手': 'standing ultra tall with long straight legs, extending arms gently to the sides, smiling sweetly into the camera with subtle rhythm bounce',
-    '侧身回眸摇': 'turning torso gracefully 45-degrees while keeping head looking back over shoulder with charming eye contact, executing fluid S-curve hip sway and gentle waist isolations',
-    '胸腔波浪律动': 'facing forward with tall upright posture, executing fluid upper-body chest waves and torso isolations, glancing down shyly then looking up smiling into camera',
-    '轻盈转体律动': 'performing light agile half-turns on beat, gently touching hair strands with one hand, swaying hips gracefully to the upbeat rhythm',
-    '高潮核心摇摆': 'executing energetic wide S-curve hip rolls and lively shoulder grooves to the peak beat while maintaining ultra-tall supermodel posture',
-    '减速定格收尾': 'gradually decelerating dance movement during the final 1.5 seconds, bringing hands and posture smoothly back into exact initial open-arm standing pose, holding steady for a seamless loop',
+    '亮相起手': 'facing camera with upright posture, extending arms gently to the sides, smiling sweetly into the camera with subtle rhythm bounce, hair strands fluttering in the gentle coastal breeze',
+    '柔美S曲线律动': 'facing forward directly towards camera with direct sweet eye contact, executing fluid continuous S-curve hip sway and gentle waist isolations with natural upper body posture within anatomical range, soft hair fluttering in breeze',
+    '胸腔波浪律动': 'facing forward with upright posture, executing fluid upper-body chest waves and smooth torso isolations, glancing down shyly then looking up smiling warmly into camera, natural kinetic bounce, soft hair fluttering in breeze',
+    '轻盈踏步律动': 'performing light agile micro-steps in place facing forward without turning, gently touching hair strands with one hand, swaying hips gracefully to the upbeat rhythm within natural frontal alignment',
+    '高潮核心摇摆': 'executing energetic frontal S-curve hip rolls and lively shoulder grooves to the peak beat with radiant sweet smile, natural kinetic bounce, maintaining upright posture without spinning or turning away',
+    '减速定格收尾': 'gradually decelerating dance movement during the final 1.5 seconds, bringing hands and posture smoothly back into exact initial open-arm standing pose, holding steady with sweet smile for a flawless seamless loop',
     '预备': 'standing ultra tall with straight long legs, engaging in snappy rhythmic shoulder pops and stylish head bobbing to the fast beat',
     '起手': 'standing ultra tall, quickly raising hands in sharp stylish K-pop point dance pose, bouncing actively to the fast tempo',
     '起手式': 'standing tall with long straight legs, performing rapid stylish wrist isolations and energetic dynamic waist sway to the beat',
