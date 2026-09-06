@@ -19,6 +19,7 @@ import subprocess
 SAMPLE_RATE = 44100
 
 TEMPLATE_GENRE_MAP = {
+    'DANCE_GLANCE_SWAY': 'street',
     'DANCE_THAI_SWAY': 'thai_sway',
     'DANCE_CAI_BAO_XIAO': 'cai_bao_xiao',
     'DANCE_JUMP_BLACKPINK': 'jump_blackpink',

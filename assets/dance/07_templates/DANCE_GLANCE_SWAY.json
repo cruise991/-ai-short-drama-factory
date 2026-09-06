@@ -1,0 +1,77 @@
+{
+  "dance_id": "DANCE_GLANCE_SWAY",
+  "name": "甜美回眸摇/微风纯欲摇",
+  "stats": {
+    "views": "亿级爆款",
+    "difficulty": 2,
+    "virality": 5
+  },
+  "duration_range": [
+    15,
+    30
+  ],
+  "bpm": "115-125",
+  "tags": [
+    "甜美回眸",
+    "纯欲慢摇",
+    "微风摇",
+    "身姿曲线",
+    "海滩风情"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_BIKINI",
+        "TOP_QIPAO",
+        "TOP_CROP_TOP"
+      ],
+      "bottom": [
+        "BOTTOM_BIKINI",
+        "BOTTOM_MINISKIRT"
+      ]
+    },
+    "scene": [
+      "SCENE_BEACH",
+      "SCENE_STUDIO",
+      "SCENE_SUNSET"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-5s",
+      "name": "亮相起手",
+      "action_prompt": "双手轻盈微展，优雅挺拔站姿，甜美微笑正视镜头，随着轻快节拍轻微律动",
+      "expression": "甜美自信微笑"
+    },
+    {
+      "time": "5-10s",
+      "name": "侧身回眸摇",
+      "action_prompt": "身体优雅微侧45度，头部回眸温柔对视镜头，腰部与臀部随节奏做流畅柔美的S曲线律动，单手轻抚腰际",
+      "expression": "迷人回眸微笑"
+    },
+    {
+      "time": "10-15s",
+      "name": "胸腔波浪律动",
+      "action_prompt": "转回正面微倾，做流畅优美的胸腔与躯干波浪律动，低头含羞再抬眼对视镜头，双臂自然舒展",
+      "expression": "含羞温柔微笑"
+    },
+    {
+      "time": "15-20s",
+      "name": "轻盈转体律动",
+      "action_prompt": "踩着节拍优雅轻盈半转身，手轻拂发丝，腰肢随电音节奏欢快摇曳，展现修长比例",
+      "expression": "欢快甜美"
+    },
+    {
+      "time": "20-25s",
+      "name": "高潮核心摇摆",
+      "action_prompt": "正面优雅大幅度S曲线摇摆，双肩随节拍轻快晃动，充满青春活力与微风律动感",
+      "expression": "灿烂笑容"
+    },
+    {
+      "time": "25-30s",
+      "name": "减速定格收尾",
+      "action_prompt": "动作平稳减速，双手自然收回初始舒展姿态，挺拔站立，甜美微笑定格闭环",
+      "expression": "温柔定格微笑"
+    }
+  ]
+}
