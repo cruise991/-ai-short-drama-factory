@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Settings, Save } from 'lucide-react';
+import { configApi } from '../api/config';
 
 interface OnboardingWizardProps {
   onComplete: () => void;
@@ -19,8 +19,8 @@ export default function OnboardingWizard({ onComplete, isSettingsMode, onCancel 
 
   const fetchConfig = async () => {
     try {
-      const res = await axios.get('http://localhost:8008/api/config');
-      setConfig(res.data);
+      const data = await configApi.getSystemConfig();
+      setConfig(data);
     } catch (error) {
       console.error('Failed to load config', error);
     } finally {
@@ -31,7 +31,7 @@ export default function OnboardingWizard({ onComplete, isSettingsMode, onCancel 
   const saveConfig = async () => {
     setSaving(true);
     try {
-      await axios.post('http://localhost:8008/api/config', {
+      await configApi.updateSystemConfig({
         env_vars: config.env,
         yaml_vars: config.yaml
       });
@@ -42,6 +42,7 @@ export default function OnboardingWizard({ onComplete, isSettingsMode, onCancel 
       setSaving(false);
     }
   };
+
 
   const handleEnvChange = (key: string, value: string) => {
     setConfig({ ...config, env: { ...config.env, [key]: value } });

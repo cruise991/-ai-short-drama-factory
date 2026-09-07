@@ -69,7 +69,6 @@ shared_tools/.api_usage.json
 liblib_config.json
 *_config.json
 !config/company_config.yaml.example
-!00_requirements.json
 !config/00_requirements.json
 
 # ==============================
@@ -78,10 +77,24 @@ liblib_config.json
 projects/
 out/
 logs/
+archive/
+tmp_*/
 *.log
+*.bak
+*.aiff
+*.npy
+*.pkl
 frame.jpg
 mock_input.txt
 test.txt
 test_r2_upload.txt
 git_log_llm.txt
+trend_report_latest.md
+ceo_improvement_log.md
 data/app.db
+server/data/
+*.db
+*.sqlite
+*.sqlite3
+test_ref_character.png
+00_requirements.json

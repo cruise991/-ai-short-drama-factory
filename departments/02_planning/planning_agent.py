@@ -579,13 +579,18 @@ def run_requirements_gathering(ticket):
             
             if web_project_id:
                 print(f"[AWAITING_USER_INPUT] {web_project_id}", flush=True)
-                try:
-                    import requests
-                    resp = requests.get(f"http://localhost:8008/api/projects/{web_project_id}/internal_wait_input", timeout=86400)
-                    user_input = resp.json().get("text", "ok")
-                except Exception as e:
-                    print(f"[Auto-Mock] Web Input Error: {e}")
-                    user_input = "ok"
+                import requests
+                user_input = "ok"
+                ports = [os.environ.get("BACKEND_PORT", ""), "8000", "8008"]
+                for p in filter(None, dict.fromkeys(ports)):
+                    try:
+                        resp = requests.get(f"http://localhost:{p}/api/projects/{web_project_id}/internal_wait_input", timeout=86400)
+                        if resp.status_code == 200:
+                            user_input = resp.json().get("text", "ok")
+                            break
+                    except Exception:
+                        continue
+
             else:
                 import sys as _sys
                 # Non-interactive mode: stdin is a pipe, auto-confirm
@@ -806,6 +811,70 @@ def process_ticket(episode_dir):
     print("[Planning Dept] Ticket status updated to QA_Pending_Planning. Handing over to QA Dept.")
     return True
 
+
+def generate_marketing_recap(run_dir: str, output_file: str = None) -> dict:
+    """Extract key highlights, dramatic conflicts and CTA from a finished drama run to produce a marketing explainer script."""
+    run_dir = os.path.abspath(run_dir)
+    ticket_path = os.path.join(run_dir, "00_task_ticket.json")
+    storyboard_path = os.path.join(run_dir, "01_storyboards_scripts", "01_storyboard.md")
+    
+    goal = "AI短剧精选"
+    if os.path.exists(ticket_path):
+        try:
+            with open(ticket_path, "r", encoding="utf-8") as f:
+                t = json.load(f)
+                goal = t.get("goal", goal)
+        except Exception:
+            pass
+
+    storyboard_text = ""
+    if os.path.exists(storyboard_path):
+        try:
+            with open(storyboard_path, "r", encoding="utf-8") as f:
+                storyboard_text = f.read()[:1000]
+        except Exception:
+            pass
+
+    prompt = f"""你是一个短剧爆款宣发专家。请根据以下短剧主题与剧本大纲，写一段 30-45 秒的短视频宣发解说文案（用于数字人口播+视频切片包装）。
+文案结构要求：
+1. 黄金前3秒爆点钩子（如“千万别在深夜看这部剧！”或“家人们，反转太刺激了！”）
+2. 核心剧情冲突与高光看点提炼（2-3句话，紧凑刺激）
+3. 强力引导追剧 CTA（如“关注我看全集完整版！”）
+
+短剧主题：{goal}
+剧本节选：
+{storyboard_text if storyboard_text else "精彩反转剧情，扣人心弦。"}
+
+请直接输出纯文案内容，不要包含分镜头标记或多余说明。"""
+
+    recap_text = ""
+    try:
+        recap_text = call_llm("你是一个顶尖的影视短视频宣发策划大师。", prompt)
+    except Exception as e:
+        print(f"  [Planning Dept] LLM generation fallback: {e}")
+
+    if not recap_text or len(recap_text.strip()) < 10:
+        recap_text = f"家人们谁懂啊！今天推荐的这部短剧《{goal}》简直绝了！全程高能无尿点，反转不断，剧情刺激到让人停不下来！想看大结局的赶紧点赞关注，带你一口气刷全集！"
+
+    recap_text = recap_text.strip()
+    result = {
+        "title": f"Marketing_{os.path.basename(run_dir)}",
+        "text": recap_text,
+        "source_run_dir": run_dir,
+        "timestamp": time.time(),
+    }
+
+    if not output_file:
+        output_file = os.path.join(run_dir, "01_storyboards_scripts", "marketing_recap_script.json")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+
+    print(f"  [Planning Dept] 📣 宣发解说文案已生成并保存至: {output_file}")
+    return result
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         run_dir = sys.argv[1]
@@ -813,3 +882,4 @@ if __name__ == "__main__":
         workspace_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         run_dir = os.path.join(workspace_dir, "projects", "paperai-series", "episode-01")
     process_ticket(run_dir)
+

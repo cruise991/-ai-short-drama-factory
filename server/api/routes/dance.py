@@ -82,17 +82,31 @@ def run_dance_generation(task_id: str, input_image_path: str, duration: int, sty
         dance_tasks[task_id]["message"] = "Generating sequential dance shots with keyframes loop closure..."
         
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, cwd=BASE_DIR)
+        last_logs = []
         for line in process.stdout:
-            print(f"[DanceTask-{task_id[:6]}] {line.strip()}")
-            if "Generating sequential" in line or "Shot " in line:
-                dance_tasks[task_id]["progress"] = min(85, dance_tasks[task_id]["progress"] + 15)
-                dance_tasks[task_id]["message"] = line.strip()
-            elif "Step 5" in line or "Audio Director" in line:
-                dance_tasks[task_id]["progress"] = 90
+            clean_line = line.strip()
+            print(f"[DanceTask-{task_id[:6]}] {clean_line}", flush=True)
+            last_logs.append(clean_line)
+            if len(last_logs) > 30:
+                last_logs.pop(0)
+            if "Step 1" in clean_line or "R2 Upload" in clean_line:
+                dance_tasks[task_id]["progress"] = 10
+                dance_tasks[task_id]["message"] = "Uploading character reference to cloud..."
+            elif "Step 2" in clean_line or "Vision" in clean_line or "角色分析" in clean_line:
+                dance_tasks[task_id]["progress"] = 18
+                dance_tasks[task_id]["message"] = "AI analyzing character & facial features..."
+            elif "Generating sequential" in clean_line or "Shot " in clean_line:
+                dance_tasks[task_id]["progress"] = min(85, max(25, dance_tasks[task_id]["progress"] + 15))
+                dance_tasks[task_id]["message"] = clean_line
+            elif "Step 5" in clean_line or "Audio Director" in clean_line:
+                dance_tasks[task_id]["progress"] = 88
                 dance_tasks[task_id]["message"] = "Synthesizing synced producer BGM..."
-            elif "Step 6" in line or "Muxing" in line:
-                dance_tasks[task_id]["progress"] = 95
-                dance_tasks[task_id]["message"] = "Two-step safe video-audio muxing..."
+            elif "Step 6" in clean_line or "Muxing" in clean_line:
+                dance_tasks[task_id]["progress"] = 92
+                dance_tasks[task_id]["message"] = "Two-step safe video-audio muxing & sharpening..."
+            elif "Step 7" in clean_line or "Face Enhance" in clean_line or "面部增强" in clean_line:
+                dance_tasks[task_id]["progress"] = 96
+                dance_tasks[task_id]["message"] = "HD face enhancement processing..."
         
         process.wait()
         if process.returncode == 0 and os.path.exists(output_mp4):
@@ -103,7 +117,8 @@ def run_dance_generation(task_id: str, input_image_path: str, duration: int, sty
             dance_tasks[task_id]["video_path"] = output_mp4
         else:
             dance_tasks[task_id]["status"] = "failed"
-            dance_tasks[task_id]["message"] = "Generation process failed. Check server logs."
+            error_tail = "\n".join(last_logs[-5:]) if last_logs else "No process output"
+            dance_tasks[task_id]["message"] = f"Generation failed (code {process.returncode}): {error_tail}"
     except Exception as e:
         dance_tasks[task_id]["status"] = "failed"
         dance_tasks[task_id]["message"] = str(e)

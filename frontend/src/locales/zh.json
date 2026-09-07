@@ -1,0 +1,196 @@
+{
+  "app": {
+    "title": "AI 影业工厂",
+    "subtitle": "短剧与舞蹈视频自动化制作引擎 v2.0",
+    "nav": {
+      "dance": "AI 舞蹈工坊",
+      "drama": "短剧制作线",
+      "console": "实时终端",
+      "settings": "系统配置"
+    }
+  },
+  "drama": {
+    "title": "生产任务队列",
+    "subtitle": "监控并管理您的 AI 短剧自动化闭环生成流水线。",
+    "newProject": "新建短剧项目",
+    "empty": "当前生产队列暂无任务。",
+    "createFirst": "立即创建您的第一个短剧任务以启动流水线。",
+    "status": {
+      "pending": "等待排期",
+      "running": "执行中",
+      "drafting": "大纲构思中",
+      "draftCompleted": "剧本已完成",
+      "assetsGenerated": "分镜资产就绪",
+      "pausedByError": "需人工介入",
+      "completed": "全链路完工"
+    },
+    "actions": {
+      "viewDetail": "查看流转详情",
+      "viewAssets": "资产展厅",
+      "approve": "确认通过并推进",
+      "reject": "提出修改意见"
+    }
+  },
+  "detail": {
+    "title": "项目流转控制看板",
+    "workflow": "部门流转节点",
+    "currentPhase": "当前执行阶段",
+    "scriptDraft": "分镜剧本在线审阅",
+    "waitingApproval": "等待 CEO 人机在环确认",
+    "approvalTip": "策划部与编剧已完成本集分镜大纲设计，请在线审阅。您可以一键批准直接投产，或输入修改意见打回重写。",
+    "approveBtn": "批准剧本并推进制作",
+    "rejectPlaceholder": "请输入具体的修改意见或纠偏要求...",
+    "rejectBtn": "打回并提交修改要求",
+    "noScriptYet": "剧本正在由策划部与 QA 智能体协同生成中，生成完成后将自动在此处展示。"
+  },
+  "dance": {
+    "title": "AI Dance Studio 舞蹈工坊",
+    "subtitle": "单图生成 20-30s 无缝循环舞蹈 · {{count}} 款爆款热舞模版 · BPM 节拍音乐卡点 · 9头身高挑身材防压缩",
+    "controlPanelTitle": "创作控制台",
+    "stageTitle": "作品舞台展厅",
+    "templates": {
+      "title": "1. 灵感舞蹈动作模版",
+      "count": "共 {{count}} 款",
+      "tabs": {
+        "all": "全部模版",
+        "kpop": "女团流行",
+        "fitness": "健身活力",
+        "street": "街头律动",
+        "luxury": "优雅慢摇"
+      },
+      "selected": "已选用",
+      "select": "选用动作",
+      "views": "热度",
+      "bpm": "{{bpm}} BPM",
+      "unknown": "未知动作"
+    },
+    "badges": {
+      "v2Engine": "V2.0 视觉保真引擎",
+      "facialFidelity": "五官特征 100% 确定性保真",
+      "curvySilhouette": "自适应沙漏身材曲线",
+      "antiCompression": "9头身高挑防压缩",
+      "deterministicLoop": "100% 确定性闭环"
+    },
+    "character": {
+      "title": "2. 人物角色立绘",
+      "aspect": "9:16 全身立绘",
+      "reselect": "重新选择",
+      "uploadTitle": "点击或拖拽上传人物图",
+      "uploadDesc": "推荐 9:16 黄金比例、清晰全身站姿/全身立绘",
+      "antiCompressionTip": "系统已启用 9头身防压缩视觉锁，确保动作过程身材比例始终高挑舒展",
+      "loaded": "立绘已载入",
+      "templateTag": "模版：{{name}} ({{duration}}s)",
+      "generateNow": "立即生成",
+      "antiCompressionMounted": "9头身防压缩身材算法已挂载",
+      "loopSubtitle": "✨ 100% 关键帧首尾对齐闭环 · 生成即是成品",
+      "productionSpecs": "影视级工程规格 (Production Specs)",
+      "seamlessLoop": "无缝循环播放已启用",
+      "seamlessLoopDesc": "视频末帧与参考图首帧无缝重合，适合作为 TikTok / Shorts 自动循环播放的高转化素材。",
+      "taskInterrupted": "制作中断，请查看日志",
+      "failedToSubmit": "任务提交失败，请检查网络和服务状态",
+      "generationFailed": "生成失败",
+      "featureLoopDesc": "100% 关键帧首尾对齐",
+      "featureProportionsDesc": "拒绝人物身材矮缩",
+      "featureBpmDesc": "毫秒级打击音画对齐",
+      "featureQualityDesc": "704x1280 竖屏高码率"
+    },
+    "params": {
+      "title": "3. 规格与微调",
+      "duration": "视频目标时长",
+      "sec20": "20 秒 (4 段镜头)",
+      "sec30": "30 秒 (6 段镜头)",
+      "style": "视觉风格调性",
+      "styles": {
+        "kpop": "K-pop 女团",
+        "fitness": "健身活力",
+        "street": "街头律动",
+        "luxury": "优雅慢摇"
+      },
+      "promptDesc": "细节特征微调 (可选)",
+      "promptPlaceholder": "例如：留着微卷长发，白色短裙，黑色高跟长靴，纯黑影棚背景..."
+    },
+    "cta": {
+      "generate": "一键生成 100% 闭环循环舞蹈",
+      "generating": "正在调度 AI 渲染管线...",
+      "needImage": "请先上传一张全身模特或人物立绘参考图",
+      "loopClosureNote": "采用关键帧首尾对齐闭环技术 · 100% 确定性收敛无跳帧"
+    },
+    "stage": {
+      "idleTitle": "AI 虚拟舞台就绪",
+      "idleSubtitle": "在左侧上传人物角色并选用舞蹈动作模版，即可在此处实时预览与渲染 100% 闭环的 9:16 循环舞蹈。",
+      "readyBadge": "新角色已就绪",
+      "readyTitle": "角色立绘与参数已就绪",
+      "readySubtitle": "点击下方按钮立即启动 AI 舞蹈多镜头渲染管线，生成 100% 确定性闭环成片。",
+      "startNow": "立即开始制作 AI 舞蹈",
+      "readyTemplate": "动作：{{name}}",
+      "readyDuration": "时长：{{duration}} 秒",
+      "features": {
+        "loop": "首尾姿态确定性闭环收敛",
+        "proportions": "9头身身材比例防压缩算法",
+        "bpm": "BPM 毫秒级音乐鼓点卡点",
+        "quality": "广播级 H.264 / AAC 封装"
+      },
+      "renderingTitle": "AI 舞蹈多镜头渲染中...",
+      "renderingStep": "正在按节拍序列生成多镜头画面与闭环过渡",
+      "pipeline": {
+        "shot1": "镜头 1",
+        "shot2": "镜头 2",
+        "shot3": "镜头 3",
+        "shot4": "闭环收敛",
+        "bgm": "音乐混音",
+        "mux": "封装成片"
+      },
+      "completedTitle": "渲染质检已通过 · 成品就绪",
+      "videoTitle": "{{duration}}s 广播级无缝循环成片",
+      "meta": {
+        "codec": "编码标准：H.264 / yuv420p (704x1280 竖屏)",
+        "audio": "音频配置：AAC 44.1kHz 多声部卡点舞曲",
+        "loopFeature": "闭环特性：首尾姿态 100% 确定性收敛无跳帧",
+        "template": "舞蹈动作：{{name}} ({{bpm}} BPM)",
+        "style": "风格调性：{{style}}"
+      },
+      "download": "下载 MP4 舞蹈视频",
+      "recreate": "重新编排 / 制作新视频",
+      "privacyNotice": "您的图片将仅用于 AI 视觉分析以提升人物特征还原度",
+      "visionAnalysis": "AI 正在分析角色面部与体型特征...",
+      "faceEnhance": "正在进行超高清面部细节增强...",
+      "showcase": {
+        "title": "V2.0 视觉保真与面部超分实测成果演示",
+        "tag": "实测成果 · 20s 无缝闭环卡点",
+        "videoBadge": "V2.0 4-Shot 闭环 · 115 BPM 卡点",
+        "comparisonTitle": "【参考立绘 vs V2.0 渲染成片】对比",
+        "auditPassed": "广播级三级质检已通过",
+        "curvyModel": "丰满身材曲线与精细五官保持",
+        "curvyModelDesc": "Vision 2.5 深度解析眼型、卧蚕、唇色及沙漏体态，负向词与提示词全面纠偏。",
+        "tryYourOwn": "立即体验全新 V2.0 引擎",
+        "tryYourOwnDesc": "在左侧选择舞蹈动作并上传您的立绘图片，系统将自动进行多模态角色深度解析与高清渲染。",
+        "uploadBtn": "点击上传我的立绘图片"
+      }
+    }
+  },
+  "modal": {
+    "title": "初始化创作引擎",
+    "branch": "创作分支 (BRANCH)",
+    "dramaBranch": "原创微短剧",
+    "dramaDesc": "自动撰写剧情分镜、生成视觉钩子",
+    "danceBranch": "AI 舞蹈短视频",
+    "danceDesc": "选择固定角色 IP，快速生成热舞",
+    "promptLabel": "灵感提示词 (PROMPT)",
+    "promptPlaceholder": "请输入你的创意想法... 例如：赛博朋克风女团舞蹈，或是悬疑微短剧开场...",
+    "trendTitle": "全网热点扫描 (Trend Research)",
+    "trendDesc": "联网抓取小红书/抖音最新爆款标签融入生成",
+    "vibeLabel": "视觉风格调性",
+    "ipLabel": "固定角色 IP 预设",
+    "cancel": "取消",
+    "submit": "提交任务",
+    "submitting": "提交中...",
+    "goalEmpty": "项目目标或创意想法不能为空。"
+  },
+  "common": {
+    "loading": "加载中...",
+    "save": "保存",
+    "cancel": "取消",
+    "success": "成功",
+    "error": "错误"
+  }
+}

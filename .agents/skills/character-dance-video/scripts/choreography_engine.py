@@ -20,6 +20,12 @@ def get_templates_dir():
 TEMPLATES_DIR = get_templates_dir()
 
 ACTION_TRANSLATIONS = {
+    '元气起手': 'facing camera with upright stationary posture, feet planted firmly in place, resting hands lightly at side hips, engaging in snappy rhythmic shoulder pops, natural sweet smile, subtle rhythmic bounce on beat, maintaining generous headroom above head',
+    '核心S曲线快摇': 'facing camera with stationary upright posture, feet planted, hands resting lightly at side hips without covering torso, executing rapid fluid continuous S-curve hip sway and snappy waist isolations to the energetic beat, stationary tripod framing with generous headroom',
+    '踏步核心律动': 'standing firmly anchored in place with feet planted without stepping forward or zooming in, delicate wrist isolations and subtle rhythmic hip sway to the beat, hands at side hips, strictly maintaining full distance from camera with generous headroom above head and whole head clearly visible',
+    '胸腔波浪与核心律动': 'standing stationary with feet planted, performing fluid torso and chest rhythmic pulses to the climax beat while keeping hands down at hips, eye contact with camera, maintaining stationary tripod framing and generous headroom',
+    '高潮快节奏摇摆': 'high-energy fast-paced hip sway and bouncy shoulder groove while standing firmly anchored in place, arms naturally at sides, sweet smile, staying stationary in the frame with generous headroom above head and intact clothing',
+    '无缝闭环收尾': 'during the final 1.5 seconds, the woman smoothly and gradually decelerates all dancing motion, bringing her arms, posture, and expression smoothly back into the exact original reference starting pose with right hand resting naturally near thigh, holding perfectly steady on the final beat for a flawless seamless loop',
     '亮相起手': 'facing camera with upright posture, extending arms gently to the sides, smiling sweetly into the camera with subtle rhythm bounce, hair strands fluttering in the gentle coastal breeze',
     '柔美S曲线律动': 'facing forward directly towards camera with direct sweet eye contact, executing fluid continuous S-curve hip sway and gentle waist isolations with natural upper body posture within anatomical range, soft hair fluttering in breeze',
     '胸腔波浪律动': 'facing forward with upright posture, executing fluid upper-body chest waves and smooth torso isolations, glancing down shyly then looking up smiling warmly into camera, natural kinetic bounce, soft hair fluttering in breeze',
@@ -38,14 +44,14 @@ ACTION_TRANSLATIONS = {
     '挤柠檬': 'performing snappy downward hand groove isolations, fast torso body wave and rapid syncopated sliding footwork',
     '崴脚步核心': 'performing fast stylish foot sliding, rapid snappy ankle groove and dynamic hip wave isolations on fast beat',
     '丝滑手部': 'performing fast fluid wrist rotations, sharp finger gestures, and energetic continuous body wave to the rhythm',
-    '全身波浪': 'performing snappy full body wave, rapid 180-degree stylish turn and fast-paced agile footwork',
+    '全身波浪': 'performing snappy full body wave, rapid 180-degree stylish turn with natural coordinated head-torso rotation as one anatomical unit keeping head and shoulders aligned, fast-paced agile footwork',
     '加速': 'doing fast-paced high-energy bouncing steps, rapid hip snaps, and cheerful radiant expression to the fast tempo',
     '加速段': 'executing rapid snappy choreography, high-speed arm gestures, and lively energetic body bounce',
     '变奏': 'performing snappy stylish spin, agile body wave and rapid rhythmic step isolations while maintaining full upright height',
     '变奏加速': 'executing fast bouncy rhythmic footwork, dynamic hip snaps and rapid energetic body groove on the drop',
     '交叉挥动': 'executing rapid sharp arm crosses and snappy outward swings, fast syncopated foot sliding and energetic body groove',
-    '旋转': 'executing dynamic 360-degree stylish spin with fluid arm extensions while keeping tall erect posture',
-    '转身': 'doing rapid stylish half-spin and snappy body groove with sweet radiant smile',
+    '旋转': 'executing graceful controlled 360-degree stylish spin with fluid arm extensions while maintaining natural coordinated head-torso alignment throughout the entire spin, head and shoulders rotating together as one natural anatomical unit, tall erect posture',
+    '转身': 'doing rapid stylish half-spin with natural coordinated head-body rotation, head and torso turning together smoothly as one anatomically correct unit, snappy body groove with sweet radiant smile',
     '展翅': 'gracefully extending both arms wide, lifting torso tall and swaying rhythmically to the melody',
     '天使降临': 'standing tall and poised, performing gentle ethereal shoulder groove and soft graceful hand gestures',
     '定格': 'smoothly straightening both legs to full tall height, lowering arms naturally to sides, standing upright into exact starting pose for a seamless loop',
@@ -92,7 +98,7 @@ def load_template_actions(template_name_or_id):
         print(f"[Choreography Engine] Template load error: {e}")
         return None
 
-def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='', template_id=None, is_rear_pose=False, is_kneeling_pose=False):
+def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='', template_id=None, is_rear_pose=False, is_kneeling_pose=False, is_indoor=False):
     num_shots = max(1, duration // 5)
     tpl_data = load_template_actions(template_id) if template_id else None
     
@@ -101,7 +107,7 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
     elif is_rear_pose:
         convergence_action = "Phase Convergence (Seamless Loop Closure): During the final 1.5 seconds, the woman smoothly and gradually decelerates all dancing motion, executing a coordinated natural full-body pivot and turn, gracefully settling whole body and torso 100% into the exact original 3/4 rear reference orientation with head looking back over shoulder, perfectly holding and freezing steady on the final beat for a seamless loop"
     else:
-        convergence_action = "Phase Convergence (Seamless Loop Closure): During the final 1.5 seconds, the woman smoothly and gradually decelerates all dancing motion, bringing her arms, body, upright posture, and smiling expression 100% back into the exact original reference starting pose, standing ultra-tall with long straight legs and holding perfectly steady on the final beat for a flawless seamless loop"
+        convergence_action = "Phase Convergence (Seamless Loop Closure): During the final 1.5 seconds, the woman smoothly and gradually decelerates all dancing motion, bringing her arms, posture, body alignment, and facial expression 100% back into the exact original reference starting pose, holding perfectly steady on the final beat for a flawless seamless loop"
     
     if tpl_data and tpl_data.get('actions'):
         raw_actions = tpl_data['actions']

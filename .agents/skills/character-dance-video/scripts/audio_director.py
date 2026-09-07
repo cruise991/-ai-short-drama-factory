@@ -31,7 +31,8 @@ TEMPLATE_GENRE_MAP = {
     'DANCE_GET_ON_BUS': 'street',
     'DANCE_HIME_ME_SHAKE': 'kpop',
     'DANCE_QING_TIAN_DA_LAO_YE': 'cai_bao_xiao',
-    'DANCE_REVENGE_SHAKE': 'fitness'
+    'DANCE_REVENGE_SHAKE': 'fitness',
+    'DANCE_HOME_FITNESS_BOUNCE': 'kpop'
 }
 
 GENRE_DEFAULT_BPM = {

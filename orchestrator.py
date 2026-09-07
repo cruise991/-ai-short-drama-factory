@@ -357,6 +357,13 @@ def process_single_run(ticket_path, run_dir, workspace_dir):
             with open(ticket_path, "r", encoding="utf-8") as f:
                 t_data = json.load(f)
             log_to_ceo(workspace_dir, f"【完工财报】工单 [{t_data.get('goal')}] 闭环完成！")
+            
+            # 自动衍生短剧宣发解说闭环 (Phase 3: Automated Marketing Explainer Closed-Loop)
+            try:
+                run_marketing_recap_pipeline(workspace_dir, run_dir, t_data)
+            except Exception as m_err:
+                print(f"  [Orchestrator] ⚠️ 宣发解说自动衍生提示: {m_err}")
+                log_to_ceo(workspace_dir, f"宣发解说衍生未完成: {m_err}")
             break
             
         elif status == "Paused_By_Error":
@@ -374,5 +381,54 @@ def process_single_run(ticket_path, run_dir, workspace_dir):
     if loops >= max_loops:
         print("[Orchestrator] 死锁！达到最大重试次数 (Max loops reached).")
 
+
+def run_marketing_recap_pipeline(workspace_dir: str, run_dir: str, ticket: dict) -> str:
+    """Generate a marketing recap explainer video from a finished drama run."""
+    print("\n[Orchestrator] 🚀 正在触发【宣发解说自动衍生引擎】(Marketing Explainer Engine)...")
+    import importlib
+    planning_mod = importlib.import_module("departments.02_planning.planning_agent")
+    generate_marketing_recap = planning_mod.generate_marketing_recap
+    from shared_tools.explainer_adapter import ExplainerPipelineAdapter
+    
+    script_info = generate_marketing_recap(run_dir)
+    spoken_text = script_info.get("text", "")
+    goal_slug = get_safe_dirname(ticket.get("goal", "drama_recap"))
+    
+    # Check for character avatar image or default
+    avatar_image = None
+    character_name = ticket.get("character", "default")
+    possible_avatars = [
+        os.path.join(workspace_dir, ".agent-video", "assets", "avatar", f"{character_name}.png"),
+        os.path.join(workspace_dir, "departments", "00_global_data", "avatars", f"{character_name}.png"),
+        os.path.join(run_dir, "03_production_assets", "character_ref.png"),
+    ]
+    for p in possible_avatars:
+        if os.path.isfile(p):
+            avatar_image = p
+            break
+            
+    # Check for background clip
+    bg_video = None
+    rendered_clips = glob.glob(os.path.join(run_dir, "06_post_renders", "*.mp4"))
+    if rendered_clips:
+        bg_video = rendered_clips[0]
+
+    adapter = ExplainerPipelineAdapter()
+    res = adapter.run_explainer_task(
+        task_id=f"recap_{goal_slug}",
+        script_text=spoken_text,
+        avatar_image=Path(avatar_image) if avatar_image else None,
+        background_video=Path(bg_video) if bg_video else None,
+        mode="pip",
+        canvas=ticket.get("aspect_ratio", "9:16"),
+    )
+    
+    out_video = res.get("output_video", "")
+    print(f"[Orchestrator] ✅ 宣发解说视频自动生成完毕 -> {out_video}")
+    log_to_ceo(workspace_dir, f"【宣发衍生】已自动生成短剧营销解说视频: {os.path.basename(out_video)}")
+    return out_video
+
+
 if __name__ == "__main__":
     run_orchestrator()
+

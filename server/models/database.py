@@ -37,8 +37,9 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 engine = create_engine(sqlite_url, echo=True)
 
 def create_db_and_tables():
-    SQLModel.metadata.drop_all(engine)
+    # Only create tables if they do not exist; NEVER drop existing production/dev data
     SQLModel.metadata.create_all(engine)
+
 
 def get_session():
     with Session(engine) as session:

@@ -1,0 +1,196 @@
+{
+  "app": {
+    "title": "AI Media Studio",
+    "subtitle": "Video & Dance Generator v2.0",
+    "nav": {
+      "dance": "AI Dance Studio",
+      "drama": "Short Drama",
+      "console": "Live Console",
+      "settings": "System Settings"
+    }
+  },
+  "drama": {
+    "title": "Production Queue",
+    "subtitle": "Monitor and manage your AI short drama generation pipeline.",
+    "newProject": "New Project",
+    "empty": "No projects in the production queue.",
+    "createFirst": "Create your first short drama to get started.",
+    "status": {
+      "pending": "Pending",
+      "running": "Running",
+      "drafting": "Drafting",
+      "draftCompleted": "Script Ready",
+      "assetsGenerated": "Assets Ready",
+      "pausedByError": "Review Required",
+      "completed": "Completed"
+    },
+    "actions": {
+      "viewDetail": "View Timeline",
+      "viewAssets": "Asset Gallery",
+      "approve": "Approve & Next Phase",
+      "reject": "Submit Revision"
+    }
+  },
+  "detail": {
+    "title": "Project Control Panel",
+    "workflow": "Workflow Timeline",
+    "currentPhase": "Current Phase",
+    "scriptDraft": "Storyboard & Script Draft",
+    "waitingApproval": "Awaiting Human-in-the-Loop Review",
+    "approvalTip": "The Planning Department has generated the storyboard script. Please review below and approve or provide critical revision feedback.",
+    "approveBtn": "Approve Script & Proceed to Production",
+    "rejectPlaceholder": "Enter specific direction or correction for the next iteration...",
+    "rejectBtn": "Request Script Revision",
+    "noScriptYet": "Script drafting is in progress. Logs and storyboards will stream here automatically."
+  },
+  "dance": {
+    "title": "AI Dance Studio",
+    "subtitle": "Single image to 20-30s seamless loop dance · {{count}} viral choreography templates · BPM rhythm sync · 9-head tall proportion guard",
+    "controlPanelTitle": "Creation Console",
+    "stageTitle": "Production Stage",
+    "templates": {
+      "title": "1. Choreography Templates",
+      "count": "{{count}} Templates",
+      "tabs": {
+        "all": "All",
+        "kpop": "Girl Group",
+        "fitness": "Fitness",
+        "street": "Street",
+        "luxury": "Slow Sway"
+      },
+      "selected": "Selected",
+      "select": "Select",
+      "views": "Popularity",
+      "bpm": "{{bpm}} BPM",
+      "unknown": "Choreography"
+    },
+    "badges": {
+      "v2Engine": "V2.0 Visual Fidelity Engine",
+      "facialFidelity": "100% Facial Fidelity",
+      "curvySilhouette": "Adaptive Curvy Silhouette",
+      "antiCompression": "9-Head Model Anti-Squash",
+      "deterministicLoop": "100% Deterministic Loop"
+    },
+    "character": {
+      "title": "2. Character Reference",
+      "aspect": "9:16 Full Body",
+      "reselect": "Reselect",
+      "uploadTitle": "Click or drag character image here",
+      "uploadDesc": "Recommended: 9:16 aspect ratio, clear full-body standing pose",
+      "antiCompressionTip": "9-head tall anti-compression visual lock enabled for natural proportions throughout",
+      "loaded": "Character Loaded",
+      "templateTag": "Motion: {{name}} ({{duration}}s)",
+      "generateNow": "Generate Now",
+      "antiCompressionMounted": "9-Head Anti-Squash Algorithm Active",
+      "loopSubtitle": "✨ 100% Keyframe Alignment · Production-Ready",
+      "productionSpecs": "Production Specs",
+      "seamlessLoop": "Seamless Loop Playback Enabled",
+      "seamlessLoopDesc": "Final frame seamlessly merges into initial reference pose, ideal for high-conversion auto-loop on TikTok and YouTube Shorts.",
+      "taskInterrupted": "Production interrupted, please check logs",
+      "failedToSubmit": "Task submission failed, check network and server status",
+      "generationFailed": "Generation failed",
+      "featureLoopDesc": "100% Keyframe Alignment",
+      "featureProportionsDesc": "Eliminate Character Squashing",
+      "featureBpmDesc": "Millisecond Beat Syncing",
+      "featureQualityDesc": "704x1280 High Bitrate"
+    },
+    "params": {
+      "title": "3. Duration & Vibe",
+      "duration": "Target Duration",
+      "sec20": "20s (4 Shots)",
+      "sec30": "30s (6 Shots)",
+      "style": "Visual Archetype",
+      "styles": {
+        "kpop": "K-pop Group",
+        "fitness": "Fitness Energy",
+        "street": "Street Rhythm",
+        "luxury": "Elegant Sway"
+      },
+      "promptDesc": "Detail Prompt Refinement (Optional)",
+      "promptPlaceholder": "e.g. Wavy long hair, white crop top, black boots, minimalist dark studio backdrop..."
+    },
+    "cta": {
+      "generate": "Generate 100% Seamless Loop Dance",
+      "generating": "Dispatching AI Render Pipeline...",
+      "needImage": "Please upload a full-body character reference image first",
+      "loopClosureNote": "Keyframe loop closure technology · 100% deterministic convergence"
+    },
+    "stage": {
+      "idleTitle": "AI Virtual Stage Ready",
+      "idleSubtitle": "Upload a character image and select a choreography template on the left to render and preview a seamless 9:16 loop dance.",
+      "readyBadge": "New Character Ready",
+      "readyTitle": "Character & Specs Ready to Render",
+      "readySubtitle": "Click below to dispatch the multi-shot AI render pipeline with 100% deterministic loop closure.",
+      "startNow": "Start Dance Generation Now",
+      "readyTemplate": "Motion: {{name}}",
+      "readyDuration": "Duration: {{duration}}s",
+      "features": {
+        "loop": "Deterministic Keyframe Loop Closure",
+        "proportions": "9-Head Tall Anti-Compression Guard",
+        "bpm": "Millisecond-Level Beat & Audio Sync",
+        "quality": "Broadcast H.264 / AAC Encoding"
+      },
+      "renderingTitle": "Rendering Multi-Shot Choreography...",
+      "renderingStep": "Generating sequential dance motions with keyframe loop closure",
+      "pipeline": {
+        "shot1": "Shot 1",
+        "shot2": "Shot 2",
+        "shot3": "Shot 3",
+        "shot4": "Loop Closure",
+        "bgm": "Audio Mix",
+        "mux": "Final Mux"
+      },
+      "completedTitle": "Quality Audit Passed · Media Ready",
+      "videoTitle": "{{duration}}s Broadcast Seamless Loop Video",
+      "meta": {
+        "codec": "Encoding: H.264 / yuv420p (704x1280 Vertical)",
+        "audio": "Audio: AAC 44.1kHz Stereo Rhythm BGM",
+        "loopFeature": "Loop: 100% Deterministic Convergence (No Jitter)",
+        "template": "Motion: {{name}} ({{bpm}} BPM)",
+        "style": "Vibe: {{style}}"
+      },
+      "download": "Download MP4 Dance Video",
+      "recreate": "Re-choreograph / New Video",
+      "privacyNotice": "Your image will be used for AI visual analysis to improve character fidelity",
+      "visionAnalysis": "AI analyzing character & facial features...",
+      "faceEnhance": "HD face enhancement processing...",
+      "showcase": {
+        "title": "V2.0 Visual Fidelity & HD Face Enhancement Verified Demo",
+        "tag": "Verified Masterpiece · 20s Loop",
+        "videoBadge": "V2.0 4-Shot Loop · 115 BPM Beat-Sync",
+        "comparisonTitle": "Reference Portrait vs V2.0 Rendered Video",
+        "auditPassed": "Broadcast QA Passed",
+        "curvyModel": "Voluptuous Silhouette & Facial Detail Preservation",
+        "curvyModelDesc": "Vision 2.5 extracts eyes, aegyo-sal, lips and curvy figure; negative prompts completely calibrated.",
+        "tryYourOwn": "Experience All-New V2.0 Engine",
+        "tryYourOwnDesc": "Select a dance motion on the left and upload your character portrait to generate your custom video.",
+        "uploadBtn": "Upload Character Portrait"
+      }
+    }
+  },
+  "modal": {
+    "title": "Initialize Creative Pipeline",
+    "branch": "CREATIVE BRANCH",
+    "dramaBranch": "Original Short Drama",
+    "dramaDesc": "Auto-generate multi-shot scripts & visual hooks",
+    "danceBranch": "AI Dance Short Video",
+    "danceDesc": "Select fixed character IP & dynamic choreography",
+    "promptLabel": "CREATIVE PROMPT",
+    "promptPlaceholder": "Describe your creative idea... e.g. Cyberpunk girl group dance or suspenseful drama opener...",
+    "trendTitle": "Trend Research & Web Signals",
+    "trendDesc": "Real-time web signals from Xiaohongshu & TikTok injected into planning",
+    "vibeLabel": "VISUAL STYLE & VIBE",
+    "ipLabel": "CHARACTER IP PRESET",
+    "cancel": "Cancel",
+    "submit": "Submit Project",
+    "submitting": "Submitting...",
+    "goalEmpty": "Project goal cannot be empty."
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "success": "Success",
+    "error": "Error"
+  }
+}

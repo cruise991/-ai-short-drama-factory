@@ -1,14 +1,17 @@
 import asyncio
 import os
+import sys
 import time
 import json
 import contextlib
 from sqlmodel import Session, select
 from models.database import engine, Project
 from ws.logger import manager
-import sys
+if os.path.exists("/workspace/projects") or os.path.exists("/workspace"):
+    BASE_DIR = "/workspace"
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-BASE_DIR = "/workspace"
 
 class WSRedirector:
     def __init__(self, original_stdout, loop):

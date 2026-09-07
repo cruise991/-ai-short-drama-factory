@@ -1,6 +1,8 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import axios from 'axios';
 import { X, Loader2, Sparkles, TrendingUp, Music, Film } from 'lucide-react';
+import { projectsApi } from '../api/projects';
+import { configApi } from '../api/config';
+import { useTranslation } from '../locales/i18n';
 
 interface CreateProjectModalProps {
   onClose: () => void;
@@ -8,6 +10,7 @@ interface CreateProjectModalProps {
 }
 
 const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => {
+  const { t } = useTranslation();
   const [goal, setGoal] = useState('');
   const [branchType, setBranchType] = useState('short_drama');
   const [availableIps, setAvailableIps] = useState<string[]>([]);
@@ -19,10 +22,8 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch IPs
-    axios.get('http://localhost:8008/api/config/ips')
-      .then(res => {
-        const ips = res.data.ips || [];
+    configApi.getAvailableIps()
+      .then(ips => {
         setAvailableIps(ips);
         if (ips.length > 0) setSelectedIp(ips[0]);
       })
@@ -32,7 +33,7 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!goal.trim()) {
-      setError('Project goal cannot be empty.');
+      setError(t('modal.goalEmpty', 'Project goal cannot be empty.'));
       return;
     }
     
@@ -40,21 +41,14 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
     setError('');
     
     try {
-      const payload = {
+      await projectsApi.createProject({
         goal,
         format_type: 'vertical',
         branch_type: branchType,
         selected_ip: selectedIp,
         vibe: vibe,
         trend_enabled: trendEnabled
-      };
-      
-      // Axios will serialize payload as JSON, but the backend expects query params for some reason? 
-      // Wait, in projects.py we didn't change the parameters correctly to BaseModel! 
-      // Let's pass them as query params or body depending on backend.
-      // Wait, in backend I didn't create a BaseModel for create_project, I just added them as function args. FastAPI will treat them as query parameters if they are not Pydantic models.
-      // So let's send them as query parameters:
-      await axios.post('http://localhost:8008/api/projects/', null, { params: payload });
+      });
       onSuccess();
     } catch (err) {
       console.error(err);
@@ -71,7 +65,7 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
             <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
               <Sparkles className="w-5 h-5" />
             </div>
-            <h2 className="text-xl font-bold text-white tracking-wide">初始化创作引擎</h2>
+            <h2 className="text-xl font-bold text-white tracking-wide">{t('modal.title', 'Initialize Creative Pipeline')}</h2>
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-1 rounded-md hover:bg-gray-800">
             <X className="w-5 h-5" />
@@ -93,15 +87,15 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
             <div className="space-y-6">
               {/* Branch Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-3 uppercase tracking-wider">创作分支 (Branch)</label>
+                <label className="block text-sm font-medium text-gray-400 mb-3 uppercase tracking-wider">{t('modal.branch', 'CREATIVE BRANCH')}</label>
                 <div className="grid grid-cols-2 gap-4">
                   <label className="cursor-pointer group">
                     <input type="radio" name="branchType" value="short_drama" checked={branchType === 'short_drama'} onChange={() => setBranchType('short_drama')} className="peer sr-only" />
                     <div className="p-4 border border-gray-800 rounded-xl bg-gray-900/50 group-hover:border-gray-700 peer-checked:border-blue-500/50 peer-checked:bg-blue-900/10 transition-all flex flex-col gap-2">
                       <Film className={`w-6 h-6 ${branchType === 'short_drama' ? 'text-blue-400' : 'text-gray-500'}`} />
                       <div>
-                        <span className="block text-gray-200 font-medium">原创微短剧</span>
-                        <span className="text-xs text-gray-500">自动撰写剧情分镜、生成视觉钩子</span>
+                        <span className="block text-gray-200 font-medium">{t('modal.dramaBranch', 'Original Short Drama')}</span>
+                        <span className="text-xs text-gray-500">{t('modal.dramaDesc', 'Auto-generate multi-shot scripts & visual hooks')}</span>
                       </div>
                     </div>
                   </label>
@@ -110,8 +104,8 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
                     <div className="p-4 border border-gray-800 rounded-xl bg-gray-900/50 group-hover:border-gray-700 peer-checked:border-purple-500/50 peer-checked:bg-purple-900/10 transition-all flex flex-col gap-2">
                       <Music className={`w-6 h-6 ${branchType === 'dance_video' ? 'text-purple-400' : 'text-gray-500'}`} />
                       <div>
-                        <span className="block text-gray-200 font-medium">AI舞蹈短视频</span>
-                        <span className="text-xs text-gray-500">选择固定角色IP，快速生成热舞</span>
+                        <span className="block text-gray-200 font-medium">{t('modal.danceBranch', 'AI Dance Short Video')}</span>
+                        <span className="text-xs text-gray-500">{t('modal.danceDesc', 'Select fixed character IP & dynamic choreography')}</span>
                       </div>
                     </div>
                   </label>
@@ -121,12 +115,12 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
               {/* Goal Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wider">
-                  灵感提示词 (Prompt)
+                  {t('modal.promptLabel', 'CREATIVE PROMPT')}
                 </label>
                 <textarea 
                   value={goal}
                   onChange={e => setGoal(e.target.value)}
-                  placeholder="请输入你的创意想法... 例如：赛博朋克风女团舞蹈，或是悬疑微短剧开场..."
+                  placeholder={t('modal.promptPlaceholder', 'Describe your creative idea...')}
                   className="w-full bg-gray-900/50 border border-gray-800 rounded-xl px-4 py-3 text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:bg-gray-900 transition-all resize-none h-24"
                   autoFocus
                 />
@@ -136,7 +130,7 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
               {branchType === 'dance_video' && (
                 <div className="grid grid-cols-2 gap-6 p-5 bg-gray-900/30 rounded-xl border border-gray-800/50">
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wider">选择角色 IP</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wider">{t('modal.ipLabel', 'CHARACTER IP PRESET')}</label>
                     <select 
                       value={selectedIp}
                       onChange={(e) => setSelectedIp(e.target.value)}
@@ -148,7 +142,7 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wider">情绪氛围 (Vibe)</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wider">{t('modal.vibeLabel', 'VISUAL STYLE & VIBE')}</label>
                     <select 
                       value={vibe}
                       onChange={(e) => setVibe(e.target.value)}
@@ -170,8 +164,8 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
                     <TrendingUp className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-200">全网热点扫描 (Trend Research)</div>
-                    <div className="text-xs text-gray-500">联网抓取小红书/抖音最新爆款标签融入生成</div>
+                    <div className="text-sm font-medium text-gray-200">{t('modal.trendTitle', 'Trend Research & Web Signals')}</div>
+                    <div className="text-xs text-gray-500">{t('modal.trendDesc', 'Real-time web signals from Xiaohongshu & TikTok injected into planning')}</div>
                   </div>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -191,16 +185,17 @@ const CreateProjectModal = ({ onClose, onSuccess }: CreateProjectModalProps) => 
             disabled={isSubmitting}
             className="px-5 py-2.5 text-sm font-medium text-gray-400 hover:text-white transition-colors"
           >
-            取消
+            {t('modal.cancel', 'Cancel')}
           </button>
           <button 
             type="submit" 
             form="project-form"
+            onClick={handleSubmit}
             disabled={isSubmitting}
             className="flex items-center px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)] disabled:opacity-50 disabled:shadow-none"
           >
             {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            {isSubmitting ? '引擎启动中...' : '提交任务'}
+            {isSubmitting ? t('modal.submitting', 'Submitting...') : t('modal.submit', 'Submit Project')}
           </button>
         </div>
       </div>

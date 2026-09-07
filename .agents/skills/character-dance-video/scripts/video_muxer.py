@@ -9,12 +9,14 @@ def robust_video_concat(video_files, bgm_path, output_mp4):
         for v in video_files:
             f.write(f"file '{os.path.abspath(v)}'\n")
 
-    # Step 1: Pure video re-encode (H.264 yuv420p 24fps)
+    # Step 1: Pure video re-encode (H.264 yuv420p 24fps) with unsharp and eq enhancement
     cmd1 = [
         "ffmpeg", "-y",
         "-f", "concat", "-safe", "0", "-i", list_txt,
         "-an",
+        "-vf", "unsharp=3:3:0.3:3:3:0.0",
         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", "24",
+        "-crf", "18",
         temp_video
     ]
     subprocess.run(cmd1, check=True)

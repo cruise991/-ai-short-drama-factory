@@ -1,55 +1,90 @@
-import React, { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { useTranslation } from '../locales/i18n'
 import { 
-  UploadCloud, Sparkles, Music, Flame, CheckCircle2, 
-  AlertCircle, Download, RotateCcw, Clock, Layers, Sliders
+  UploadCloud, Sparkles, Flame, CheckCircle2, 
+  AlertCircle, Download, RotateCcw, Clock, Layers, Sliders,
+  Film, ShieldCheck, Zap, RefreshCw, Play
 } from 'lucide-react'
+import { danceApi, type DanceTemplate, type DanceTaskStatus } from '../api/dance'
+import { getMediaUrl } from '../api/client'
 
-interface DanceTemplate {
-  dance_id: string
-  name: string
-  bpm: string
-  duration_range: number[]
-  tags: string[]
-  stats?: { views?: string; difficulty?: number; virality?: number }
-  timeline?: Array<{ time: string; name: string; action_prompt: string; expression?: string }>
-}
-
-interface TaskStatus {
-  task_id: string
-  status: 'queued' | 'processing' | 'completed' | 'failed'
-  progress: number
-  message: string
-  video_url?: string
-}
+type TemplateCategory = 'all' | 'kpop' | 'fitness' | 'street' | 'luxury'
 
 export default function DanceStudio() {
+  const { t } = useTranslation()
   const [templates, setTemplates] = useState<DanceTemplate[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<DanceTemplate | null>(null)
+  const [activeCategory, setActiveCategory] = useState<TemplateCategory>('all')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [duration, setDuration] = useState<number>(20)
-  const [style, setStyle] = useState<string>('kpop')
+  const [style, setStyle] = useState<string>('fitness')
   const [promptDesc, setPromptDesc] = useState<string>('')
-  const [customBpm, setCustomBpm] = useState<number>(128)
+  const [customBpm, setCustomBpm] = useState<number>(120)
   const [loading, setLoading] = useState<boolean>(false)
-  const [currentTask, setCurrentTask] = useState<TaskStatus | null>(null)
+  const [currentTask, setCurrentTask] = useState<DanceTaskStatus | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetchTemplates()
+    const params = new URLSearchParams(window.location.search)
+    const tid = params.get('task_id')
+    if (tid) {
+      danceApi.getTaskStatus(tid).then(taskData => {
+        if (taskData) {
+          setCurrentTask(taskData)
+          if (taskData.duration) setDuration(taskData.duration)
+          if (taskData.style) setStyle(taskData.style)
+          if (taskData.status === 'processing' || taskData.status === 'queued') {
+            setLoading(true)
+            pollTaskStatus(tid)
+          }
+        }
+      }).catch(console.error)
+    }
   }, [])
 
   const fetchTemplates = async () => {
     try {
-      const res = await axios.get('http://localhost:8008/api/dance/templates')
-      setTemplates(res.data)
-      if (res.data.length > 0) {
-        setSelectedTemplate(res.data[0])
+      const data = await danceApi.getTemplates()
+      setTemplates(data)
+      if (data.length > 0) {
+        setSelectedTemplate(data[0])
+        const firstBpm = parseInt(data[0].bpm?.split('-')[0]) || 120
+        setCustomBpm(firstBpm)
       }
     } catch (err) {
       console.error('Failed to fetch dance templates', err)
+    }
+  }
+
+  // Filter templates by category
+  const filteredTemplates = useMemo(() => {
+    if (activeCategory === 'all') return templates
+    return templates.filter(tpl => {
+      const tagsStr = (tpl.tags || []).join(' ').toLowerCase()
+      const nameStr = (tpl.name || '').toLowerCase()
+      const combined = `${tagsStr} ${nameStr}`
+      if (activeCategory === 'kpop') {
+        return combined.includes('kpop') || combined.includes('女团') || combined.includes('aespa') || combined.includes('blackpink') || combined.includes('angel')
+      }
+      if (activeCategory === 'fitness') {
+        return combined.includes('健身') || combined.includes('活力') || combined.includes('扭胯') || combined.includes('上车') || combined.includes('库里')
+      }
+      if (activeCategory === 'street') {
+        return combined.includes('街头') || combined.includes('律动') || combined.includes('搞笑') || combined.includes('科目三') || combined.includes('二摆')
+      }
+      if (activeCategory === 'luxury') {
+        return combined.includes('慢摇') || combined.includes('纯欲') || combined.includes('曲线') || combined.includes('甜美')
+      }
+      return true
+    })
+  }, [templates, activeCategory])
+
+  const clearUrlTaskId = () => {
+    if (window.location.search.includes('task_id')) {
+      window.history.replaceState(null, '', '/dance')
     }
   }
 
@@ -59,6 +94,11 @@ export default function DanceStudio() {
       setImageFile(file)
       setImagePreview(URL.createObjectURL(file))
       setErrorMsg(null)
+      // Uploading a new character automatically exits previous completed task
+      if (currentTask) {
+        setCurrentTask(null)
+      }
+      clearUrlTaskId()
     }
   }
 
@@ -69,12 +109,36 @@ export default function DanceStudio() {
       setImageFile(file)
       setImagePreview(URL.createObjectURL(file))
       setErrorMsg(null)
+      if (currentTask) {
+        setCurrentTask(null)
+      }
+      clearUrlTaskId()
+    }
+  }
+
+  const handleSelectTemplate = (tpl: DanceTemplate) => {
+    setSelectedTemplate(tpl)
+    if (tpl.bpm) {
+      const b = parseInt(tpl.bpm.split('-')[0]) || 120
+      setCustomBpm(b)
+    }
+    // Auto sync style recommendation if matching
+    const tags = (tpl.tags || []).join(' ')
+    if (tags.includes('kpop') || tags.includes('女团')) setStyle('kpop')
+    else if (tags.includes('健身') || tags.includes('活力')) setStyle('fitness')
+    else if (tags.includes('慢摇') || tags.includes('纯欲')) setStyle('luxury')
+    else if (tags.includes('律动') || tags.includes('街头')) setStyle('street')
+
+    // Selecting new motion resets completed display so user can render newly selected motion
+    if (currentTask) {
+      setCurrentTask(null)
+      clearUrlTaskId()
     }
   }
 
   const handleStartGeneration = async () => {
     if (!imageFile) {
-      setErrorMsg('请先上传一张全身模特或人物立绘参考图')
+      setErrorMsg(t('dance.cta.needImage'))
       return
     }
     setErrorMsg(null)
@@ -93,20 +157,20 @@ export default function DanceStudio() {
         formData.append('prompt_desc', promptDesc.trim())
       }
 
-      const res = await axios.post('http://localhost:8008/api/dance/generate', formData)
-      const taskId = res.data.task_id
+      const res = await danceApi.generateDance(formData)
+      const taskId = res.task_id
+      window.history.replaceState(null, '', `/dance?task_id=${taskId}`)
       pollTaskStatus(taskId)
     } catch (err: any) {
       setLoading(false)
-      setErrorMsg(err?.response?.data?.detail || '任务提交失败，请检查网络和服务状态')
+      setErrorMsg(err?.response?.data?.detail || t('dance.character.failedToSubmit'))
     }
   }
 
   const pollTaskStatus = (taskId: string) => {
     const interval = setInterval(async () => {
       try {
-        const res = await axios.get(`http://localhost:8008/api/dance/tasks/${taskId}`)
-        const taskData = res.data
+        const taskData = await danceApi.getTaskStatus(taskId)
         setCurrentTask(taskData)
 
         if (taskData.status === 'completed') {
@@ -115,67 +179,198 @@ export default function DanceStudio() {
         } else if (taskData.status === 'failed') {
           clearInterval(interval)
           setLoading(false)
-          setErrorMsg(taskData.message || '生成失败')
+          setErrorMsg(taskData.message || t('dance.character.generationFailed'))
         }
       } catch (err) {
         console.error('Polling error', err)
       }
-    }, 4000)
+    }, 2000)
   }
 
+  const handleResetForNew = () => {
+    setCurrentTask(null)
+    setImageFile(null)
+    setImagePreview(null)
+    setErrorMsg(null)
+    clearUrlTaskId()
+  }
+
+  // Active duration for display (prioritize task duration if available)
+  const displayDuration = currentTask?.duration || duration
+
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-800 pb-6">
-        <div>
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-gradient-to-tr from-pink-500/20 to-purple-500/20 border border-pink-500/30 rounded-xl">
-              <Flame className="w-6 h-6 text-pink-400 animate-pulse" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent">
-                AI Dance Studio 舞蹈工坊
+    <div className="p-6 lg:p-8 max-w-[1600px] mx-auto space-y-8 animate-fade-in">
+      {/* Top Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800/80 pb-6">
+        <div className="flex items-center space-x-3.5">
+          <div className="p-3 bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-indigo-500/20 border border-pink-500/30 rounded-2xl shadow-lg shadow-pink-500/10">
+            <Flame className="w-7 h-7 text-pink-400 animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-3">
+              <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent">
+                {t('dance.title')}
               </h1>
-              <p className="text-sm text-gray-400 mt-0.5">
-                单图生成 20-30s 无缝循环舞蹈 · 12 款爆款热舞模版 · BPM 节拍音乐卡点 · 9头身高挑身材防压缩
-              </p>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center space-x-1.5 shadow-sm shadow-emerald-500/10">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>{t('dance.badges.v2Engine')}</span>
+              </span>
             </div>
+            <p className="text-xs lg:text-sm text-gray-400 mt-1">
+              {t('dance.subtitle', { count: templates.length || 14 })}
+            </p>
+          </div>
+        </div>
+
+        {/* Status Badges */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gray-900/80 border border-pink-500/30 text-xs text-pink-300 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+            <span>{t('dance.badges.facialFidelity')}</span>
+          </div>
+          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gray-900/80 border border-amber-500/30 text-xs text-amber-300 shadow-sm">
+            <Flame className="w-3.5 h-3.5 text-amber-400" />
+            <span>{t('dance.badges.curvySilhouette')}</span>
+          </div>
+          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gray-900/80 border border-gray-800 text-xs text-gray-300">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{t('dance.badges.antiCompression')}</span>
+          </div>
+          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gray-900/80 border border-gray-800 text-xs text-gray-300">
+            <Zap className="w-3.5 h-3.5 text-purple-400" />
+            <span>{t('dance.badges.deterministicLoop')}</span>
           </div>
         </div>
       </div>
 
+      {/* Global Error Alert */}
       {errorMsg && (
-        <div className="p-4 bg-red-950/40 border border-red-500/30 rounded-2xl flex items-center space-x-3 text-red-400 text-sm">
+        <div className="p-4 bg-red-950/40 border border-red-500/30 rounded-2xl flex items-center space-x-3 text-red-400 text-sm animate-shake">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span>{errorMsg}</span>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Image Upload & Config */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Image Upload Area */}
-          <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-6 shadow-xl">
-            <label className="block text-sm font-semibold text-gray-200 mb-3 flex items-center justify-between">
-              <span>1. 人物参考图像 (9:16 全身立绘)</span>
-              {imagePreview && (
-                <button 
-                  onClick={() => { setImageFile(null); setImagePreview(null) }}
-                  className="text-xs text-gray-400 hover:text-red-400 transition-colors"
-                >
-                  重新选择
-                </button>
-              )}
-            </label>
+      {/* Studio Workbench: Left Control Panel (5 cols) + Right Stage (7 cols) */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        
+        {/* ================= LEFT: Creation Control Studio ================= */}
+        <div className="xl:col-span-5 space-y-6">
+          
+          {/* Section 1: Template Selector */}
+          <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-4 lg:p-5 shadow-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Layers className="w-4 h-4 text-pink-400" />
+                <h3 className="text-sm font-semibold text-gray-200">
+                  {t('dance.templates.title')}
+                </h3>
+              </div>
+              <span className="text-xs text-gray-400">
+                {t('dance.templates.count', { count: templates.length || 14 })}
+              </span>
+            </div>
 
+            {/* Category Filter Tabs */}
+            <div className="flex items-center space-x-1.5 bg-gray-900/80 p-1 rounded-xl border border-gray-800 overflow-x-auto">
+              {[
+                { id: 'all', label: t('dance.templates.tabs.all') },
+                { id: 'kpop', label: t('dance.templates.tabs.kpop') },
+                { id: 'fitness', label: t('dance.templates.tabs.fitness') },
+                { id: 'street', label: t('dance.templates.tabs.street') },
+                { id: 'luxury', label: t('dance.templates.tabs.luxury') }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveCategory(tab.id as TemplateCategory)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                    activeCategory === tab.id
+                      ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-300 border border-pink-500/30'
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Compact Template Matrix */}
+            <div className="grid grid-cols-2 gap-2.5 max-h-[210px] overflow-y-auto pr-1">
+              {filteredTemplates.map((tpl) => {
+                const isSelected = selectedTemplate?.dance_id === tpl.dance_id
+                return (
+                  <div
+                    key={tpl.dance_id}
+                    onClick={() => handleSelectTemplate(tpl)}
+                    className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between space-y-2 text-left ${
+                      isSelected
+                        ? 'bg-pink-500/10 border-pink-500 shadow-md shadow-pink-500/10 ring-1 ring-pink-500/50'
+                        : 'bg-gray-900/60 border-gray-800/80 hover:bg-gray-900 hover:border-gray-700'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-bold text-xs text-gray-100 truncate">
+                          {tpl.name}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[10px] font-mono whitespace-nowrap">
+                          {tpl.bpm} BPM
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {(tpl.tags || []).slice(0, 2).map((tag, idx) => (
+                          <span key={idx} className="px-1.5 py-0.2 rounded bg-gray-800 text-gray-400 text-[9px]">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-1.5 border-t border-gray-800/60 flex items-center justify-between text-[10px]">
+                      <span className="text-gray-500">{tpl.stats?.views || '爆款'}</span>
+                      <span className={`font-semibold ${isSelected ? 'text-pink-400' : 'text-gray-400'}`}>
+                        {isSelected ? `✓ ${t('dance.templates.selected')}` : t('dance.templates.select')}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Section 2: Character Reference Image */}
+          <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-5 lg:p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Film className="w-4 h-4 text-purple-400" />
+                <h3 className="text-sm font-semibold text-gray-200">
+                  {t('dance.character.title')}
+                </h3>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-pink-400/80 bg-pink-500/10 px-2 py-0.5 rounded-full">
+                  {t('dance.character.aspect')}
+                </span>
+                {imagePreview && (
+                  <button 
+                    onClick={() => { setImageFile(null); setImagePreview(null) }}
+                    className="text-xs text-gray-400 hover:text-red-400 transition-colors"
+                  >
+                    {t('dance.character.reselect')}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Drop & Upload Box */}
             <div
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
               className={`relative border-2 border-dashed rounded-xl transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center ${
                 imagePreview 
-                  ? 'border-gray-700 bg-gray-900/50 aspect-[9/16] max-h-[420px]' 
-                  : 'border-gray-700/80 hover:border-pink-500/50 bg-gray-900/30 py-16 hover:bg-gray-900/50'
+                  ? 'border-gray-700 bg-gray-900/50 aspect-[9/16] max-h-[380px]' 
+                  : 'border-gray-700/80 hover:border-pink-500/50 bg-gray-900/30 py-12 hover:bg-gray-900/50'
               }`}
             >
               <input 
@@ -187,48 +382,98 @@ export default function DanceStudio() {
               />
 
               {imagePreview ? (
-                <img 
-                  src={imagePreview} 
-                  alt="Preview" 
-                  className="w-full h-full object-contain" 
-                />
+                <div className="relative w-full h-full group">
+                  <img 
+                    src={imagePreview} 
+                    alt="Character Reference" 
+                    className="w-full h-full object-contain" 
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="px-3 py-1.5 bg-gray-900/80 text-xs text-white rounded-lg border border-gray-700">
+                      {t('dance.character.reselect')}
+                    </span>
+                  </div>
+                </div>
               ) : (
-                <div className="text-center px-4 space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mx-auto text-pink-400">
-                    <UploadCloud className="w-6 h-6" />
+                <div className="text-center px-4 space-y-2.5">
+                  <div className="w-11 h-11 rounded-full bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mx-auto text-pink-400">
+                    <UploadCloud className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-200">点击或拖拽上传人物图</p>
-                    <p className="text-xs text-gray-500 mt-1">推荐 9:16 比例、清晰全身立绘</p>
+                    <p className="text-xs font-semibold text-gray-200">
+                      {t('dance.character.uploadTitle')}
+                    </p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {t('dance.character.uploadDesc')}
+                    </p>
                   </div>
                 </div>
               )}
             </div>
+
+            {/* Privacy & AI Vision Analysis Notice */}
+            <p className="text-[10px] text-gray-400 mt-2 text-center flex items-center justify-center space-x-1">
+              <span>🔒</span>
+              <span>{t('dance.stage.privacyNotice')}</span>
+            </p>
+
+            {imagePreview && !currentTask && (
+              <div className="p-3 bg-pink-500/10 border border-pink-500/30 rounded-xl flex items-center justify-between animate-fade-in">
+                <div className="text-xs text-pink-300 space-y-0.5">
+                  <div className="font-bold text-white flex items-center space-x-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{t('dance.character.loaded')}</span>
+                  </div>
+                  <p className="text-[11px] text-gray-400">
+                    {t('dance.character.templateTag', { name: selectedTemplate?.name || t('dance.templates.unknown'), duration })}
+                  </p>
+                </div>
+                <button
+                  disabled={loading}
+                  onClick={handleStartGeneration}
+                  className="px-4 py-2 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white rounded-lg text-xs font-bold shadow-md shadow-pink-500/20 active:scale-95 transition-all flex items-center space-x-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{t('dance.character.generateNow')}</span>
+                </button>
+              </div>
+            )}
+
+            <p className="text-[11px] text-gray-500 leading-relaxed">
+              💡 {t('dance.character.antiCompressionTip')}
+            </p>
           </div>
 
-          {/* Duration & Style Parameters */}
-          <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-6 shadow-xl space-y-5">
-            <h3 className="text-sm font-semibold text-gray-200 flex items-center space-x-2">
-              <Sliders className="w-4 h-4 text-purple-400" />
-              <span>2. 生成参数设置</span>
-            </h3>
+          {/* Section 3: Duration, Style & Prompt Parameters */}
+          <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-5 lg:p-6 shadow-xl space-y-4">
+            <div className="flex items-center space-x-2">
+              <Sliders className="w-4 h-4 text-indigo-400" />
+              <h3 className="text-sm font-semibold text-gray-200">
+                {t('dance.params.title')}
+              </h3>
+            </div>
 
-            {/* Duration Selector */}
+            {/* Target Duration Selector */}
             <div>
-              <label className="text-xs text-gray-400 mb-2 block">视频目标时长</label>
+              <label className="text-xs text-gray-400 mb-2 block font-medium">
+                {t('dance.params.duration')}
+              </label>
               <div className="grid grid-cols-2 gap-3">
-                {[20, 30].map((sec) => (
+                {[
+                  { sec: 20, label: t('dance.params.sec20') },
+                  { sec: 30, label: t('dance.params.sec30') }
+                ].map((item) => (
                   <button
-                    key={sec}
-                    onClick={() => setDuration(sec)}
-                    className={`py-2.5 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center space-x-2 border ${
-                      duration === sec
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 border-transparent text-white shadow-lg shadow-pink-500/20'
+                    key={item.sec}
+                    onClick={() => setDuration(item.sec)}
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1.5 border ${
+                      duration === item.sec
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 border-transparent text-white shadow-md shadow-pink-500/20'
                         : 'bg-gray-900/60 border-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-800'
                     }`}
                   >
-                    <Clock className="w-4 h-4" />
-                    <span>{sec} 秒 ({sec === 20 ? '4 段' : '6 段'})</span>
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{item.label}</span>
                   </button>
                 ))}
               </div>
@@ -236,20 +481,22 @@ export default function DanceStudio() {
 
             {/* Style Selector */}
             <div>
-              <label className="text-xs text-gray-400 mb-2 block">风格分类</label>
+              <label className="text-xs text-gray-400 mb-2 block font-medium">
+                {t('dance.params.style')}
+              </label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: 'kpop', label: 'K-pop 女团', bpm: 128 },
-                  { id: 'fitness', label: '健身活力', bpm: 125 },
-                  { id: 'street', label: '街头律动', bpm: 118 },
-                  { id: 'luxury', label: '优雅慢摇', bpm: 110 }
+                  { id: 'kpop', label: t('dance.params.styles.kpop'), bpm: 128 },
+                  { id: 'fitness', label: t('dance.params.styles.fitness'), bpm: 125 },
+                  { id: 'street', label: t('dance.params.styles.street'), bpm: 118 },
+                  { id: 'luxury', label: t('dance.params.styles.luxury'), bpm: 110 }
                 ].map((st) => (
                   <button
                     key={st.id}
                     onClick={() => { setStyle(st.id); setCustomBpm(st.bpm) }}
                     className={`py-2 px-3 rounded-lg text-xs font-medium border transition-all ${
                       style === st.id
-                        ? 'bg-purple-500/20 border-purple-500 text-purple-300'
+                        ? 'bg-purple-500/20 border-purple-500 text-purple-300 font-bold'
                         : 'bg-gray-900 border-gray-800 text-gray-400 hover:bg-gray-800'
                     }`}
                   >
@@ -259,167 +506,390 @@ export default function DanceStudio() {
               </div>
             </div>
 
-            {/* Optional Prompt Refinement */}
+            {/* Detail Prompt Override */}
             <div>
-              <label className="text-xs text-gray-400 mb-1.5 block">细节特征微调 (可选)</label>
+              <label className="text-xs text-gray-400 mb-1.5 block font-medium">
+                {t('dance.params.promptDesc')}
+              </label>
               <textarea
                 rows={2}
                 value={promptDesc}
                 onChange={(e) => setPromptDesc(e.target.value)}
-                placeholder="例如：留着微卷长发，白色短裙，黑色高跟长靴，纯黑影棚背景..."
+                placeholder={t('dance.params.promptPlaceholder')}
                 className="w-full bg-gray-900/90 border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-pink-500 transition-colors placeholder:text-gray-600"
               />
             </div>
 
-            {/* Action Trigger */}
-            <button
-              disabled={loading || !imageFile}
-              onClick={handleStartGeneration}
-              className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm flex items-center justify-center space-x-2 transition-all shadow-xl ${
-                loading || !imageFile
-                  ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700/50'
-                  : 'bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white shadow-pink-500/25 hover:shadow-pink-500/40 active:scale-[0.98]' 
-              }`}
-            >
-              {loading ? (
-                <>
-                  <RotateCcw className="w-4 h-4 animate-spin" />
-                  <span>正在调度 AI 渲染管线...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>一键生成 100% 闭环循环舞蹈</span>
-                </>
-              )}
-            </button>
+            {/* Section 4: Primary CTA Button */}
+            <div className="pt-2 space-y-2">
+              <button
+                disabled={loading || !imageFile}
+                onClick={handleStartGeneration}
+                className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm flex items-center justify-center space-x-2 transition-all shadow-xl ${
+                  loading || !imageFile
+                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700/50'
+                    : 'bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white shadow-pink-500/25 hover:shadow-pink-500/40 active:scale-[0.98]' 
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <RotateCcw className="w-4 h-4 animate-spin" />
+                    <span>{t('dance.cta.generating')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    <span>{t('dance.cta.generate')}</span>
+                  </>
+                )}
+              </button>
+              <p className="text-[10px] text-center text-gray-500">
+                ✨ {t('dance.cta.loopClosureNote')}
+              </p>
+            </div>
+
           </div>
         </div>
 
-        {/* Middle & Right Column: Template Library & Generation Monitor */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Real-time Status Box if Task Active */}
-          {currentTask && (
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl p-6 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  {currentTask.status === 'completed' ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
-                  ) : currentTask.status === 'failed' ? (
-                    <AlertCircle className="w-5 h-5 text-red-400" />
-                  ) : (
-                    <div className="w-4 h-4 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
-                  )}
-                  <span className="text-sm font-semibold text-gray-200">
-                    {currentTask.status === 'completed' ? '渲染质检已通过 · 成品就绪' : 'AI 舞蹈多镜头渲染中...'}
+        {/* ================= RIGHT: Interactive Hero Stage ================= */}
+        <div className="xl:col-span-7 sticky top-6">
+          <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-6 lg:p-8 shadow-2xl space-y-6">
+            
+            {/* Stage Header */}
+            <div className="flex items-center justify-between border-b border-gray-800/60 pb-4">
+              <div className="flex items-center space-x-2.5">
+                <Play className="w-4 h-4 text-pink-400" />
+                <h2 className="text-base font-bold text-gray-100">
+                  {t('dance.stageTitle')}
+                </h2>
+              </div>
+              
+              {currentTask?.status === 'completed' && (
+                <button
+                  onClick={handleResetForNew}
+                  className="inline-flex items-center space-x-1.5 text-xs text-gray-400 hover:text-pink-400 transition-colors"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>{t('dance.stage.recreate')}</span>
+                </button>
+              )}
+            </div>
+
+            {/* Sub-State A: IDLE or READY */}
+            {!currentTask && (
+              imagePreview ? (
+                /* Ready State: Character uploaded, waiting for user generation command */
+                <div className="py-10 px-6 flex flex-col items-center justify-center text-center space-y-6 border border-pink-500/30 rounded-2xl bg-gradient-to-b from-pink-500/10 via-purple-500/5 to-transparent shadow-2xl animate-fade-in">
+                  <div className="inline-flex items-center space-x-2 px-3.5 py-1 bg-pink-500/20 border border-pink-500/30 text-pink-300 rounded-full text-xs font-semibold">
+                    <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+                    <span>{t('dance.stage.readyBadge')}</span>
+                  </div>
+
+                  <div className="max-w-md space-y-2">
+                    <h3 className="text-lg font-bold text-gray-100">
+                      {t('dance.stage.readyTitle')}
+                    </h3>
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      {t('dance.stage.readySubtitle')}
+                    </p>
+                  </div>
+
+                  {/* Character + Selected Motion Card Preview */}
+                  <div className="w-full max-w-md p-4 bg-gray-900/90 border border-gray-800 rounded-2xl flex items-center space-x-4 text-left shadow-lg">
+                    <div className="w-20 h-28 rounded-xl overflow-hidden border border-gray-700 flex-shrink-0 bg-black shadow-md">
+                      <img src={imagePreview} alt="Ready Character" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="space-y-1.5 text-xs text-gray-300 flex-1 min-w-0">
+                      <p className="font-bold text-white text-sm truncate">
+                        {t('dance.stage.readyTemplate', { name: selectedTemplate?.name || '热门动作' })}
+                      </p>
+                      <p className="text-gray-400">
+                        {t('dance.stage.readyDuration', { duration })} · {t(`dance.params.styles.${style}`)} · {customBpm} BPM
+                      </p>
+                      <div className="flex items-center space-x-1.5 text-[11px] text-emerald-400 font-medium pt-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{t('dance.character.antiCompressionMounted')}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* High-Visibility Generation CTA on the Stage */}
+                  <div className="w-full max-w-md space-y-2">
+                    <button
+                      disabled={loading}
+                      onClick={handleStartGeneration}
+                      className="w-full py-4 px-6 rounded-xl font-bold text-sm flex items-center justify-center space-x-2.5 transition-all shadow-xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white shadow-pink-500/25 hover:shadow-pink-500/40 active:scale-[0.98]"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span>{t('dance.stage.startNow')}</span>
+                    </button>
+                    <p className="text-[10px] text-gray-500 text-center">
+                      {t('dance.character.loopSubtitle')}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                /* V2.0 Masterpiece Showcase & Idle Stage */
+                <div className="space-y-4 animate-fade-in">
+                  <div className="flex items-center justify-between pb-3 border-b border-gray-800/80">
+                    <div className="flex items-center space-x-2">
+                      <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-xs font-bold text-white tracking-wide">
+                        {t('dance.stage.showcase.title')}
+                      </span>
+                    </div>
+                    <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-pink-500/10 text-pink-300 border border-pink-500/30">
+                      {t('dance.stage.showcase.tag')}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+                    {/* Left: Video Player (20s V2.0 Output) */}
+                    <div className="md:col-span-6 bg-black rounded-2xl overflow-hidden border border-gray-800 shadow-2xl relative group">
+                      <div className="aspect-[9/16] w-full max-h-[480px] flex items-center justify-center bg-black">
+                        <video
+                          src={getMediaUrl('/media/out/test_v2_consistent_clarity_20s/dance_20s.mp4')}
+                          poster={getMediaUrl('/media/out/test_v2_consistent_clarity_20s/poster.jpg')}
+                          className="w-full h-full object-contain"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          controls
+                        />
+                      </div>
+                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-white/10 text-[11px] text-pink-300 font-semibold flex items-center space-x-1.5 pointer-events-none shadow-md">
+                        <Flame className="w-3.5 h-3.5 text-pink-400 animate-bounce" />
+                        <span>{t('dance.stage.showcase.videoBadge')}</span>
+                      </div>
+                    </div>
+
+                    {/* Right: Meta & Interactive CTA */}
+                    <div className="md:col-span-6 space-y-3.5">
+                      {/* Original Reference vs V2.0 Comparison Card */}
+                      <div className="p-4 bg-gray-900/60 border border-gray-800/80 rounded-2xl space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-gray-200">
+                            {t('dance.stage.showcase.comparisonTitle')}
+                          </span>
+                          <span className="text-[10px] text-emerald-400 font-medium">
+                            {t('dance.stage.showcase.auditPassed')}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-3 p-2.5 bg-gray-950/80 rounded-xl border border-gray-800">
+                          <img
+                            src={getMediaUrl('/media/out/test_v2_consistent_clarity_20s/ref_character.png')}
+                            alt="Reference"
+                            className="w-14 h-20 object-cover rounded-lg border border-pink-500/30 flex-shrink-0"
+                          />
+                          <div className="text-[11px] space-y-1 text-gray-300 flex-1">
+                            <p className="font-semibold text-white">{t('dance.stage.showcase.curvyModel')}</p>
+                            <p className="text-[10px] text-gray-400 leading-relaxed">{t('dance.stage.showcase.curvyModelDesc')}</p>
+                          </div>
+                        </div>
+
+                        {/* 4 Feature Highlights */}
+                        <div className="space-y-1.5 pt-1 text-xs">
+                          {[
+                            { title: t('dance.stage.features.loop'), desc: t('dance.character.featureLoopDesc') },
+                            { title: t('dance.stage.features.proportions'), desc: t('dance.character.featureProportionsDesc') },
+                            { title: t('dance.stage.features.bpm'), desc: t('dance.character.featureBpmDesc') },
+                            { title: t('dance.stage.features.quality'), desc: t('dance.character.featureQualityDesc') }
+                          ].map((feat, idx) => (
+                            <div key={idx} className="flex items-center space-x-2 text-[11px] text-gray-300">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                              <span className="text-gray-200 font-medium">{feat.title}：</span>
+                              <span className="text-gray-400">{feat.desc}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* CTA to Upload Own Character */}
+                      <div className="p-4 bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10 border border-pink-500/30 rounded-2xl space-y-2.5">
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-bold text-white flex items-center space-x-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+                            <span>{t('dance.stage.showcase.tryYourOwn')}</span>
+                          </h4>
+                          <p className="text-[11px] text-gray-400 leading-relaxed">
+                            {t('dance.stage.showcase.tryYourOwnDesc')}
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow-lg bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white shadow-pink-500/25 active:scale-[0.98]"
+                        >
+                          <UploadCloud className="w-4 h-4" />
+                          <span>{t('dance.stage.showcase.uploadBtn')}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
+
+            {/* Sub-State B: PROCESSING (Multi-shot pipeline in progress) */}
+            {currentTask && currentTask.status !== 'completed' && (
+              <div className="space-y-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    {currentTask.status === 'failed' ? (
+                      <AlertCircle className="w-5 h-5 text-red-400" />
+                    ) : (
+                      <div className="w-5 h-5 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
+                    )}
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-200">
+                        {currentTask.status === 'failed' ? t('dance.character.taskInterrupted') : t('dance.stage.renderingTitle')}
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {currentTask.message || t('dance.stage.renderingStep')}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-lg font-mono text-pink-400 font-bold">
+                    {currentTask.progress}%
                   </span>
                 </div>
-                <span className="text-xs font-mono text-pink-400 font-bold">{currentTask.progress}%</span>
-              </div>
 
-              {/* Progress Bar */}
-              <div className="w-full bg-gray-900 rounded-full h-2 overflow-hidden border border-gray-800">
-                <div 
-                  className="bg-gradient-to-r from-pink-500 to-purple-500 h-full transition-all duration-500" 
-                  style={{ width: `${currentTask.progress}%` }} 
-                />
-              </div>
-
-              <p className="text-xs text-gray-400 font-mono">{currentTask.message}</p>
-
-              {/* Video Player if Completed */}
-              {currentTask.status === 'completed' && currentTask.video_url && (
-                <div className="mt-4 pt-4 border-t border-gray-800 flex flex-col md:flex-row gap-6 items-center">
-                  <div className="w-full md:w-64 aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <video 
-                      src={`http://localhost:8008${currentTask.video_url}`} 
-                      controls 
-                      autoPlay 
-                      loop 
-                      className="w-full h-full object-cover" 
-                    />
-                  </div>
-                  <div className="flex-1 space-y-3">
-                    <h4 className="text-base font-bold text-gray-100">30s 广播级无缝循环成片</h4>
-                    <ul className="text-xs text-gray-400 space-y-1">
-                      <li>• 编码标准：H.264 / yuv420p (704x1280 竖屏)</li>
-                      <li>• 音频配置：AAC 44.1kHz 多声部卡点舞曲</li>
-                      <li>• 闭环特性：首尾姿态 100% 确定性收敛无跳帧</li>
-                    </ul>
-                    <div className="pt-2">
-                      <a
-                        href={`http://localhost:8008${currentTask.video_url}`}
-                        download
-                        className="inline-flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-green-500/20 transition-all"
-                      >
-                        <Download className="w-4 h-4" />
-                        <span>下载 MP4 舞蹈视频</span>
-                      </a>
-                    </div>
-                  </div>
+                {/* Smooth Progress Bar */}
+                <div className="w-full bg-gray-900 rounded-full h-2.5 overflow-hidden border border-gray-800">
+                  <div 
+                    className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 h-full transition-all duration-500" 
+                    style={{ width: `${currentTask.progress}%` }} 
+                  />
                 </div>
-              )}
-            </div>
-          )}
 
-          {/* Template Gallery */}
-          <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-200 flex items-center space-x-2">
-                <Layers className="w-4 h-4 text-pink-400" />
-                <span>3. 选择爆款舞蹈动作模板 ({templates.length} 款)</span>
-              </h3>
-            </div>
+                {/* Pipeline Step Matrix Visualizer */}
+                <div className="grid grid-cols-6 gap-2 pt-2">
+                  {[
+                    { id: 1, label: t('dance.stage.pipeline.shot1'), threshold: 25 },
+                    { id: 2, label: t('dance.stage.pipeline.shot2'), threshold: 50 },
+                    { id: 3, label: t('dance.stage.pipeline.shot3'), threshold: 70 },
+                    { id: 4, label: t('dance.stage.pipeline.shot4'), threshold: 85 },
+                    { id: 5, label: t('dance.stage.pipeline.bgm'), threshold: 92 },
+                    { id: 6, label: t('dance.stage.pipeline.mux'), threshold: 98 }
+                  ].map((node) => {
+                    const isPassed = currentTask.progress >= node.threshold
+                    const isCurrent = currentTask.progress >= (node.threshold - 20) && currentTask.progress < node.threshold
+                    return (
+                      <div 
+                        key={node.id}
+                        className={`p-2.5 rounded-xl border text-center transition-all ${
+                          isPassed 
+                            ? 'bg-pink-500/10 border-pink-500/40 text-pink-300' 
+                            : isCurrent 
+                            ? 'bg-purple-500/20 border-purple-500 text-purple-200 animate-pulse'
+                            : 'bg-gray-900/40 border-gray-800 text-gray-500'
+                        }`}
+                      >
+                        <div className="text-[10px] font-mono">0{node.id}</div>
+                        <div className="text-[11px] font-semibold truncate mt-0.5">{node.label}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[640px] overflow-y-auto pr-1">
-              {templates.map((tpl) => {
-                const isSelected = selectedTemplate?.dance_id === tpl.dance_id
-                return (
-                  <div
-                    key={tpl.dance_id}
-                    onClick={() => {
-                      setSelectedTemplate(tpl)
-                      if (tpl.bpm) {
-                        const b = parseInt(tpl.bpm.split('-')[0]) || 128
-                        setCustomBpm(b)
-                      }
-                    }}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
-                      isSelected
-                        ? 'bg-pink-500/10 border-pink-500 shadow-md shadow-pink-500/10'
-                        : 'bg-gray-900/60 border-gray-800/80 hover:bg-gray-900 hover:border-gray-700'
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <h4 className="font-bold text-sm text-gray-100 flex items-center space-x-1.5">
-                          <span>{tpl.name}</span>
-                        </h4>
-                        <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-mono font-bold flex items-center space-x-1">
-                          <Music className="w-3 h-3" />
-                          <span>{tpl.bpm} BPM</span>
-                        </span>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {tpl.tags.slice(0, 3).map((tag, idx) => (
-                          <span key={idx} className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 text-[10px]">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
+            {/* Sub-State C: COMPLETED (Hero Video Player & Spec Dashboard) */}
+            {currentTask && currentTask.status === 'completed' && currentTask.video_url && (
+              <div className="space-y-6 animate-fade-in">
+                
+                {/* Completed Badge & Dynamic Title */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-emerald-950/30 border border-emerald-500/30 rounded-2xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                      <CheckCircle2 className="w-4 h-4" />
                     </div>
-
-                    <div className="pt-2 border-t border-gray-800/60 flex items-center justify-between text-[11px] text-gray-500">
-                      <span>热度: {tpl.stats?.views || '爆款'}</span>
-                      <span className="text-pink-400/80 font-medium">{isSelected ? '✓ 已选中' : '选择'}</span>
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-100">
+                        {t('dance.stage.completedTitle')}
+                      </h3>
+                      {/* CRITICAL FIX: Dynamic duration binding instead of hardcoded 30s */}
+                      <p className="text-xs text-emerald-400/90 font-medium">
+                        {t('dance.stage.videoTitle', { duration: displayDuration })}
+                      </p>
                     </div>
                   </div>
-                )
-              })}
-            </div>
+
+                  <a
+                    href={getMediaUrl(currentTask.video_url)}
+                    download
+                    className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98]"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>{t('dance.stage.download')}</span>
+                  </a>
+                </div>
+
+                {/* Hero Showcase: Video Player + Technical Metas */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                  
+                  {/* Left Player Column */}
+                  <div className="md:col-span-7 flex justify-center">
+                    <div className="w-full max-w-[340px] aspect-[9/16] bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800/80 ring-1 ring-pink-500/20">
+                      <video 
+                        src={getMediaUrl(currentTask.video_url)} 
+                        controls 
+                        autoPlay 
+                        loop 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right Meta Specifications */}
+                  <div className="md:col-span-5 space-y-4">
+                    <div className="p-4 bg-gray-900/60 border border-gray-800/80 rounded-xl space-y-2.5 text-xs text-gray-300">
+                      <div className="font-semibold text-gray-200 border-b border-gray-800 pb-2">
+                        {t('dance.character.productionSpecs')}
+                      </div>
+                      <div className="space-y-1.5 text-gray-400">
+                        <p>• {t('dance.stage.meta.codec')}</p>
+                        <p>• {t('dance.stage.meta.audio')}</p>
+                        <p>• {t('dance.stage.meta.loopFeature')}</p>
+                        <p>• {t('dance.stage.meta.template', { 
+                          name: selectedTemplate?.name || t('dance.templates.unknown'), 
+                          bpm: customBpm 
+                        })}</p>
+                        <p>• {t('dance.stage.meta.style', { 
+                          style: t(`dance.params.styles.${style}`) 
+                        })}</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-pink-500/5 border border-pink-500/20 rounded-xl space-y-1 text-xs text-pink-300">
+                      <span className="font-semibold flex items-center space-x-1.5">
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>{t('dance.character.seamlessLoop')}</span>
+                      </span>
+                      <p className="text-[11px] text-pink-400/80 leading-relaxed">
+                        {t('dance.character.seamlessLoopDesc')}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={handleResetForNew}
+                      className="w-full py-2.5 px-4 bg-gray-900 hover:bg-gray-800 text-gray-300 rounded-xl text-xs font-semibold border border-gray-800 transition-all flex items-center justify-center space-x-2"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>{t('dance.stage.recreate')}</span>
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
           </div>
         </div>
+
       </div>
     </div>
   )
