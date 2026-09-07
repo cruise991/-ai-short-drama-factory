@@ -35,7 +35,7 @@ while read local_ref local_sha remote_ref remote_sha; do
         DIFF_RANGE="$remote_sha..$local_sha"
     fi
 
-    SUSPICIOUS=$(git diff "$DIFF_RANGE" | grep -E "^\\+[^+]" | grep -iE "(sk-[a-zA-Z0-9]{32,}|AIza[0-9A-Za-z-_]{35}|ghp_[a-zA-Z0-9]{36})" || true)
+    SUSPICIOUS=$(git diff "$DIFF_RANGE" | grep -E "^\\+[^+]" | grep -iE "(sk-[a-zA-Z0-9]{32,}|AIza[0-9A-Za-z_\\-]{35}|ghp_[a-zA-Z0-9]{36})" || true)
     if [ -n "$SUSPICIOUS" ]; then
         echo -e "\n🚨 [安全拦截] 在即将推送的 commit 中扫描到高危密钥特征！"
         echo "$SUSPICIOUS" | head -n 5
