@@ -2,6 +2,8 @@
 
 本手册详细记录了系统的**架构治理规范、测试与脚本分层标准、GitHub 双仓库同步规范以及秒级容灾回滚 SOP**，供团队协作与生产环境运维查阅。
 
+> 💡 **运维实操进阶手册**：关于完整的 Docker 生产集群运维、Pre-Push 防误推安全门禁、一键自动化备份脚本与灾难恢复 Runbook，请查阅权威文档：[《AI 短剧工厂系统运维与备份治理实操手册 (DevOps & Backup Manual)》](file:///Users/workspace/ai_short_company/ai-short-drama/docs/devops_and_backup_operations_manual.md)。
+
 ---
 
 ## 一、 架构治理与目录规范 (Architecture Overview)
