@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1080, initial-scale=1" />
+  <title>AI自媒体全自动发布工作流 案例级知识图谱 V4 (全画幅100%充盈版)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 1080px;
+      height: 1440px;
+      overflow: hidden;
+      background: #03050d;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: #fff;
+    }
+    .poster {
+      position: relative;
+      width: 1080px;
+      height: 1440px;
+      padding: 24px 28px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background:
+        radial-gradient(circle at 50% 12%, rgba(56, 189, 248, 0.2), transparent 32%),
+        radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.16), transparent 30%),
+        radial-gradient(circle at 85% 70%, rgba(250, 204, 21, 0.16), transparent 28%),
+        linear-gradient(180deg, #050713 0%, #070b1e 50%, #03050c 100%);
+      isolation: isolate;
+    }
+    /* Subtle Grid lines */
+    .poster::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 38px 38px;
+      z-index: -2;
+    }
+    /* Outer glowing border */
+    .poster::after {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 1.5px solid rgba(56, 189, 248, 0.38);
+      border-radius: 20px;
+      box-shadow: 0 0 28px rgba(56, 189, 248, 0.2), inset 0 0 32px rgba(168, 85, 247, 0.12);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* 1. Header Zone: Hero Typography */
+    .header {
+      position: relative;
+      text-align: center;
+      margin-bottom: 2px;
+    }
+    .top-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+      margin-bottom: 4px;
+    }
+    .badge-pill {
+      background: rgba(14, 165, 233, 0.2);
+      border: 1.5px solid rgba(56, 189, 248, 0.7);
+      color: #38bdf8;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      padding: 4px 16px;
+      border-radius: 20px;
+    }
+    .handwrite-note {
+      font-family: "Caveat", "Brush Script MT", "PingFang SC", cursive, sans-serif;
+      font-size: 22px;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-style: italic;
+    }
+    .handwrite-note span.arrow {
+      color: #38bdf8;
+      font-size: 26px;
+      transform: rotate(20deg);
+      display: inline-block;
+    }
+
+    /* Double-line Super Visual Hammer */
+    h1 {
+      margin: 0 0 4px;
+      padding: 0;
+      font-size: 82px;
+      line-height: 1.06;
+      font-weight: 900;
+      letter-spacing: -2px;
+      text-shadow: 0 8px 30px rgba(0,0,0,0.85);
+    }
+    .title-line1 {
+      color: #ffffff;
+      display: block;
+    }
+    .title-line2 {
+      color: #facc15;
+      display: block;
+      text-shadow: 0 0 36px rgba(250, 204, 21, 0.5);
+    }
+
+    .sub-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      font-size: 20px;
+      color: #cbd5e1;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .sub-strip .line {
+      width: 52px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+    }
+
+    /* 2. Main Tri-column Layout: Full-bleed density */
+    .tri-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      gap: 14px;
+      align-items: stretch;
+      flex: 1;
+      margin: 10px 0 8px;
+    }
+
+    .wing-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .side-box {
+      background: rgba(12, 19, 42, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.38);
+      border-radius: 14px;
+      padding: 12px 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    }
+
+    .dashed-box {
+      border: 1.5px dashed rgba(250, 204, 21, 0.7);
+      background: rgba(250, 204, 21, 0.06);
+      border-radius: 14px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .dashed-title {
+      font-size: 19px;
+      font-weight: 900;
+      color: #facc15;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .dashed-desc {
+      font-size: 14px;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+
+    .box-title {
+      font-size: 17px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .box-title.yellow { color: #facc15; }
+    .box-title.cyan { color: #38bdf8; }
+    .box-title.rose { color: #fda4af; }
+    .box-title.green { color: #34d399; }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13.5px;
+      line-height: 1.35;
+      color: #cbd5e1;
+    }
+    .check-icon {
+      background: #0284c7;
+      color: #fff;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .check-text b { color: #fff; font-weight: 700; }
+
+    /* Target User Stack */
+    .target-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .target-item {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 8px;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .target-name { font-size: 13px; font-weight: 800; color: #7dd3fc; margin-bottom: 2px; }
+    .target-sub { font-size: 11.5px; color: #94a3b8; line-height: 1.2; }
+
+    /* Right Wing: Pitfalls & Reflections & Indicators */
+    .pitfall-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .pf-item {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      border-radius: 8px;
+      padding: 6px 8px;
+    }
+    .pf-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+    .pf-title { font-size: 13.5px; font-weight: 800; color: #fda4af; }
+    .pf-badge { font-size: 10.5px; background: rgba(244, 63, 94, 0.3); color: #ffe4e6; padding: 1px 5px; border-radius: 4px; }
+    .pf-desc { font-size: 12px; color: #cbd5e1; line-height: 1.3; margin: 0; }
+
+    /* 4 Key Reflections (Case 5 Right Wing) */
+    .reflection-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .reflection-list li {
+      display: flex;
+      gap: 6px;
+      font-size: 12.5px;
+      color: #e2e8f0;
+      line-height: 1.3;
+    }
+    .rf-num {
+      background: rgba(168, 85, 247, 0.35);
+      border: 1px solid #c084fc;
+      color: #f3e8ff;
+      font-size: 11px;
+      font-weight: 800;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Metric Grid (2x2) */
+    .metric-grid-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .m-card {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 8px;
+      padding: 6px 6px;
+      text-align: center;
+    }
+    .m-num { font-size: 16px; font-weight: 900; color: #34d399; line-height: 1.1; margin-bottom: 2px; }
+    .m-lbl { font-size: 11px; color: #94a3b8; }
+
+    /* Center Pipeline */
+    .center-pipeline {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 3px;
+      position: relative;
+    }
+    .pipe-node {
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      position: relative;
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+    }
+    .node-1 { background: linear-gradient(90deg, #1e3a8a, #0b1329); border-color: #3b82f6; }
+    .node-2 { background: linear-gradient(90deg, #065f46, #043628); border-color: #10b981; }
+    .node-3 { background: linear-gradient(90deg, #581c87, #2f0652); border-color: #a855f7; }
+    .node-4 { background: linear-gradient(90deg, #854d0e, #572f0b); border-color: #eab308; }
+    .node-5 { background: linear-gradient(90deg, #1e293b, #0b111e); border-color: #94a3b8; }
+    .node-6 { background: linear-gradient(90deg, #0f766e, #0c433f); border-color: #14b8a6; }
+    .node-result { background: linear-gradient(90deg, #991b1b, #601010); border-color: #f87171; }
+
+    .node-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      flex-shrink: 0;
+      box-shadow: inset 0 2px 6px rgba(255,255,255,0.2);
+    }
+    .node-info { flex: 1; }
+    .node-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+    .node-step { font-size: 19px; font-weight: 900; color: #ffffff; letter-spacing: 0.5px; }
+    .node-tool-tag {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 5px;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #38bdf8;
+      font-family: Menlo, Monaco, monospace;
+    }
+    .node-desc { font-size: 14px; color: #e2e8f0; margin: 0; line-height: 1.35; }
+
+    .connector-down {
+      text-align: center;
+      color: #38bdf8;
+      font-size: 14px;
+      line-height: 1;
+      margin: -2px 0;
+      text-shadow: 0 0 10px #38bdf8;
+    }
+
+    /* 3. Bottom Anchor Zone: Case 5 Golden Quote */
+    .bottom-zone {
+      margin-top: 4px;
+    }
+    .quote-card {
+      background: rgba(10, 20, 44, 0.94);
+      border: 1.5px solid rgba(56, 189, 248, 0.6);
+      border-radius: 16px;
+      padding: 13px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(0, 180, 216, 0.25);
+    }
+    .quote-bulb {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      border: 1px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+    }
+    .quote-text { flex: 1; }
+    .quote-title { font-size: 18px; font-weight: 800; color: #e2e8f0; margin-bottom: 2px; }
+    .quote-main { font-size: 22px; font-weight: 900; color: #facc15; letter-spacing: -0.5px; }
+
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px 0;
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .brand-highlight { color: #38bdf8; font-weight: 800; }
+  </style>
+</head>
+<body>
+  <div class="poster">
+    <!-- Header: Hero Typography -->
+    <div class="header">
+      <div class="top-badge-row">
+        <div class="badge-pill">AI WORKFLOW</div>
+        <div class="handwrite-note">
+          从手动搬运到全自动生产 <span class="arrow">⤴</span>
+        </div>
+      </div>
+
+      <h1>
+        <span class="title-line1">别再手动发小红书了</span>
+        <span class="title-line2">学会搭全自动工作流！</span>
+      </h1>
+
+      <div class="sub-strip">
+        <span class="line"></span>
+        <span>从“单点写文”到“工业级流水线”，效率提升10倍的实战架构</span>
+        <span class="line"></span>
+      </div>
+    </div>
+
+    <!-- Tri-column Layout: 100% Full-bleed density -->
+    <div class="tri-layout">
+      <!-- Left Wing: 3 Stacked Boxes (No Gaps!) -->
+      <div class="wing-col">
+        <!-- Box 1: Dashed Principle -->
+        <div class="dashed-box">
+          <div class="dashed-title">TOOL ≠ WORKFLOW</div>
+          <div class="dashed-desc">工具只是单点节点<br />流程才是生产系统</div>
+        </div>
+
+        <!-- Box 2: Why Workflow (5 Checks) -->
+        <div class="side-box" style="flex: 1;">
+          <div class="box-title yellow">💡 为什么需要自动化？</div>
+          <ul class="checklist">
+            <li>
+              <span class="check-icon">✓</span>
+              <div class="check-text"><b>杜绝机械搬运</b>：自动采集，减少90%重复操作</div>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <div class="check-text"><b>根治汉字乱码</b>：矢量直出，消灭生图模型硬伤</div>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <div class="check-text"><b>真实会话保活</b>：免扫码直发，避开滑块风控</div>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <div class="check-text"><b>一人超级组织</b>：从嗅探到发货，单人顶团队</div>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <div class="check-text"><b>被动生产飞轮</b>：定好选题，系统自动跑出成片</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Box 3: Target Users (Fills the bottom gap completely!) -->
+        <div class="side-box">
+          <div class="box-title cyan">👥 适合哪些人群落地？</div>
+          <div class="target-grid">
+            <div class="target-item">
+              <div class="target-name">自媒体博主</div>
+              <div class="target-sub">批量高效出图文</div>
+            </div>
+            <div class="target-item">
+              <div class="target-name">独立开发者</div>
+              <div class="target-sub">构建被动生产线</div>
+            </div>
+            <div class="target-item">
+              <div class="target-name">超级个体</div>
+              <div class="target-sub">一个人顶一个团队</div>
+            </div>
+            <div class="target-item">
+              <div class="target-name">营销运营团队</div>
+              <div class="target-sub">矩阵内容标准化</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: 7-Node Heavy Vertical Pipeline -->
+      <div class="center-pipeline">
+        <!-- Node 1: Scout -->
+        <div class="pipe-node node-1">
+          <div class="node-icon-box">📡</div>
+          <div class="node-info">
+            <div class="node-header">
+              <span class="node-step">1 嗅探 SCOUT</span>
+              <span class="node-tool-tag">Agent Reach</span>
+            </div>
+            <p class="node-desc">全网热点/白皮书深度结构化提取事实</p>
+          </div>
+        </div>
+
+        <div class="connector-down">▼</div>
+
+        <!-- Node 2: Distill -->
+        <div class="pipe-node node-2">
+          <div class="node-icon-box">🧠</div>
+          <div class="node-info">
+            <div class="node-header">
+              <span class="node-step">2 提炼 DISTILL</span>
+              <span class="node-tool-tag">NotebookLM</span>
+            </div>
+            <p class="node-desc">多源资料知识蒸馏，萃取高价值洞察</p>
+          </div>
+        </div>
+
+        <div class="connector-down">▼</div>
+
+        <!-- Node 3: Struct -->
+        <div class="pipe-node node-3">
+          <div class="node-icon-box">✍️</div>
+          <div class="node-info">
+            <div class="node-header">
+              <span class="node-step">3 编排 STRUCT</span>
+              <span class="node-tool-tag">baoyu 技能库</span>
+            </div>
+            <p class="node-desc">爆款小红书卡点排版与情绪结构框架</p>
+          </div>
+        </div>
+
+        <div class="connector-down">▼</div>
+
+        <!-- Node 4: Humanize -->
+        <div class="pipe-node node-4">
+          <div class="node-icon-box">🎭</div>
+          <div class="node-info">
+            <div class="node-header">
+              <span class="node-step">4 拟人 HUMAN</span>
+              <span class="node-tool-tag">Humanizer-zh</span>
+            </div>
+            <p class="node-desc">双重去AI味，消除机械说教注入人情味</p>
+          </div>
+        </div>
+
+        <div class="connector-down">▼</div>
+
+        <!-- Node 5: Visual -->
+        <div class="pipe-node node-5">
+          <div class="node-icon-box">🎨</div>
+          <div class="node-info">
+            <div class="node-header">
+              <span class="node-step">5 渲染 VISUAL</span>
+              <span class="node-tool-tag">Knowledge-Card</span>
+            </div>
+            <p class="node-desc">HTML5矢量直出 1080x1440 零乱码封面</p>
+          </div>
+        </div>
+
+        <div class="connector-down">▼</div>
+
+        <!-- Node 6: Publish -->
+        <div class="pipe-node node-6">
+          <div class="node-icon-box">🚀</div>
+          <div class="node-info">
+            <div class="node-header">
+              <span class="node-step">6 直发 PUBLISH</span>
+              <span class="node-tool-tag">OpenCLI</span>
+            </div>
+            <p class="node-desc">复用已登录Chrome扩展，免扫码直发</p>
+          </div>
+        </div>
+
+        <div class="connector-down">▼</div>
+
+        <!-- Node Result: Result -->
+        <div class="pipe-node node-result">
+          <div class="node-icon-box">🏆</div>
+          <div class="node-info">
+            <div class="node-header">
+              <span class="node-step">结果 RESULT</span>
+              <span class="node-tool-tag">0人工干预</span>
+            </div>
+            <p class="node-desc">更高效 · 更优质 · 可持续工业化复制</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Wing: 3 Stacked Boxes (No Gaps!) -->
+      <div class="wing-col">
+        <!-- Box 1: 4 Pitfalls -->
+        <div class="side-box" style="border-color: rgba(244, 63, 94, 0.45); background: rgba(30, 16, 36, 0.88);">
+          <div class="box-title rose">⚠️ 4 大避坑关键点</div>
+          <ul class="pitfall-list">
+            <li class="pf-item">
+              <div class="pf-head">
+                <span class="pf-title">① 标题字符超限</span>
+                <span class="pf-badge">硬性校验</span>
+              </div>
+              <p class="pf-desc">必须 ≤ 20 字符，发前强制正则截断</p>
+            </li>
+            <li class="pf-item">
+              <div class="pf-head">
+                <span class="pf-title">② 跨进程IPC超时</span>
+                <span class="pf-badge">前置压缩</span>
+              </div>
+              <p class="pf-desc">单图压至300KB内，避免Base64崩溃</p>
+            </li>
+            <li class="pf-item">
+              <div class="pf-head">
+                <span class="pf-title">③ 会话失效滑块</span>
+                <span class="pf-badge">扩展保活</span>
+              </div>
+              <p class="pf-desc">依托本机Chrome扩展桥接，免扫码</p>
+            </li>
+            <li class="pf-item">
+              <div class="pf-head">
+                <span class="pf-title">④ 话题重复粘连</span>
+                <span class="pf-badge">单行横排</span>
+              </div>
+              <p class="pf-desc">剥离正文手写Tag，采用空格流横排</p>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Box 2: 4 Key Reflections (Case 5 Right Wing) -->
+        <div class="side-box" style="border-color: rgba(168, 85, 247, 0.4); background: rgba(25, 14, 40, 0.88);">
+          <div class="box-title" style="color: #c084fc;">🤔 4 个关键自问</div>
+          <ul class="reflection-list">
+            <li><span class="rf-num">1</span> 哪个环节耗费手工时间最长？</li>
+            <li><span class="rf-num">2</span> 哪个节点最易被平台风控拦截？</li>
+            <li><span class="rf-num">3</span> 哪一步必须保留人工作为最后把关？</li>
+            <li><span class="rf-num">4</span> 流程能否打包成脚本一键被动执行？</li>
+          </ul>
+        </div>
+
+        <!-- Box 3: Hard Metrics (2x2 Grid) -->
+        <div class="side-box" style="border-color: rgba(16, 185, 129, 0.45); background: rgba(10, 26, 36, 0.88);">
+          <div class="box-title green">📊 核心交付硬指标</div>
+          <div class="metric-grid-2x2">
+            <div class="m-card">
+              <div class="m-num">&lt; 30s</div>
+              <div class="m-lbl">出片耗时</div>
+            </div>
+            <div class="m-card">
+              <div class="m-num">0.00%</div>
+              <div class="m-lbl">汉字乱码</div>
+            </div>
+            <div class="m-card">
+              <div class="m-num">10x +</div>
+              <div class="m-lbl">人效提升</div>
+            </div>
+            <div class="m-card">
+              <div class="m-num">100%</div>
+              <div class="m-lbl">发布成功率</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom: Case 5 Golden Quote & Signature -->
+    <div class="bottom-zone">
+      <div class="quote-card">
+        <div class="quote-bulb">💡</div>
+        <div class="quote-text">
+          <div class="quote-title">AI自媒体的核心终点不是“会用多少工具”</div>
+          <div class="quote-main">“而是能不能把生产重新设计成高稳定性的自动化系统”</div>
+        </div>
+      </div>
+
+      <div class="footer-bar">
+        <div>⚡ <span class="brand-highlight">Auto-Media Pipeline</span> · 一人公司生产力飞轮</div>
+        <div>小红书知识分享专栏 @晨</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
