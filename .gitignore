@@ -98,3 +98,17 @@ server/data/
 *.sqlite3
 test_ref_character.png
 00_requirements.json
+
+# ==============================
+# Debug & Temporary Scratch
+# ==============================
+debug_*/
+debug_*.png
+scratch/
+test_multiview_input.png
+analyze_density.py
+check_pixels.py
+test_agnes_vision.py
+test_classifier.py
+test_gradient_bg.py
+test_slicing.py
