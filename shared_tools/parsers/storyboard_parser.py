@@ -46,6 +46,18 @@ def parse_storyboard(markdown_content):
             shot_data["voiceover"] = vo_text
             shot_data["dialogue"] = vo_text
             
+        # Extract Shot Type
+        type_match = re.search(r'\*\*(?:分镜类型|类型)\s*\(\s*(?:Shot\s*Type|Type)\s*\)\*\*\s*[:：]\s*(.*?)(?=\n\*\*|$)', body, re.DOTALL | re.IGNORECASE)
+        if type_match:
+            shot_data["shot_type"] = type_match.group(1).strip()
+        elif "手绘" in body or "白板" in body or "handdraw" in body.lower():
+            shot_data["shot_type"] = "handdraw"
+            
+        # Extract Time Range
+        time_match = re.search(r'\*\*时间范围\s*(?:\(\s*Time\s*Range\s*\))?\*\*\s*[:：]\s*(.*?)(?=\n\*\*|$)', body, re.DOTALL | re.IGNORECASE)
+        if time_match:
+            shot_data["time_range"] = time_match.group(1).strip()
+            
         # Extract Video Prompt
         prompt_match = re.search(r'\*\*提示词\s*\(\s*Video\s*Prompt\s*\)\*\*\s*[:：]\s*(.*?)(?=\n##|$)', body, re.DOTALL | re.IGNORECASE)
         if prompt_match:
@@ -54,6 +66,7 @@ def parse_storyboard(markdown_content):
         shots.append(shot_data)
         
     return shots
+
 
 import json
 

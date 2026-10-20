@@ -97,11 +97,11 @@ def check_face_morphing(video_path):
 
 def poll_video(task_id, filename):
     while True:
-        res = fetch_json(f"https://apihub.agnes-ai.com/agnesapi?video_id={task_id}")
+        res = fetch_json(f"https://apihub.agnes-ai.com/agnesapi?video_id={task_id}&model_name=agnes-video-2.5-flash")
         status = res.get('status')
         print(f"Task {task_id} status: {status}")
         if status == 'completed':
-            download(res.get('remixed_from_video_id'), filename)
+            download(res.get('url') or res.get('remixed_from_video_id'), filename)
             
             if "shot_01" in filename or "shot_02" in filename:
                 if not check_face_morphing(filename):
@@ -114,9 +114,10 @@ def poll_video(task_id, filename):
 
 print(">> Generating Image 1...")
 img1 = fetch_json("https://apihub.agnes-ai.com/v1/images/generations", {
-    "model": "agnes-image-2.1-flash",
+    "model": "agnes-image-2.5-flash",
     "prompt": "A cinematic shot inside a dimly lit modern laboratory at night. Piles of academic papers are stacked on the desk. A middle-aged man in a suit arrogantly picks up a hard drive from the desk, smirking. A young woman with glasses looks up at him with a shocked and angry expression. Dramatic cold lighting, highly detailed, 8k resolution. --seed 10245 --quality highly_detailed, consistent_face",
-    "size": "1024x768",
+    "size": "2K",
+    "ratio": "16:9",
     "extra_body": {"response_format": "url"}
 })
 img_url1 = img1['data'][0]['url']
@@ -124,20 +125,23 @@ download(img_url1, f"{ASSETS_DIR}/shot_01.png")
 
 print(">> Generating Video 1...")
 vid1 = fetch_json("https://apihub.agnes-ai.com/v1/videos", {
-    "model": "agnes-video-v2.0",
+    "model": "agnes-video-2.5-flash",
     "prompt": "The man grabs the drive slowly. Camera pans.",
+    "mode": "keyframe",
     "first_frame": img_url1,
     "last_frame": img_url1,
-    "num_frames": 121,
-    "frame_rate": 24
+    "seconds": "5",
+    "size": "720P",
+    "aspect_ratio": "16:9"
 })
 task1 = vid1.get('video_id') or vid1.get('task_id')
 
 print(">> Generating Image 2...")
 img2 = fetch_json("https://apihub.agnes-ai.com/v1/images/generations", {
-    "model": "agnes-image-2.1-flash",
+    "model": "agnes-image-2.5-flash",
     "prompt": "A bright, high-end corporate boardroom with large windows. A middle-aged man stands at the podium looking panicked and sweating. A young confident woman walks through the door holding a smartphone displaying a sleek AI interface. A large screen behind them shows a glowing, complex academic knowledge graph. Cinematic lighting, dramatic entrance, highly detailed, photorealistic. --seed 10245 --quality highly_detailed, consistent_face",
-    "size": "1024x768",
+    "size": "2K",
+    "ratio": "16:9",
     "extra_body": {"response_format": "url"}
 })
 img_url2 = img2['data'][0]['url']
@@ -145,12 +149,14 @@ download(img_url2, f"{ASSETS_DIR}/shot_02.png")
 
 print(">> Generating Video 2...")
 vid2 = fetch_json("https://apihub.agnes-ai.com/v1/videos", {
-    "model": "agnes-video-v2.0",
+    "model": "agnes-video-2.5-flash",
     "prompt": "The woman walks forward confidently. Slow motion.",
+    "mode": "keyframe",
     "first_frame": img_url2,
     "last_frame": img_url2,
-    "num_frames": 121,
-    "frame_rate": 24
+    "seconds": "5",
+    "size": "720P",
+    "aspect_ratio": "16:9"
 })
 task2 = vid2.get('video_id') or vid2.get('task_id')
 

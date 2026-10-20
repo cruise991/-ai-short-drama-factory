@@ -39,10 +39,11 @@ async function download(url, filename) {
 
 async function pollVideo(taskId, filename) {
     while (true) {
-        const res = await fetchJSON(`https://apihub.agnes-ai.com/agnesapi?video_id=${taskId}`);
+        const res = await fetchJSON(`https://apihub.agnes-ai.com/agnesapi?video_id=${taskId}&model_name=agnes-video-2.5-flash`);
         console.log(`Task ${taskId} status: ${res.status}`);
         if (res.status === 'completed') {
-            await download(res.remixed_from_video_id, filename);
+            const vidUrl = res.url || res.remixed_from_video_id;
+            await download(vidUrl, filename);
             return;
         }
         if (res.status === 'failed') throw new Error(`Task ${taskId} failed`);
@@ -53,9 +54,10 @@ async function pollVideo(taskId, filename) {
 async function run() {
     console.log(">> Generating Image 1...");
     const img1 = await fetchJSON("https://apihub.agnes-ai.com/v1/images/generations", {
-        "model": "agnes-image-2.1-flash",
+        "model": "agnes-image-2.5-flash",
         "prompt": "A cinematic shot inside a dimly lit modern laboratory at night. Piles of academic papers are stacked on the desk. A middle-aged man in a suit arrogantly picks up a hard drive from the desk, smirking. A young woman with glasses looks up at him with a shocked and angry expression. Dramatic cold lighting, highly detailed, 8k resolution. --seed 10245 --quality highly_detailed, consistent_face",
-        "size": "1024x768",
+        "size": "2K",
+        "ratio": "16:9",
         "extra_body": {"response_format": "url"}
     });
     const imgUrl1 = img1.data[0].url;
@@ -63,19 +65,22 @@ async function run() {
 
     console.log(">> Generating Video 1...");
     const vid1 = await fetchJSON("https://apihub.agnes-ai.com/v1/videos", {
-        "model": "agnes-video-v2.0",
+        "model": "agnes-video-2.5-flash",
         "prompt": "The man grabs the drive slowly. Camera pans.",
-        "image": imgUrl1,
-        "num_frames": 121,
-        "frame_rate": 24
+        "mode": "keyframe",
+        "first_frame": imgUrl1,
+        "seconds": "5",
+        "size": "720P",
+        "aspect_ratio": "16:9"
     });
     const taskId1 = vid1.video_id || vid1.task_id;
 
     console.log(">> Generating Image 2...");
     const img2 = await fetchJSON("https://apihub.agnes-ai.com/v1/images/generations", {
-        "model": "agnes-image-2.1-flash",
+        "model": "agnes-image-2.5-flash",
         "prompt": "A bright, high-end corporate boardroom with large windows. A middle-aged man stands at the podium looking panicked and sweating. A young confident woman walks through the door holding a smartphone displaying a sleek AI interface. A large screen behind them shows a glowing, complex academic knowledge graph. Cinematic lighting, dramatic entrance, highly detailed, photorealistic. --seed 10245 --quality highly_detailed, consistent_face",
-        "size": "1024x768",
+        "size": "2K",
+        "ratio": "16:9",
         "extra_body": {"response_format": "url"}
     });
     const imgUrl2 = img2.data[0].url;
@@ -83,11 +88,13 @@ async function run() {
 
     console.log(">> Generating Video 2...");
     const vid2 = await fetchJSON("https://apihub.agnes-ai.com/v1/videos", {
-        "model": "agnes-video-v2.0",
+        "model": "agnes-video-2.5-flash",
         "prompt": "The woman walks forward confidently. Slow motion.",
-        "image": imgUrl2,
-        "num_frames": 121,
-        "frame_rate": 24
+        "mode": "keyframe",
+        "first_frame": imgUrl2,
+        "seconds": "5",
+        "size": "720P",
+        "aspect_ratio": "16:9"
     });
     const taskId2 = vid2.video_id || vid2.task_id;
 

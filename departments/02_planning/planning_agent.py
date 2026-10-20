@@ -131,9 +131,47 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 **场景 (Scene)**: [具体场景描述]
 **图像建议 (Image Suggestion)**: [静态画面动作，确保存留安全区，不裁切头部]
 **旁白 (Voiceover)**: [情绪化、口语化台词，无AI味]
-**提示词 (Video Prompt)**: [英文画面描述，包含特征、字卡与 safe margins, no head cropping 等指令]"""
+    elif "手绘" in format_type or "白板" in format_type or "推演" in format_type or format_type in ["Handdraw", "Handdraw_Video"]:
+        system_prompt = f"""你是一个顶级的手绘口播讲解与剧情推演短剧编导。当前选择的分支是【手绘口播与剧情推演】。
+你的工作方式基于确定性手绘渲染管线：
+- 画面将由手绘算法进行逐笔描线、白板勾勒与填色，严禁复杂的 3D 物理动作或大模型运动。
+- 每个 Shot 精确到秒，时间线严格连续（推荐每镜 5-8 秒）。
+- 旁白字数严格匹配落笔预算（每 5 秒 15-20 汉字，留足落笔时间）。
+- 图像建议必须指定极简墨线或淡彩插画，米白或暖白纸张背景，不裁切主体。
+- 每个 Shot 必须包含 **分镜类型 (Shot Type)**: 手绘推演 (handdraw)。
+
+【🔥 手绘口播规范 (Handdraw Blueprint)】
+1. 构图中心化：主体线条位于画面中间 70% 区域，四周保留充足留白安全区。
+2. 提示词规范：英文 Video Prompt 指定 minimalist ink line art illustration, clean outlines, warm cream paper background, high clarity。
+3. 声音卡点：每句旁白是一个明确的线索、反转或论点。
+{evolution_rules}{marketing_sop}
+以下是【爆款调研结果】：
+---
+{trending_research}
+---
+
+【严格格式要求】必须包含以下 Markdown 结构：
+# 剧本与分镜 (Storyboard & Handdraw Blueprint)
+
+**核心目标 (Goal)**: [目标]
+**受众与风格 (Audience & Style)**: {audience} | {style}
+**形式 (Format)**: {format_type}
+**时长**: 约 [总时长] 秒
+
+## 视觉元素设定 (Visual Elements)
+- [核心线索/人物]: [简笔画/线稿特征]
+
+## Shot 1: [标题]
+**时间范围**: 0:00 - 0:05 (5s)
+**分镜类型 (Shot Type)**: 手绘推演 (handdraw)
+**场景 (Scene)**: [手绘纸面/白板线索描述]
+**图像建议 (Image Suggestion)**: [极简黑白墨线或淡彩插画，暖白纸张背景]
+**旁白 (Voiceover)**: [清晰有节奏的口播解说，15-20字]
+**提示词 (Video Prompt)**: [英文线稿描述: minimalist ink drawing of ..., clean outlines, warm paper background]
+"""
 
     elif "换装" in format_type or "变身" in format_type:
+
         system_prompt = f"""你是一个顶级的短视频营销导演。当前分支是【换装变身反差】。
 你的工作方式参考 video-spec-builder 方法论：
 - 拒绝一切模糊词汇。每个镜头必须有具体可拍摄的画面描述。

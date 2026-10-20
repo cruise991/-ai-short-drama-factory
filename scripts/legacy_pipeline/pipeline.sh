@@ -22,9 +22,10 @@ IMG_RES_1=$(/usr/bin/curl -s -X POST https://apihub.agnes-ai.com/v1/images/gener
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "agnes-image-2.1-flash",
+    "model": "agnes-image-2.5-flash",
     "prompt": "'"$PROMPT_1"'",
-    "size": "1024x768",
+    "size": "2K",
+    "ratio": "16:9",
     "extra_body": {"response_format": "url"}
   }')
 
@@ -42,11 +43,13 @@ VID_RES_1=$(/usr/bin/curl -s -X POST https://apihub.agnes-ai.com/v1/videos \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "agnes-video-v2.0",
+    "model": "agnes-video-2.5-flash",
     "prompt": "The man grabs the drive slowly. Camera pans.",
-    "image": "'"$IMG_URL_1"'",
-    "num_frames": 121,
-    "frame_rate": 24
+    "mode": "keyframe",
+    "first_frame": "'"$IMG_URL_1"'",
+    "seconds": "5",
+    "size": "720P",
+    "aspect_ratio": "16:9"
   }')
 
 TASK_ID_1=$(echo "$VID_RES_1" | grep -o '"video_id":"[^"]*' | cut -d'"' -f4)
@@ -63,9 +66,10 @@ IMG_RES_2=$(/usr/bin/curl -s -X POST https://apihub.agnes-ai.com/v1/images/gener
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "agnes-image-2.1-flash",
+    "model": "agnes-image-2.5-flash",
     "prompt": "'"$PROMPT_2"'",
-    "size": "1024x768",
+    "size": "2K",
+    "ratio": "16:9",
     "extra_body": {"response_format": "url"}
   }')
 
@@ -78,11 +82,13 @@ VID_RES_2=$(/usr/bin/curl -s -X POST https://apihub.agnes-ai.com/v1/videos \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "agnes-video-v2.0",
+    "model": "agnes-video-2.5-flash",
     "prompt": "The woman walks forward confidently. Slow motion.",
-    "image": "'"$IMG_URL_2"'",
-    "num_frames": 121,
-    "frame_rate": 24
+    "mode": "keyframe",
+    "first_frame": "'"$IMG_URL_2"'",
+    "seconds": "5",
+    "size": "720P",
+    "aspect_ratio": "16:9"
   }')
 
 TASK_ID_2=$(echo "$VID_RES_2" | grep -o '"video_id":"[^"]*' | cut -d'"' -f4)
@@ -94,11 +100,14 @@ echo "   -> Task ID: $TASK_ID_2"
 
 echo ">> Polling for Video 1..."
 while true; do
-  STATUS_RES=$(/usr/bin/curl -s -H "Authorization: Bearer $API_KEY" "https://apihub.agnes-ai.com/agnesapi?video_id=$TASK_ID_1")
+  STATUS_RES=$(/usr/bin/curl -s -H "Authorization: Bearer $API_KEY" "https://apihub.agnes-ai.com/agnesapi?video_id=$TASK_ID_1&model_name=agnes-video-2.5-flash")
   STATUS=$(echo "$STATUS_RES" | grep -o '"status":"[^"]*' | cut -d'"' -f4)
   echo "   -> Status: $STATUS"
   if [ "$STATUS" == "completed" ]; then
-    VID_URL_1=$(echo "$STATUS_RES" | grep -o '"remixed_from_video_id":"[^"]*' | cut -d'"' -f4)
+    VID_URL_1=$(echo "$STATUS_RES" | grep -o '"url":"[^"]*' | head -n1 | cut -d'"' -f4)
+    if [ -z "$VID_URL_1" ]; then
+      VID_URL_1=$(echo "$STATUS_RES" | grep -o '"remixed_from_video_id":"[^"]*' | cut -d'"' -f4)
+    fi
     /usr/bin/curl -s -o "$ASSETS_DIR/shot_01.mp4" "$VID_URL_1"
     echo "   -> Downloaded Shot 1"
     break
@@ -112,11 +121,14 @@ done
 
 echo ">> Polling for Video 2..."
 while true; do
-  STATUS_RES=$(/usr/bin/curl -s -H "Authorization: Bearer $API_KEY" "https://apihub.agnes-ai.com/agnesapi?video_id=$TASK_ID_2")
+  STATUS_RES=$(/usr/bin/curl -s -H "Authorization: Bearer $API_KEY" "https://apihub.agnes-ai.com/agnesapi?video_id=$TASK_ID_2&model_name=agnes-video-2.5-flash")
   STATUS=$(echo "$STATUS_RES" | grep -o '"status":"[^"]*' | cut -d'"' -f4)
   echo "   -> Status: $STATUS"
   if [ "$STATUS" == "completed" ]; then
-    VID_URL_2=$(echo "$STATUS_RES" | grep -o '"remixed_from_video_id":"[^"]*' | cut -d'"' -f4)
+    VID_URL_2=$(echo "$STATUS_RES" | grep -o '"url":"[^"]*' | head -n1 | cut -d'"' -f4)
+    if [ -z "$VID_URL_2" ]; then
+      VID_URL_2=$(echo "$STATUS_RES" | grep -o '"remixed_from_video_id":"[^"]*' | cut -d'"' -f4)
+    fi
     /usr/bin/curl -s -o "$ASSETS_DIR/shot_02.mp4" "$VID_URL_2"
     echo "   -> Downloaded Shot 2"
     break

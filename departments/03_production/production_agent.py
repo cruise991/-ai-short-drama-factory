@@ -148,7 +148,7 @@ def check_face_morphing(video_path):
 
 def generate_image_agnes(prompt, output_path, config, size="1024x768", negative_prompt=None):
     from shared_tools.api_pool import get_agnes_keys, get_available_key, record_429
-    model = config.get("PRODUCTION_IMAGE_MODEL", "agnes-image-2.1-flash")
+    model = config.get("PRODUCTION_IMAGE_MODEL", "agnes-image-2.5-flash")
     
     keys = get_agnes_keys()
     
@@ -160,7 +160,7 @@ def generate_image_agnes(prompt, output_path, config, size="1024x768", negative_
         }
         api_size = size
         ratio = None
-        if model == "agnes-image-2.1-flash" and "x" in size:
+        if model in ["agnes-image-2.1-flash", "agnes-image-2.5-flash"] and "x" in size:
             try:
                 w, h = map(int, size.split("x"))
                 if w < h:
@@ -223,7 +223,7 @@ def generate_image_agnes(prompt, output_path, config, size="1024x768", negative_
 
 def generate_video_agnes(image_url, video_prompt, output_path, config, size="1152x768", num_frames=121, is_last_shot=False, target_last_frame_url=None, negative_prompt=None):
     from shared_tools.api_pool import get_agnes_keys, get_available_key, record_429
-    model = config.get("PRODUCTION_VIDEO_MODEL", "agnes-video-v2.0")
+    model = config.get("PRODUCTION_VIDEO_MODEL", "agnes-video-2.5-flash")
     
     keys = get_agnes_keys()
     try:
@@ -244,34 +244,49 @@ def generate_video_agnes(image_url, video_prompt, output_path, config, size="115
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
-        data = {
-            "model": model,
-            "prompt": video_prompt + (", starting exactly from the reference pose, seamless continuation" if image_url else ""),
-            "width": width,
-            "height": height,
-            "num_frames": num_frames,
-            "frame_rate": 24
-        }
-        if negative_prompt:
-            data["negative_prompt"] = negative_prompt
-            
-        if image_url or config.get("GLOBAL_REFERENCE_URL") or negative_prompt:
-            data["extra_body"] = {}
+        if "2.5" in model:
+            aspect_ratio = "9:16" if width < height else "16:9"
+            data = {
+                "model": model,
+                "prompt": video_prompt + (", starting exactly from the reference pose, seamless continuation" if image_url else ""),
+                "mode": "keyframe",
+                "seconds": "5",
+                "size": "720P",
+                "aspect_ratio": aspect_ratio
+            }
+            if image_url:
+                data["first_frame"] = image_url
+            if is_last_shot and target_last_frame_url:
+                data["last_frame"] = target_last_frame_url
+        else:
+            data = {
+                "model": model,
+                "prompt": video_prompt + (", starting exactly from the reference pose, seamless continuation" if image_url else ""),
+                "width": width,
+                "height": height,
+                "num_frames": num_frames,
+                "frame_rate": 24
+            }
             if negative_prompt:
-                data["extra_body"]["negative_prompt"] = negative_prompt
-            if is_last_shot and image_url and target_last_frame_url:
-                print("  [AgnesRenderer] Applying Loop Closure (Keyframes Mode) for last shot.")
-                data["extra_body"]["image"] = [image_url, target_last_frame_url]
-                data["extra_body"]["mode"] = "keyframes"
-            else:
-                if image_url:
-                    data["image"] = image_url
-                    data["image_url"] = image_url
-                if config.get("GLOBAL_REFERENCE_URL"):
-                    data["extra_body"]["reference_image_url"] = config.get("GLOBAL_REFERENCE_URL")
-                    data["extra_body"]["reference_fidelity"] = 0.85
+                data["negative_prompt"] = negative_prompt
+                
+            if image_url or config.get("GLOBAL_REFERENCE_URL") or negative_prompt:
+                data["extra_body"] = {}
+                if negative_prompt:
+                    data["extra_body"]["negative_prompt"] = negative_prompt
+                if is_last_shot and image_url and target_last_frame_url:
+                    print("  [AgnesRenderer] Applying Loop Closure (Keyframes Mode) for last shot.")
+                    data["extra_body"]["image"] = [image_url, target_last_frame_url]
+                    data["extra_body"]["mode"] = "keyframes"
+                else:
+                    if image_url:
+                        data["image"] = image_url
+                        data["image_url"] = image_url
+                    if config.get("GLOBAL_REFERENCE_URL"):
+                        data["extra_body"]["reference_image_url"] = config.get("GLOBAL_REFERENCE_URL")
+                        data["extra_body"]["reference_fidelity"] = 0.85
         
-        print(f"  [AgnesRenderer] Calling REAL Video API for {output_path}...")
+        print(f"  [AgnesRenderer] Calling REAL Video API for {output_path} (model: {model})...")
         resp = _curl_request("POST", "https://apihub.agnes-ai.com/v1/videos", headers=headers, json_data=data)
         
         if resp and "error" in resp and resp["error"].get("code") == 429:
@@ -298,7 +313,7 @@ def generate_video_agnes(image_url, video_prompt, output_path, config, size="115
             for _ in range(120):
                 time.sleep(15)
                 # Official GET endpoint
-                status_resp = _curl_request("GET", f"https://apihub.agnes-ai.com/agnesapi?video_id={video_id}", headers=headers)
+                status_resp = _curl_request("GET", f"https://apihub.agnes-ai.com/agnesapi?video_id={video_id}&model_name={model}", headers=headers)
                 if status_resp:
                     print(f"  [AgnesRenderer] GET status: {status_resp}")
                     err_obj = status_resp.get("error")
@@ -502,9 +517,9 @@ def process_ticket(episode_dir):
                 s3_client = boto3.client('s3',
                                          endpoint_url=os.getenv("MINIO_ENDPOINT", default_endpoint),
                                          aws_access_key_id=os.getenv('MINIO_ROOT_USER', 'admin'),
-                                         aws_secret_access_key=os.getenv('MINIO_ROOT_PASSWORD', 'paperai2026'),
+                                         aws_secret_access_key=os.getenv('MINIO_ROOT_PASSWORD', 'shortdrama2026'),
                                          region_name=os.getenv('MINIO_REGION', 'auto'))
-                bucket_name = os.getenv('S3_BUCKET', 'paperai-media')
+                bucket_name = os.getenv('S3_BUCKET', 'short-ai')
                 public_url_base = os.getenv('PUBLIC_MEDIA_URL')
 
             unique_filename = f"{uuid.uuid4().hex}_{filename}"
@@ -631,7 +646,7 @@ def process_ticket(episode_dir):
         print(f"\n>> Processing {shot_id} ...")
         
         phase = shot.get("phase", "Main_Dance" if is_dance else "")
-        renderer = get_renderer(phase, is_dance, config)
+        renderer = get_renderer(phase, is_dance, config, shot=shot)
         
         if anchor_img_url or last_video_path:
             img_url = anchor_img_url
@@ -680,9 +695,10 @@ def process_ticket(episode_dir):
         frames = calc_num_frames(duration_sec)
         
         if hasattr(renderer, "generate_video_with_frames"):
-             success = renderer.generate_video_with_frames(img_url, vid_prompt, vid_out, config, num_frames=frames, size=target_size, is_last_shot=is_last_shot, target_last_frame_url=target_last_frame_url, negative_prompt=negative_prompt)
+             success = renderer.generate_video_with_frames(img_url, vid_prompt, vid_out, config, num_frames=frames, size=target_size, is_last_shot=is_last_shot, target_last_frame_url=target_last_frame_url, negative_prompt=negative_prompt, shot=shot)
         else:
              success = renderer.generate_video(img_url, vid_prompt, vid_out, config)
+
         
         if not success:
             print(f"[Production Dept] Error: Failed to generate video for {shot_id}.")

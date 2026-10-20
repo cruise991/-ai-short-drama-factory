@@ -150,7 +150,7 @@ def call_llm(system_prompt, user_prompt):
     base_url = get_config("AGNES_BASE_URL", "https://apihub.agnes-ai.com/v1")
     # Mock block removed to enforce real API calls
     
-    model = get_config("PLANNING_LLM_MODEL", "agnes-2.0-flash")
+    model = get_config("PLANNING_LLM_MODEL", "agnes-3.0-flash")
     
     import urllib.request
     import json
@@ -205,11 +205,16 @@ def call_llm(system_prompt, user_prompt):
             except Exception:
                 pass
             
+            cacert_args = ["-k"] if os.environ.get("SKIP_TLS_VERIFY") else (
+                ["--cacert", "/etc/ssl/cert.pem"] if os.path.exists("/etc/ssl/cert.pem")
+                else ["--cacert", "/etc/ssl/certs/ca-certificates.crt"] if os.path.exists("/etc/ssl/certs/ca-certificates.crt")
+                else []
+            )
+
             cmd = [
                 "/usr/bin/curl",
                 "-sS",
-                # Only skip TLS verification in development via SKIP_TLS_VERIFY=1
-                *(["--cacert", "/etc/ssl/cert.pem"] if not os.environ.get("SKIP_TLS_VERIFY") else ["-k"]),
+                *cacert_args,
                 "--http1.1",
                 "-X", "POST",
                 endpoint,
