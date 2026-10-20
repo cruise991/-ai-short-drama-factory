@@ -49,5 +49,5 @@ export function useTranslation() {
     return res;
   };
 
-  return { t, lang, setLanguage };
+  return { t, lang, language: lang, setLanguage };
 }

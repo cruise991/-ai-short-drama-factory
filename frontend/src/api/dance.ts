@@ -18,13 +18,40 @@ export interface DanceTaskStatus {
   duration?: number;
   style?: string;
   template_id?: string;
+  aspect_ratio?: string;
   video_url?: string;
   video_path?: string;
+}
+
+export interface ViewDetail {
+  index: number;
+  role: 'FRONT' | 'SIDE' | 'BACK';
+  path: string;
+  preview_url: string;
+  is_primary_start: boolean;
+  confidence: number;
+}
+
+export interface MultiViewResult {
+  detected_n: number;
+  is_multiview: boolean;
+  primary_front_path: string;
+  views: ViewDetail[];
+  elapsed_ms: number;
 }
 
 export const danceApi = {
   getTemplates: async (): Promise<DanceTemplate[]> => {
     const res = await apiClient.get<DanceTemplate[]>('/api/dance/templates');
+    return res.data;
+  },
+
+  analyzeViews: async (formData: FormData): Promise<MultiViewResult> => {
+    const res = await apiClient.post<MultiViewResult>('/api/dance/analyze-views', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return res.data;
   },
 
@@ -42,3 +69,4 @@ export const danceApi = {
     return res.data;
   },
 };
+

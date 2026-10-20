@@ -8,15 +8,15 @@ def test_minio():
         s3_client = boto3.client('s3',
                                  endpoint_url="http://localhost:4000",
                                  aws_access_key_id='admin',
-                                 aws_secret_access_key='paperai2026',
+                                 aws_secret_access_key='shortdrama2026',
                                  region_name='auto')
         
-        bucket_name = 'paperai-media'
+        bucket_name = 'short-ai'
         test_filename = f"test_file_{uuid.uuid4().hex[:6]}.txt"
         
         # Create a test file
         with open("test_upload.txt", "w") as f:
-            f.write("Hello from PaperAI local testing!")
+            f.write("Hello from short-drama local testing!")
             
         print(f"Uploading {test_filename} to bucket '{bucket_name}'...")
         s3_client.upload_file("test_upload.txt", bucket_name, test_filename)

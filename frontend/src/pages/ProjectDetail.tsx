@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { projectsApi, type ProjectDetailResponse } from '../api/projects';
 import { useTranslation } from '../locales/i18n';
+import { HanddrawStudio } from '../components/handdraw/HanddrawStudio';
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -140,6 +141,16 @@ export default function ProjectDetail() {
             ))}
           </div>
         </div>
+
+        {/* Dedicated Handdraw Studio for Handdraw Video Branch */}
+        {project?.branch_type === 'handdraw_video' && (
+          <HanddrawStudio 
+            projectSlug={slug || ''}
+            handPreset={project?.hand_preset}
+            captionStyle={project?.caption_style}
+            storyboard={detail?.storyboard}
+          />
+        )}
 
         {/* Approval Card (if waiting) */}
         {isWaiting && (

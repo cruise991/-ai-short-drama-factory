@@ -23,7 +23,7 @@ if __name__ == "__main__":
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "agnes-2.0-flash",
+        "model": "agnes-3.0-flash",
         "messages": [{"role": "user", "content": "hello"}]
     }
     try:

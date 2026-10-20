@@ -23,7 +23,7 @@ if __name__ == "__main__":
     req.add_header("Authorization", f"Bearer {api_key}")
     req.add_header("Content-Type", "application/json")
     payload = json.dumps({
-        "model": "agnes-2.0-flash",
+        "model": "agnes-3.0-flash",
         "messages": [{"role": "user", "content": "hello"}]
     }).encode("utf-8")
     ctx = ssl._create_unverified_context()

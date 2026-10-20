@@ -18,11 +18,12 @@ except Exception:
     pass
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from character_analyzer import analyze_character_and_scene
+from character_analyzer import analyze_character_and_scene, vision_describe_multiview
 from choreography_engine import plan_choreography
 from audio_director import prepare_dance_bgm
 from video_muxer import robust_video_concat
 from quality_auditor import quality_audit_gate
+from multi_view_adapter import MultiViewAdapter
 
 def load_env():
     possible_paths = [
@@ -135,7 +136,7 @@ def download_file(url, target_path):
     with urllib.request.urlopen(req, timeout=60) as resp, open(target_path, 'wb') as out_file:
         out_file.write(resp.read())
 
-def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url=None, width=768, height=1344, key_idx=0, is_kneeling_pose=False, is_indoor=False, is_caucasian=False):
+def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url=None, width=768, height=1344, key_idx=0, is_kneeling_pose=False, is_indoor=False, is_caucasian=False, defensive_negative=""):
     base_url = os.getenv("AGNES_BASE_URL", "https://apihub.agnes-ai.com/v1").rstrip('/')
     eth_neg = "asian face, east asian face, oriental features, non-western face, " if is_caucasian else "caucasian face, western features, european face, non-asian face, "
     
@@ -162,10 +163,11 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
             + eth_neg + "mature face, sharp masculine jawline, sharp angular jawline, prominent high cheekbones, deep nasolabial folds, mature aged face, sunken cheeks, harsh facial lighting, changed face, altered facial identity, "
             "zooming in, camera push in, camera moving forward, dolly forward, camera zoom in, moving closer to camera, closer framing, tight shot, chest up shot, torso close-up, cropped top of head, "
             "blush, cheek blush, flushed cheeks, pink cheeks, red cheeks, blushing, sunburn cheeks, heavy blush makeup, rosacea, "
-            "black underwear edge, separate black panties waistband, exposed black briefs, black underwear trim, black bottom edge, shorts waistband, separate underwear, "
+            "black underwear edge, separate black panties waistband, exposed black briefs, black underwear trim, black bottom edge, peaking underwear waistband, separate underwear, "
             "cutout holes, torn fabric, stomach cutout, belly cutout, torn mesh, holes in clothing, fabric tear, revealing stomach through holes, "
             "high-cut leg opening, high-leg cut, exposed panties on hips, high underwear waistband, riding up top, rolled up hem, shortened top, "
             "heavy eye makeup, dark eyeshadow, eyeliner wings, mature face, elongated face, mature jawline, "
+            "houndstooth, plaid skirt, checkered skirt, pattern on skirt, double shoulder straps, symmetric straps, two straps, turning completely backwards, 180-degree turn, back facing camera, spinning 180 degrees, twisting body 180 degrees, "
             "thin face, narrow chin, v-shape face, pointed chin, wide open mouth, big toothy smile, visible teeth, "
             "big belly, potbelly, bloated stomach, protruding belly, pregnant belly, swollen abdomen, thick waist, wide waist, deformed body proportions, deformed abdomen, "
             "dwarf proportions, stubby legs, short torso, "
@@ -185,10 +187,11 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
             "zoomed-in lower body, torso close-up, bottom half only, lower body only, cropped body, waist-down only, "
             + eth_neg + "mature face, sharp masculine jawline, sharp angular jawline, prominent high cheekbones, deep nasolabial folds, mature aged face, sunken cheeks, harsh facial lighting, changed face, altered facial identity, "
             "blush, cheek blush, flushed cheeks, pink cheeks, red cheeks, blushing, sunburn cheeks, heavy blush makeup, rosacea, "
-            "black underwear edge, separate black panties waistband, exposed black briefs, black underwear trim, black bottom edge, shorts waistband, separate underwear, "
+            "black underwear edge, separate black panties waistband, exposed black briefs, black underwear trim, black bottom edge, peaking underwear waistband, separate underwear, "
             "cutout holes, torn fabric, stomach cutout, belly cutout, torn mesh, holes in clothing, fabric tear, revealing stomach through holes, "
             "high-cut leg opening, high-leg cut, exposed panties on hips, high underwear waistband, riding up top, rolled up hem, shortened top, "
             "heavy eye makeup, dark eyeshadow, eyeliner wings, mature face, elongated face, mature jawline, "
+            "turning completely backwards, 180-degree turn, back facing camera, spinning 180 degrees, twisting body 180 degrees, "
             "thin face, narrow chin, v-shape face, pointed chin, wide open mouth, big toothy smile, visible teeth, "
             "big belly, potbelly, bloated stomach, protruding belly, pregnant belly, swollen abdomen, thick waist, wide waist, deformed body proportions, deformed abdomen, "
             "dwarf proportions, stubby legs, short torso, "
@@ -196,14 +199,28 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
             "head on backwards, exorcist head rotation, broken neck, unnatural spinal twist, chest on back, "
             "disconnected head rotation, head rotating independently from torso, head-body rotation mismatch, "
             "shoulders facing different direction than hips, unnatural neck angle exceeding 90 degrees, twisted spine beyond anatomical range, "
-            "elongated skirt, lengthened dress, changed garment length, garment below original hemline, modified clothing proportions, different outfit from reference, "
+            "modified clothing proportions, different outfit from reference, altered garment style, "
             "back of jacket on front, front clothing on back, torso orientation mismatch, mismatched facing direction, unnatural body rotation, spinning away, "
-            "scene change, background change, disappearing furniture, distorted room, distorted background, "
+            "scene change, background change, disappearing background elements, distorted scene, distorted background, "
             "blurry, low quality, distorted hands, distorted body, extra limbs, ugly face, disjointed limbs, floating head, floating body"
         )
-        prompt_suffix = ", maintaining exact faithful character body proportions, bust-waist-hip silhouette, and gentle youthful facial identity throughout, perfectly even natural pale skin tone strictly without blush or redness on cheeks, soft natural facial contours, gentle eyes and lips, identical clothing including continuous intact sheer mesh top with solid un-torn fabric covering abdomen down to upper thighs with strictly NO cutout holes and NO separate underwear waistband on hips, strict biomechanical head-torso coordination within natural cervical spine rotation range, natural graceful figure faithful to the reference image, seamless rhythm motion, consistent scene setting across all frames"
+        prompt_suffix = (
+            ", strictly facing camera directly within +-30 degrees golden viewing angle, direct eye contact with camera, "
+            "strictly NO back view and NO turning backwards, maintaining exact faithful character body proportions, "
+            "bust-waist-hip silhouette, and gentle youthful round oval facial identity with soft blunt chin throughout, "
+            "perfectly even natural skin tone strictly without blush or redness on cheeks, soft natural facial contours, "
+            "gentle eyes and lips, strictly identical outfit structure, fabric texture, and clothing design matching reference image 100%, "
+            "strict biomechanical head-torso coordination within natural cervical spine rotation range, "
+            "natural graceful figure faithful to the reference image, seamless rhythm motion, consistent background setting and ambient lighting across all frames"
+        )
 
-    video_model = os.getenv("PRODUCTION_VIDEO_MODEL", "agnes-video-v2.1")
+    if defensive_negative:
+        negative_prompt += f", {defensive_negative}"
+
+    video_model = os.getenv("PRODUCTION_VIDEO_MODEL", "agnes-video-2.5-flash")
+    aspect_ratio_str = "9:16" if height > width else "16:9"
+    size_str = "720P"
+
     for attempt in range(25):
         api_key = get_api_key(key_idx + attempt)
         headers = {
@@ -211,56 +228,66 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
             "Content-Type": "application/json"
         }
 
-        data = {
-            "model": video_model,
-            "prompt": prompt + prompt_suffix,
-            "width": width,
-            "height": height,
-            "num_frames": 121,
-            "frame_rate": 24,
-            "negative_prompt": negative_prompt
-        }
+        full_prompt = prompt + prompt_suffix
 
-        if start_image_url and end_image_url:
-            print("  [Agnes API] Mode: Keyframes (Loop Closure)...")
-            data["extra_body"] = {
-                "image": [start_image_url, end_image_url],
-                "mode": "keyframes",
+        # Support official Agnes Video 2.5 / 2.5-flash schema
+        if "2.5" in video_model:
+            data = {
+                "model": video_model,
+                "prompt": full_prompt,
+                "mode": "keyframe" if start_image_url else "text",
+                "seconds": "5",
+                "size": size_str,
+                "aspect_ratio": aspect_ratio_str
+            }
+            if start_image_url:
+                data["first_frame"] = start_image_url
+            if end_image_url:
+                print("  [Agnes API] Mode: Keyframe (Loop Closure with first_frame and last_frame)...")
+                data["last_frame"] = end_image_url
+        else:
+            data = {
+                "model": video_model,
+                "prompt": full_prompt,
+                "width": width,
+                "height": height,
+                "num_frames": 121,
+                "frame_rate": 24,
                 "negative_prompt": negative_prompt
             }
-        elif start_image_url:
-            data["image"] = start_image_url
-            data["image_url"] = start_image_url
+            if start_image_url and end_image_url:
+                print("  [Agnes API] Mode: Keyframes (Loop Closure)...")
+                data["extra_body"] = {
+                    "image": [start_image_url, end_image_url],
+                    "mode": "keyframes",
+                    "negative_prompt": negative_prompt
+                }
+            elif start_image_url:
+                data["image"] = start_image_url
 
-        print(f"  [Agnes API] Submitting request (attempt {attempt+1}/25)... Prompt: {prompt[:60]}...")
+        print(f"  [Agnes API] Submitting request (attempt {attempt+1}/25, model: {video_model})... Prompt: {prompt[:60]}...")
         req_body = json.dumps(data).encode('utf-8')
         req = urllib.request.Request(f"{base_url}/videos", data=req_body, headers=headers, method="POST")
         
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=35) as resp:
                 res_json = json.loads(resp.read().decode('utf-8'))
         except urllib.error.HTTPError as err:
             err_body = err.read().decode('utf-8')
             print(f"  [Agnes Warning] HTTP {err.code}: {err_body}")
-            if video_model != "agnes-video-v2.0" and (err.code in [400, 404, 503] or "model_not_found" in err_body):
-                print("  [Agnes Fallback] Falling back to agnes-video-v2.0 immediately...")
-                video_model = "agnes-video-v2.0"
-                data["model"] = "agnes-video-v2.0"
-                time.sleep(1)
-                continue
-            time.sleep(8)
+            time.sleep(6)
             continue
         except Exception as e:
             print(f"  [Agnes Network Warning] {e}")
-            time.sleep(8)
+            time.sleep(6)
             continue
 
-        video_id = res_json.get("data", {}).get("task_id") or res_json.get("id") or res_json.get("task_id")
-        print(f"  [Agnes API] Task ID: {video_id}. Polling status...")
+        video_id = res_json.get("video_id") or res_json.get("id") or res_json.get("task_id") or (res_json.get("data", {}) if isinstance(res_json.get("data"), dict) else {}).get("task_id")
+        print(f"  [Agnes API] Task ID: {video_id}. Polling status via official endpoint...")
         
         poll_endpoints = [
-            f"{base_url}/videos/{video_id}",
-            f"{base_url.replace('/v1', '')}/agnesapi?video_id={video_id}"
+            f"{base_url.replace('/v1', '')}/agnesapi?video_id={video_id}&model_name={video_model}",
+            f"{base_url}/videos/{video_id}"
         ]
         
         for poll_count in range(80):
@@ -363,6 +390,53 @@ def check_body_proportion(frame_png, min_body_ratio=0.72):
         print(f"  [Proportion Check] Skipped due to error: {e}")
         return True
 
+
+def check_face_integrity(frame_png):
+    """Audit if the frame contains a valid, visible frontal face.
+    Returns True if face is present and frontal, False if back of head or missing face."""
+    try:
+        import cv2
+        import numpy as np
+        img = cv2.imread(frame_png)
+        if img is None:
+            return False
+        h, w = img.shape[:2]
+        # Head & face region: vertical 10%~35%, horizontal 25%~75%
+        y1, y2 = int(0.10 * h), int(0.35 * h)
+        x1, x2 = int(0.25 * w), int(0.75 * w)
+        face_roi = img[y1:y2, x1:x2]
+        if face_roi.size == 0:
+            return False
+
+        # Convert to YCrCb for skin color detection
+        ycrcb = cv2.cvtColor(face_roi, cv2.COLOR_BGR2YCrCb)
+        cr = ycrcb[:, :, 1]
+        cb = ycrcb[:, :, 2]
+        # Typical East Asian skin color range: 133 <= Cr <= 173 and 77 <= Cb <= 127
+        skin_mask = (cr >= 133) & (cr <= 173) & (cb >= 77) & (cb <= 127)
+        skin_ratio = float(np.sum(skin_mask)) / float(face_roi.shape[0] * face_roi.shape[1])
+
+        # Check hair/dark pixels ratio (back of head typically has >65% dark hair pixels and <8% skin)
+        gray = cv2.cvtColor(face_roi, cv2.COLOR_BGR2GRAY)
+        dark_mask = gray < 60
+        dark_ratio = float(np.sum(dark_mask)) / float(face_roi.shape[0] * face_roi.shape[1])
+
+        print(f"  [Face Integrity Check] Skin ratio: {skin_ratio:.1%}, Dark hair ratio: {dark_ratio:.1%}")
+
+        if skin_ratio < 0.08 and dark_ratio > 0.60:
+            print("  [Face Integrity Alert] Back of head detected! Face is not facing camera.")
+            return False
+
+        if skin_ratio < 0.05:
+            print("  [Face Integrity Alert] Insufficient skin pixels in facial region (face missing or obscured).")
+            return False
+
+        return True
+    except Exception as e:
+        print(f"  [Face Integrity Check] Notice: {e}. Defaulting to True.")
+        return True
+
+
 def face_enhance_video(input_mp4, output_mp4):
     """Enhance facial clarity on the final muxed video.
     
@@ -457,6 +531,9 @@ def main():
     parser.add_argument("--bpm", type=int, default=115, help="Music tempo in BPM")
     parser.add_argument("--bgm", default=None, help="Optional path to custom BGM audio file or preset")
     parser.add_argument("--output", required=True, help="Path for final audited output MP4 video")
+    parser.add_argument("--tenant-id", default="default", help="SaaS tenant ID for multi-tenant path isolation")
+    parser.add_argument("--aspect-ratio", default="9:16", choices=["9:16", "16:9"], help="Video aspect ratio: 9:16 (portrait default) or 16:9 (landscape)")
+    parser.add_argument("--selected-view-index", type=int, default=None, help="Explicitly selected viewpoint slice index for start frame")
     parser.add_argument("--enable-face-enhance", action="store_true", default=True, help="Enable HD face enhancement")
     parser.add_argument("--disable-face-enhance", dest="enable_face_enhance", action="store_false", help="Disable HD face enhancement")
     args = parser.parse_args()
@@ -470,20 +547,63 @@ def main():
     task_work_dir = os.path.join(out_dir, "runs", task_prefix)
     os.makedirs(task_work_dir, exist_ok=True)
 
+    # Resolution calculation based on aspect ratio
+    if args.aspect_ratio == "16:9":
+        video_w, video_h = 1280, 704
+    else:
+        video_w, video_h = 704, 1280
+
     print(f"\n========================================================")
-    print(f"🚀 Character Dance Skill Pipeline Pro ({args.duration}s, {num_shots} Shots, Style: {args.style.upper()}, BPM: {args.bpm})")
-    print(f"📁 Task Workdir: {task_work_dir}")
+    print(f"🚀 Universal Character Dance Pipeline Pro ({args.duration}s, {num_shots} Shots, Style: {args.style.upper()}, BPM: {args.bpm})")
+    print(f"📁 Tenant ID: {args.tenant_id} | Aspect Ratio: {args.aspect_ratio} ({video_w}x{video_h}) | Task Workdir: {task_work_dir}")
     if args.template:
         print(f"🎯 Template Mode: {args.template}")
     print(f"========================================================\n")
 
-    print("\n>>> Step 1: Uploading Reference Image -> Cloud R2 Bucket <<<")
-    initial_url = upload_to_r2(args.input_image, f"{task_prefix}_ref_{os.path.basename(args.input_image)}")
+    print("\n>>> Step 1: Universal N-View Adaptive Perception & Slicing <<<")
+    adapter = MultiViewAdapter(debug=True, aspect_ratio=args.aspect_ratio)
+    mv_res = adapter.run_pipeline(
+        args.input_image,
+        task_work_dir,
+        tenant_id=args.tenant_id,
+        project_id=task_prefix,
+        aspect_ratio=args.aspect_ratio
+    )
+    detected_n = mv_res["detected_n"]
+    is_multiview = mv_res["is_multiview"]
+    
+    # Resolve start frame: explicit selection or AI-recommended Front view
+    if args.selected_view_index is not None and args.selected_view_index < len(mv_res["views"]):
+        chosen_view = mv_res["views"][args.selected_view_index]
+        primary_front_path = chosen_view["path"]
+        print(f"  [Human-in-the-Loop] User explicitly selected View {args.selected_view_index} ({chosen_view['role']}) -> {primary_front_path}")
+    else:
+        primary_front_path = mv_res["primary_front_path"]
+        print(f"  [AI Auto-Anchor] Anchored Front View (100% Single Person) -> {primary_front_path}")
+
+    print(f"  [R2 Upload] Uploading primary start frame to Cloud...")
+    initial_url = upload_to_r2(primary_front_path, f"{task_prefix}_front_{os.path.basename(primary_front_path)}")
+
+    multiview_graph = None
+    if is_multiview:
+        print("  [Step 1.5] Multi-View detected! Extracting 360° Vision Graph & Defense via Agnes 2.5 Flash...")
+        turnaround_url = upload_to_r2(args.input_image, f"{task_prefix}_turnaround_full_{os.path.basename(args.input_image)}")
+        multiview_graph = vision_describe_multiview(turnaround_url)
 
     print("\n>>> Step 2: AI Vision Character & Scene Feature Analysis <<<")
-    char_meta = analyze_character_and_scene(args.input_image, user_desc=args.prompt_desc, style_hint=args.style, image_url=initial_url)
+    char_meta = analyze_character_and_scene(
+        primary_front_path,
+        user_desc=args.prompt_desc,
+        style_hint=args.style,
+        image_url=initial_url,
+        is_multiview=is_multiview,
+        multiview_graph=multiview_graph
+    )
     char_lock_prompt = char_meta["full_prompt_lock"]
-    print(f"  [Prompt Lock]: {char_lock_prompt}")
+    defensive_negative = char_meta.get("defensive_negative", "")
+    print(f"  [Prompt Lock]: {char_lock_prompt[:120]}...")
+    if defensive_negative:
+        print(f"  [Defensive Negatives Active]: {defensive_negative}")
 
     print("\n>>> Step 3: Planning Professional Choreography <<<")
     is_kneeling = char_meta.get("is_kneeling_pose", False)
@@ -515,7 +635,7 @@ def main():
             # Subsequent shots: reinforce garment consistency from original reference
             shot_prompt += (
                 ". Maintain identical clothing and garment dimensions including identical "
-                "hemline position and skirt length from the original reference character image "
+                "exact shorts or pants or skirt fit, garment cut, and hemline position from the original reference character image "
                 "throughout this entire shot"
             )
 
@@ -523,11 +643,11 @@ def main():
             print(f"\n  [Shot {shot_id}/{num_shots}] Found existing valid shot in current task -> {shot_mp4} (Resume)")
         else:
             if is_last:
-                print(f"\n  [Shot {shot_id}/{num_shots}] Keyframes Loop Closure Mode...")
-                generate_video_shot(shot_prompt, shot_mp4, current_start_url, end_url, key_idx=i, is_kneeling_pose=is_kneeling, is_indoor=is_indoor, is_caucasian=is_caucasian)
+                print(f"\n  [Shot {shot_id}/{num_shots}] Keyframes Loop Closure Mode ({video_w}x{video_h})...")
+                generate_video_shot(shot_prompt, shot_mp4, current_start_url, end_url, width=video_w, height=video_h, key_idx=i, is_kneeling_pose=is_kneeling, is_indoor=is_indoor, is_caucasian=is_caucasian, defensive_negative=defensive_negative)
             else:
-                print(f"\n  [Shot {shot_id}/{num_shots}] Chaining Mode...")
-                generate_video_shot(shot_prompt, shot_mp4, current_start_url, key_idx=i, is_kneeling_pose=is_kneeling, is_indoor=is_indoor, is_caucasian=is_caucasian)
+                print(f"\n  [Shot {shot_id}/{num_shots}] Chaining Mode ({video_w}x{video_h})...")
+                generate_video_shot(shot_prompt, shot_mp4, current_start_url, width=video_w, height=video_h, key_idx=i, is_kneeling_pose=is_kneeling, is_indoor=is_indoor, is_caucasian=is_caucasian, defensive_negative=defensive_negative)
 
         video_files.append(shot_mp4)
 
@@ -536,15 +656,26 @@ def main():
                 print(f"  [Extract & Upload] Shot {shot_id} last frame (Lossless + Unsharp) -> R2...")
                 extract_last_frame_lossless(shot_mp4, shot_png)
                 min_prop = 0.60 if is_indoor else 0.72
-                if not check_body_proportion(shot_png, min_body_ratio=min_prop):
-                    print(f"  [Safety Fallback] Shot {shot_id} frame invalid or head cropped - falling back to initial reference image for next shot!")
+                has_prop = check_body_proportion(shot_png, min_body_ratio=min_prop)
+                has_face = check_face_integrity(shot_png)
+                if not has_prop:
+                    print(f"  [Safety Fallback] Shot {shot_id} frame body proportion invalid or head cropped - falling back to initial reference image for next shot!")
+                    current_start_url = initial_url
+                elif not has_face:
+                    print(f"  [Safety Fallback] Shot {shot_id} frame missing frontal face (back of head or obscured)! Triggering Face Latent Collapse Protection: falling back to initial reference image for next shot!")
                     current_start_url = initial_url
                 else:
                     current_start_url = upload_to_r2(shot_png, f"{task_prefix}_{args.style}_shot_{shot_id:02d}_last.png")
             else:
                 print(f"  [Resume] Using existing Shot {shot_id} last frame -> {shot_png}")
-                if not check_body_proportion(shot_png, min_body_ratio=min_prop):
-                    print(f"  [Safety Fallback] Resume Shot {shot_id} frame invalid - falling back to initial reference image!")
+                min_prop = 0.60 if is_indoor else 0.72
+                has_prop = check_body_proportion(shot_png, min_body_ratio=min_prop)
+                has_face = check_face_integrity(shot_png)
+                if not has_prop:
+                    print(f"  [Safety Fallback] Resume Shot {shot_id} frame body proportion invalid - falling back to initial reference image!")
+                    current_start_url = initial_url
+                elif not has_face:
+                    print(f"  [Safety Fallback] Resume Shot {shot_id} frame missing frontal face - falling back to initial reference image!")
                     current_start_url = initial_url
                 else:
                     current_start_url = upload_to_r2(shot_png, f"{task_prefix}_{args.style}_shot_{shot_id:02d}_last.png")
@@ -569,7 +700,7 @@ def main():
         print("  [Face Enhance] Skipped by flag.")
 
     print("\n>>> Step 8: Tri-Tier Quality Audit Gate Assertion <<<")
-    quality_audit_gate(args.output)
+    quality_audit_gate(args.output, reference_image_path=primary_front_path)
     print(f"🎉 Skill Execution Completed! Output File: {args.output}\n")
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import json
 import uuid
@@ -8,7 +9,7 @@ from typing import Optional, List
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/api/dance", tags=["dance"])
+router = APIRouter(prefix="/dance", tags=["dance"])
 
 # Auto-adapt for Docker (/workspace) or local host filesystem
 if os.path.exists("/workspace/assets/dance/07_templates"):
@@ -56,11 +57,22 @@ def get_dance_templates():
             print(f"Error reading template {fpath}: {e}")
     return templates
 
-def run_dance_generation(task_id: str, input_image_path: str, duration: int, style: str, prompt_desc: Optional[str], bpm: int, template_id: Optional[str] = None):
+def run_dance_generation(
+    task_id: str,
+    input_image_path: str,
+    duration: int,
+    style: str,
+    prompt_desc: Optional[str],
+    bpm: int,
+    template_id: Optional[str] = None,
+    tenant_id: str = "default",
+    selected_view_index: Optional[int] = None,
+    aspect_ratio: str = "9:16"
+):
     try:
         dance_tasks[task_id]["status"] = "processing"
         dance_tasks[task_id]["progress"] = 10
-        dance_tasks[task_id]["message"] = "Analyzing character features and uploading to cloud..."
+        dance_tasks[task_id]["message"] = "Universal N-view adaptive perception & slicing..."
         
         output_mp4 = os.path.join(OUT_DIR, f"{task_id}_dance_{duration}s.mp4")
         script_path = os.path.join(BASE_DIR, ".agents", "skills", "character-dance-video", "scripts", "dance_pipeline_pro.py")
@@ -71,12 +83,16 @@ def run_dance_generation(task_id: str, input_image_path: str, duration: int, sty
             "--duration", str(duration),
             "--style", style,
             "--bpm", str(bpm),
-            "--output", output_mp4
+            "--output", output_mp4,
+            "--tenant-id", tenant_id,
+            "--aspect-ratio", aspect_ratio
         ]
         if prompt_desc:
             cmd.extend(["--prompt-desc", prompt_desc])
         if template_id:
             cmd.extend(["--template", template_id])
+        if selected_view_index is not None:
+            cmd.extend(["--selected-view-index", str(selected_view_index)])
         
         dance_tasks[task_id]["progress"] = 25
         dance_tasks[task_id]["message"] = "Generating sequential dance shots with keyframes loop closure..."
@@ -89,12 +105,12 @@ def run_dance_generation(task_id: str, input_image_path: str, duration: int, sty
             last_logs.append(clean_line)
             if len(last_logs) > 30:
                 last_logs.pop(0)
-            if "Step 1" in clean_line or "R2 Upload" in clean_line:
-                dance_tasks[task_id]["progress"] = 10
-                dance_tasks[task_id]["message"] = "Uploading character reference to cloud..."
-            elif "Step 2" in clean_line or "Vision" in clean_line or "角色分析" in clean_line:
-                dance_tasks[task_id]["progress"] = 18
-                dance_tasks[task_id]["message"] = "AI analyzing character & facial features..."
+            if "Step 1" in clean_line or "Universal N-View" in clean_line or "Perception" in clean_line:
+                dance_tasks[task_id]["progress"] = 12
+                dance_tasks[task_id]["message"] = "N-view adaptive perception & front-view anchoring..."
+            elif "Step 2" in clean_line or "Vision" in clean_line or "360°" in clean_line:
+                dance_tasks[task_id]["progress"] = 20
+                dance_tasks[task_id]["message"] = "Extracting 360° multi-view knowledge graph & defenses..."
             elif "Generating sequential" in clean_line or "Shot " in clean_line:
                 dance_tasks[task_id]["progress"] = min(85, max(25, dance_tasks[task_id]["progress"] + 15))
                 dance_tasks[task_id]["message"] = clean_line
@@ -123,6 +139,40 @@ def run_dance_generation(task_id: str, input_image_path: str, duration: int, sty
         dance_tasks[task_id]["status"] = "failed"
         dance_tasks[task_id]["message"] = str(e)
 
+@router.post("/analyze-views")
+async def analyze_multiviews(
+    image: UploadFile = File(...),
+    tenant_id: str = Form("default")
+):
+    """
+    SaaS Multi-tenant Viewpoint Auto-Detection Endpoint.
+    Perceives N viewpoints, performs anti-bleed slicing, and returns view candidates.
+    """
+    temp_id = uuid.uuid4().hex
+    ext = os.path.splitext(image.filename)[1] or ".png"
+    temp_dir = os.path.join(OUT_DIR, "tenants", tenant_id, "previews", temp_id)
+    os.makedirs(temp_dir, exist_ok=True)
+    temp_img_path = os.path.join(temp_dir, f"input{ext}")
+    
+    with open(temp_img_path, "wb") as f:
+        content = await image.read()
+        f.write(content)
+        
+    try:
+        sys.path.append(os.path.join(BASE_DIR, ".agents", "skills", "character-dance-video", "scripts"))
+        from multi_view_adapter import MultiViewAdapter
+        adapter = MultiViewAdapter(debug=False)
+        result = adapter.run_pipeline(temp_img_path, temp_dir, tenant_id=tenant_id, project_id=temp_id)
+        
+        # Convert local paths to relative web-accessible media URLs
+        for v in result["views"]:
+            rel_path = os.path.relpath(v["path"], os.path.join(BASE_DIR, "out"))
+            v["preview_url"] = f"/media/out/{rel_path}"
+            
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to analyze multi-view image: {e}")
+
 @router.post("/generate")
 async def generate_dance_video(
     background_tasks: BackgroundTasks,
@@ -131,7 +181,10 @@ async def generate_dance_video(
     duration: int = Form(20),
     style: str = Form("kpop"),
     prompt_desc: Optional[str] = Form(None),
-    bpm: int = Form(128)
+    bpm: int = Form(128),
+    tenant_id: str = Form("default"),
+    selected_view_index: Optional[int] = Form(None),
+    aspect_ratio: str = Form("9:16")
 ):
     task_id = uuid.uuid4().hex
     ext = os.path.splitext(image.filename)[1] or ".png"
@@ -166,10 +219,25 @@ async def generate_dance_video(
         "duration": duration,
         "style": style,
         "template_id": template_id,
+        "tenant_id": tenant_id,
+        "selected_view_index": selected_view_index,
+        "aspect_ratio": aspect_ratio,
         "video_url": None
     }
     
-    background_tasks.add_task(run_dance_generation, task_id, saved_img_path, duration, style, prompt_desc, bpm, template_id)
+    background_tasks.add_task(
+        run_dance_generation,
+        task_id,
+        saved_img_path,
+        duration,
+        style,
+        prompt_desc,
+        bpm,
+        template_id,
+        tenant_id,
+        selected_view_index,
+        aspect_ratio
+    )
     return {"task_id": task_id, "status": "queued"}
 
 @router.get("/tasks/{task_id}")

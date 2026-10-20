@@ -1,41 +1,44 @@
 services:
-
   frontend:
+    image: ai-short-drama-frontend:latest
     build:
       context: ./frontend
     container_name: short_drama_frontend
     ports:
-      - "3008:80" # Web UI accessible at port 3008
+      - "${FRONTEND_PORT:-3008}:80"
     restart: unless-stopped
     depends_on:
       - backend
 
   backend:
+    image: ai-short-drama-backend:latest
     build:
       context: ./server
     container_name: short_drama_backend
     ports:
-      - "8008:8000" # FastAPI Backend
+      - "${BACKEND_PORT:-8008}:8000"
     volumes:
       - ./server:/app
       - .:/workspace
       - ./.env:/app/.env
       - ./config/company_config.yaml:/app/company_config.yaml
       - ./projects:/app/projects
-      - ./data:/app/data # SQLite Database storage
+      - ./data:/app/data # SQLite Database storage fallback
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_URL=${DATABASE_URL:-}
+      - REDIS_URL=${REDIS_URL:-}
 
   minio:
     image: minio/minio:latest
-    container_name: paperai_minio
+    container_name: short_drama_minio
     ports:
       - "${MINIO_API_PORT:-4000}:9000"     # S3 API
       - "${MINIO_CONSOLE_PORT:-4001}:9001" # Web Console
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER:-admin}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-paperai2026}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-shortdrama2026}
       - MINIO_REGION=${MINIO_REGION:-auto}
     volumes:
       - ./projects/media_center_data:/data
@@ -49,14 +52,14 @@ services:
 
   minio-init:
     image: minio/mc:latest
-    container_name: paperai_minio_init
+    container_name: short_drama_minio_init
     depends_on:
       minio:
         condition: service_healthy
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER:-admin}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-paperai2026}
-      - S3_BUCKET=${S3_BUCKET:-paperai-media}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-shortdrama2026}
+      - S3_BUCKET=${S3_BUCKET:-short-ai}
     entrypoint: >
       /bin/sh -c "
       echo 'MinIO is healthy, setting up bucket...' &&
@@ -68,7 +71,8 @@ services:
 
   cloudflare-tunnel:
     image: cloudflare/cloudflared:latest
-    container_name: paperai_cloudflared
+    container_name: short_drama_cloudflared
+    profiles: ["tunnel"]
     restart: unless-stopped
     command: tunnel --no-autoupdate run
     environment:
@@ -76,3 +80,109 @@ services:
       - TUNNEL_TRANSPORT_PROTOCOL=http2
     depends_on:
       - minio
+
+  # --------------------------------------------------------------------------
+  # Extended Microservices for Phase 2 Live Streaming & RAG (Profile: full / live)
+  # --------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: short_drama_nginx
+    profiles: ["full", "live"]
+    ports:
+      - "${GATEWAY_PORT:-80}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: short_drama_redis
+    profiles: ["full", "live"]
+    command: redis-server /etc/redis/redis.conf
+    volumes:
+      - ./config/redis/redis.conf:/etc/redis/redis.conf:ro
+      - redis_data:/data
+    expose:
+      - "6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  srs:
+    image: ossrs/srs:5
+    container_name: short_drama_srs
+    profiles: ["full", "live"]
+    command: ./objs/srs -c /usr/local/srs/conf/docker.conf
+    volumes:
+      - ./config/srs/srs.conf:/usr/local/srs/conf/docker.conf:ro
+      - srs_dvr_data:/usr/local/srs/objs/nginx/html
+    expose:
+      - "1935"
+      - "8085"
+    restart: unless-stopped
+
+  tts:
+    build:
+      context: ./services/tts
+    container_name: short_drama_tts
+    profiles: ["full", "live"]
+    expose:
+      - "8001"
+    volumes:
+      - tts_cache_data:/app/data/tts_cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      start_period: 5s
+      retries: 3
+
+  rag:
+    build:
+      context: ./services/rag
+    container_name: short_drama_rag
+    profiles: ["full", "live"]
+    expose:
+      - "8002"
+    volumes:
+      - rag_storage_data:/app/data/rag_storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 10s
+      timeout: 5s
+      start_period: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: short_drama_postgres
+    profiles: ["full", "live"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-shortdrama}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shortdrama_secret_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-shortdrama_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shortdrama} -d ${POSTGRES_DB:-shortdrama_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  srs_dvr_data:
+  tts_cache_data:
+  rag_storage_data:

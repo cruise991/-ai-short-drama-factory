@@ -1,0 +1,84 @@
+# LingCast & AI Short Drama Unified Services Configuration
+
+default: &default_env
+  app:
+    name: "LingCast-AutoDrama"
+    version: "1.0.0"
+    env: "development"
+    debug: true
+
+  server:
+    host: "0.0.0.0"
+    port: 8000
+    workers: 2
+    timeout_keepalive: 65
+
+  srs:
+    rtmp_port: 1935
+    http_flv_port: 8085
+    api_port: 1985
+    rtmp_base_url: "rtmp://localhost:1935/live"
+    http_flv_base_url: "http://localhost:8085/live"
+    hls_base_url: "http://localhost:8085/live"
+
+  redis:
+    url: "redis://localhost:6379/0"
+    max_connections: 20
+    socket_timeout: 5.0
+    danmaku_stream: "live:danmaku:{session_id}"
+    tts_stream: "live:tts_queue:{session_id}"
+    render_stream: "live:render_queue:{session_id}"
+    events_stream: "live:events:{session_id}"
+
+  tts:
+    service_url: "http://localhost:8001"
+    default_voice: "zh-CN-XiaoxiaoNeural"
+    default_speed: 1.0
+    timeout_seconds: 15.0
+    cache_ttl_days: 30
+
+  rag:
+    service_url: "http://localhost:8002"
+    chunk_size: 512
+    chunk_overlap: 64
+    top_k: 3
+    min_score: 0.1
+    timeout_seconds: 5.0
+
+  live_orchestrator:
+    danmaku_batch_size: 10
+    danmaku_cooldown_seconds: 3.0
+    silence_filler_interval_seconds: 12.0
+    watermark:
+      enabled: true
+      text: "AI虚拟数字人直播中·请理性消费"
+      position: "top-right"
+
+  security:
+    jwt_algorithm: "HS256"
+    access_token_expire_minutes: 1440
+    rate_limit_per_minute: 60
+    enable_auth_whitelist: true
+
+development:
+  <<: *default_env
+  app:
+    env: "development"
+    debug: true
+
+production:
+  <<: *default_env
+  app:
+    env: "production"
+    debug: false
+  server:
+    workers: 4
+  srs:
+    rtmp_base_url: "rtmp://srs:1935/live"
+    http_flv_base_url: "http://srs:8085/live"
+  tts:
+    service_url: "http://tts:8001"
+  rag:
+    service_url: "http://rag:8002"
+  redis:
+    url: "redis://redis:6379/0"

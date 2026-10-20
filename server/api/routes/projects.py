@@ -7,8 +7,10 @@ import os
 import glob
 import asyncio
 from pydantic import BaseModel
+from ws.logger import manager
 
-router = APIRouter(prefix="/api/projects", tags=["projects"])
+router = APIRouter(prefix="/projects", tags=["projects"])
+
 
 # Global dictionary to hold asyncio.Future objects for pending inputs
 PENDING_INPUTS = {}
@@ -16,10 +18,15 @@ PENDING_INPUTS = {}
 class CreateProjectRequest(BaseModel):
     goal: str
     format_type: str = "vertical"
-    branch_type: str = "short_drama"
+    branch_type: str = "short_drama" # short_drama, transformation_video, dance_video, handdraw_video, neural_explainer
     selected_ip: Optional[str] = None
     vibe: Optional[str] = None
     trend_enabled: bool = False
+    costume_id: Optional[str] = None
+    scene_id: Optional[str] = None
+    motion_id: Optional[str] = None
+    hand_preset: Optional[str] = None
+    caption_style: Optional[str] = None
 
 @router.post("/", response_model=Project)
 def create_project(
@@ -41,6 +48,11 @@ def create_project(
     req_ip = payload.selected_ip if payload else selected_ip
     req_vibe = payload.vibe if payload else vibe
     req_trend = payload.trend_enabled if payload else trend_enabled
+    req_costume = payload.costume_id if payload else None
+    req_scene = payload.scene_id if payload else None
+    req_motion = payload.motion_id if payload else None
+    req_hand = payload.hand_preset if payload else None
+    req_caption = payload.caption_style if payload else None
 
     # Create a clean slug from the goal
     clean_goal = re.sub(r'[^a-zA-Z0-9\u4e00-\u9fa5]', '_', req_goal.lower())[:30].strip('_')
@@ -57,11 +69,17 @@ def create_project(
         selected_ip=req_ip,
         vibe=req_vibe,
         trend_enabled=req_trend,
+        costume_id=req_costume,
+        scene_id=req_scene,
+        motion_id=req_motion,
+        hand_preset=req_hand,
+        caption_style=req_caption,
         status="Pending"
     )
     session.add(project)
     session.commit()
     session.refresh(project)
+    manager.broadcast_sync(f"[Project] 📝 New project created: #{project.id} ({project.project_slug}) - Goal: {project.goal[:40]}")
     return project
 
 @router.get("/", response_model=List[Project])
@@ -89,6 +107,7 @@ def submit_input(project_id: int, user_input: UserInput):
         future = PENDING_INPUTS[project_id]
         if not future.done():
             future.set_result(user_input.message)
+        manager.broadcast_sync(f"[Project] 💬 Project #{project_id} feedback submitted: {user_input.message[:60]}")
         return {"success": True}
     return {"success": False, "reason": "No pending input"}
 
@@ -99,6 +118,7 @@ def approve_project(project_id: int):
         future = PENDING_INPUTS[project_id]
         if not future.done():
             future.set_result("ok")
+        manager.broadcast_sync(f"[Project] ✅ Project #{project_id} received human director APPROVAL.")
         return {"success": True, "message": "Phase approved successfully"}
     return {"success": False, "reason": "Project is not currently awaiting manual approval"}
 
@@ -109,8 +129,10 @@ def reject_project(project_id: int, user_input: UserInput):
         future = PENDING_INPUTS[project_id]
         if not future.done():
             future.set_result(user_input.message)
+        manager.broadcast_sync(f"[Project] ⚠️ Project #{project_id} received human director REVISION FEEDBACK: {user_input.message[:60]}")
         return {"success": True, "message": "Feedback submitted successfully"}
     return {"success": False, "reason": "Project is not currently awaiting manual approval"}
+
 
 @router.get("/{slug}/detail")
 def get_project_detail(slug: str, session: Session = Depends(get_session)):

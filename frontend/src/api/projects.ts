@@ -11,6 +11,11 @@ export interface Project {
   selected_ip?: string;
   vibe?: string;
   trend_enabled?: boolean;
+  costume_id?: string;
+  scene_id?: string;
+  motion_id?: string;
+  hand_preset?: string;
+  caption_style?: string;
 }
 
 export interface CreateProjectPayload {
@@ -20,6 +25,11 @@ export interface CreateProjectPayload {
   selected_ip?: string;
   vibe?: string;
   trend_enabled?: boolean;
+  costume_id?: string;
+  scene_id?: string;
+  motion_id?: string;
+  hand_preset?: string;
+  caption_style?: string;
 }
 
 export interface ProjectDetailResponse {

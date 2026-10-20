@@ -5,18 +5,24 @@ import {
   AlertCircle, Download, RotateCcw, Clock, Layers, Sliders,
   Film, ShieldCheck, Zap, RefreshCw, Play
 } from 'lucide-react'
-import { danceApi, type DanceTemplate, type DanceTaskStatus } from '../api/dance'
+import { danceApi, type DanceTemplate, type DanceTaskStatus, type MultiViewResult } from '../api/dance'
 import { getMediaUrl } from '../api/client'
+import { useAuthStore } from '../store/authStore'
 
 type TemplateCategory = 'all' | 'kpop' | 'fitness' | 'street' | 'luxury'
 
 export default function DanceStudio() {
   const { t } = useTranslation()
+  const { user } = useAuthStore()
   const [templates, setTemplates] = useState<DanceTemplate[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<DanceTemplate | null>(null)
   const [activeCategory, setActiveCategory] = useState<TemplateCategory>('all')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [multiViewData, setMultiViewData] = useState<MultiViewResult | null>(null)
+  const [selectedViewIndex, setSelectedViewIndex] = useState<number | null>(null)
+  const [isAnalyzingViews, setIsAnalyzingViews] = useState<boolean>(false)
+  const [aspectRatio, setAspectRatio] = useState<string>('9:16')
   const [duration, setDuration] = useState<number>(20)
   const [style, setStyle] = useState<string>('fitness')
   const [promptDesc, setPromptDesc] = useState<string>('')
@@ -70,13 +76,13 @@ export default function DanceStudio() {
         return combined.includes('kpop') || combined.includes('女团') || combined.includes('aespa') || combined.includes('blackpink') || combined.includes('angel')
       }
       if (activeCategory === 'fitness') {
-        return combined.includes('健身') || combined.includes('活力') || combined.includes('扭胯') || combined.includes('上车') || combined.includes('库里')
+        return combined.includes('健身') || combined.includes('活力') || combined.includes('扭胯') || combined.includes('上车') || combined.includes('库里') || combined.includes('动力学') || combined.includes('kinetic')
       }
       if (activeCategory === 'street') {
         return combined.includes('街头') || combined.includes('律动') || combined.includes('搞笑') || combined.includes('科目三') || combined.includes('二摆')
       }
       if (activeCategory === 'luxury') {
-        return combined.includes('慢摇') || combined.includes('纯欲') || combined.includes('曲线') || combined.includes('甜美')
+        return combined.includes('慢摇') || combined.includes('纯欲') || combined.includes('曲线') || combined.includes('甜美') || combined.includes('高精度') || combined.includes('precision')
       }
       return true
     })
@@ -88,31 +94,45 @@ export default function DanceStudio() {
     }
   }
 
+  const handleProcessFile = async (file: File) => {
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    setErrorMsg(null)
+    setMultiViewData(null)
+    setSelectedViewIndex(null)
+    if (currentTask) {
+      setCurrentTask(null)
+    }
+    clearUrlTaskId()
+
+    try {
+      setIsAnalyzingViews(true)
+      const fd = new FormData()
+      fd.append('image', file)
+      fd.append('tenant_id', user?.tenant_id || 'default')
+      const res = await danceApi.analyzeViews(fd)
+      setMultiViewData(res)
+      if (res && res.views && res.views.length > 0) {
+        const prim = res.views.find(v => v.is_primary_start)
+        setSelectedViewIndex(prim ? prim.index : 0)
+      }
+    } catch (e) {
+      console.warn('Auto view analysis skipped or failed:', e)
+    } finally {
+      setIsAnalyzingViews(false)
+    }
+  }
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setImageFile(file)
-      setImagePreview(URL.createObjectURL(file))
-      setErrorMsg(null)
-      // Uploading a new character automatically exits previous completed task
-      if (currentTask) {
-        setCurrentTask(null)
-      }
-      clearUrlTaskId()
+      handleProcessFile(e.target.files[0])
     }
   }
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0]
-      setImageFile(file)
-      setImagePreview(URL.createObjectURL(file))
-      setErrorMsg(null)
-      if (currentTask) {
-        setCurrentTask(null)
-      }
-      clearUrlTaskId()
+      handleProcessFile(e.dataTransfer.files[0])
     }
   }
 
@@ -125,8 +145,8 @@ export default function DanceStudio() {
     // Auto sync style recommendation if matching
     const tags = (tpl.tags || []).join(' ')
     if (tags.includes('kpop') || tags.includes('女团')) setStyle('kpop')
-    else if (tags.includes('健身') || tags.includes('活力')) setStyle('fitness')
-    else if (tags.includes('慢摇') || tags.includes('纯欲')) setStyle('luxury')
+    else if (tags.includes('健身') || tags.includes('活力') || tags.includes('动力学')) setStyle('fitness')
+    else if (tags.includes('慢摇') || tags.includes('纯欲') || tags.includes('奢华') || tags.includes('高精度')) setStyle('luxury')
     else if (tags.includes('律动') || tags.includes('街头')) setStyle('street')
 
     // Selecting new motion resets completed display so user can render newly selected motion
@@ -150,6 +170,11 @@ export default function DanceStudio() {
       formData.append('duration', duration.toString())
       formData.append('style', style)
       formData.append('bpm', customBpm.toString())
+      formData.append('tenant_id', user?.tenant_id || 'default')
+      formData.append('aspect_ratio', aspectRatio)
+      if (selectedViewIndex !== null) {
+        formData.append('selected_view_index', selectedViewIndex.toString())
+      }
       if (selectedTemplate) {
         formData.append('template_id', selectedTemplate.dance_id)
       }
@@ -348,8 +373,8 @@ export default function DanceStudio() {
                 </h3>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-pink-400/80 bg-pink-500/10 px-2 py-0.5 rounded-full">
-                  {t('dance.character.aspect')}
+                <span className="text-xs text-pink-400/80 bg-pink-500/10 px-2 py-0.5 rounded-full font-mono">
+                  {aspectRatio === '9:16' ? t('dance.params.ratio916') : t('dance.params.ratio169')}
                 </span>
                 {imagePreview && (
                   <button 
@@ -369,7 +394,7 @@ export default function DanceStudio() {
               onClick={() => fileInputRef.current?.click()}
               className={`relative border-2 border-dashed rounded-xl transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center ${
                 imagePreview 
-                  ? 'border-gray-700 bg-gray-900/50 aspect-[9/16] max-h-[380px]' 
+                  ? `border-gray-700 bg-gray-900/50 ${aspectRatio === '16:9' ? 'aspect-[16/9] max-h-[300px]' : 'aspect-[9/16] max-h-[380px]'}` 
                   : 'border-gray-700/80 hover:border-pink-500/50 bg-gray-900/30 py-12 hover:bg-gray-900/50'
               }`}
             >
@@ -416,6 +441,83 @@ export default function DanceStudio() {
               <span>🔒</span>
               <span>{t('dance.stage.privacyNotice')}</span>
             </p>
+
+            {/* Multi-view Analyzing Indicator */}
+            {isAnalyzingViews && (
+              <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-xl flex items-center space-x-2 text-xs text-purple-300 animate-pulse">
+                <RefreshCw className="w-4 h-4 animate-spin text-purple-400" />
+                <span>{t('dance.multiview.detecting')}</span>
+              </div>
+            )}
+
+            {/* Multi-view detected card selector */}
+            {multiViewData && multiViewData.is_multiview && (
+              <div className="p-3 bg-gray-900/90 border border-purple-500/40 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1.5 text-xs font-semibold text-purple-300">
+                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                    <span>{t('dance.multiview.adaptiveBadge')}</span>
+                    <span className="px-1.5 py-0.5 rounded bg-purple-500/20 text-[10px] text-purple-300 font-mono">
+                      N = {multiViewData.detected_n}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-gray-400">
+                    {multiViewData.elapsed_ms}ms
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-400">
+                  {t('dance.multiview.hitlTooltip')}
+                </p>
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  {multiViewData.views.map((v) => {
+                    const isSelected = selectedViewIndex === v.index;
+                    return (
+                      <div
+                        key={v.index}
+                        onClick={() => setSelectedViewIndex(v.index)}
+                        className={`cursor-pointer rounded-lg border overflow-hidden transition-all relative flex flex-col items-center bg-gray-950 p-1.5 ${
+                          isSelected 
+                            ? 'border-pink-500 ring-2 ring-pink-500/40' 
+                            : 'border-gray-800 hover:border-gray-600 opacity-70 hover:opacity-100'
+                        }`}
+                      >
+                        <div className="relative w-full aspect-[9/16] bg-black/40 rounded overflow-hidden">
+                          <img
+                            src={getMediaUrl(v.preview_url)}
+                            alt={v.role}
+                            className="w-full h-full object-contain"
+                          />
+                          {isSelected && (
+                            <div className="absolute top-1 right-1 bg-pink-500 text-white rounded-full p-0.5 shadow">
+                              <CheckCircle2 className="w-3 h-3" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-1.5 text-center">
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                            v.role === 'FRONT' 
+                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                              : v.role === 'BACK' 
+                              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                              : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          }`}>
+                            {v.role === 'FRONT' ? t('dance.multiview.frontAnchor') : v.role === 'BACK' ? t('dance.multiview.backView') : t('dance.multiview.sideView')}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Single image detected confirmation */}
+            {multiViewData && !multiViewData.is_multiview && (
+              <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center space-x-2 text-xs text-emerald-400">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                <span>{t('dance.multiview.singleDetected')} (N=1)</span>
+              </div>
+            )}
 
             {imagePreview && !currentTask && (
               <div className="p-3 bg-pink-500/10 border border-pink-500/30 rounded-xl flex items-center justify-between animate-fade-in">
@@ -474,6 +576,32 @@ export default function DanceStudio() {
                   >
                     <Clock className="w-3.5 h-3.5" />
                     <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Aspect Ratio Selector */}
+            <div>
+              <label className="text-xs text-gray-400 mb-2 block font-medium">
+                {t('dance.params.aspectRatio')}
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { ratio: '9:16', label: t('dance.params.ratio916'), res: '704×1280' },
+                  { ratio: '16:9', label: t('dance.params.ratio169'), res: '1280×704' }
+                ].map((item) => (
+                  <button
+                    key={item.ratio}
+                    onClick={() => setAspectRatio(item.ratio)}
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all flex flex-col items-center justify-center space-y-0.5 border ${
+                      aspectRatio === item.ratio
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 border-transparent text-white shadow-md shadow-pink-500/20'
+                        : 'bg-gray-900/60 border-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    <span className="text-[10px] opacity-75 font-mono">{item.res}</span>
                   </button>
                 ))}
               </div>

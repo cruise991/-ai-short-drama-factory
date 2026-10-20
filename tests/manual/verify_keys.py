@@ -32,7 +32,7 @@ if __name__ == "__main__":
     except:
         resolve_arg = None
 
-    payload = json.dumps({"model": "agnes-2.0-flash", "messages": [{"role": "user", "content": "hi"}]})
+    payload = json.dumps({"model": "agnes-3.0-flash", "messages": [{"role": "user", "content": "hi"}]})
 
     for i, key in enumerate(keys):
         cmd = ["curl", "-s", "-k", "--http1.1", "-X", "POST", endpoint,

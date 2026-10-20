@@ -116,25 +116,20 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
         }
 
         data = {
-            "model": "agnes-video-v2.0",
+            "model": "agnes-video-2.5-flash",
             "prompt": prompt + ", starting exactly from reference pose, seamless rhythm motion",
-            "width": width,
-            "height": height,
-            "num_frames": 121,
-            "frame_rate": 24,
-            "negative_prompt": "cropped head, cropped feet, cropped body, top of head cut off, feet cut off, blurry, low quality, distorted hands, distorted body, extra limbs, ugly face"
+            "mode": "keyframe",
+            "seconds": "5",
+            "size": "720P",
+            "aspect_ratio": "9:16"
         }
 
         if start_image_url and end_image_url:
             print("  [Agnes] Using Keyframes Mode (Loop Closure)...")
-            data["extra_body"] = {
-                "image": [start_image_url, end_image_url],
-                "mode": "keyframes",
-                "negative_prompt": data["negative_prompt"]
-            }
+            data["first_frame"] = start_image_url
+            data["last_frame"] = end_image_url
         elif start_image_url:
-            data["image"] = start_image_url
-            data["image_url"] = start_image_url
+            data["first_frame"] = start_image_url
 
         print(f"  [Agnes] Submitting request (attempt {attempt+1}/20)... Prompt: {prompt[:50]}...")
         req_body = json.dumps(data).encode('utf-8')
@@ -159,7 +154,7 @@ def generate_video_shot(prompt, output_path, start_image_url=None, end_image_url
         
         for poll_count in range(60):
             time.sleep(8)
-            st_req = urllib.request.Request(f"https://apihub.agnes-ai.com/agnesapi?video_id={video_id}", headers=headers)
+            st_req = urllib.request.Request(f"https://apihub.agnes-ai.com/agnesapi?video_id={video_id}&model_name=agnes-video-2.5-flash", headers=headers)
             try:
                 with urllib.request.urlopen(st_req) as st_resp:
                     st_json = json.loads(st_resp.read().decode('utf-8'))

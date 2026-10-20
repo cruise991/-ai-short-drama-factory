@@ -1,12 +1,29 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import OnboardingWizard from './components/OnboardingWizard'
 import ProjectList from './components/ProjectList'
 import LiveConsole from './components/LiveConsole'
 import AssetGallery from './pages/AssetGallery'
 import ProjectDetail from './pages/ProjectDetail'
 import DanceStudio from './pages/DanceStudio'
-import { LayoutDashboard, Settings, TerminalSquare, Flame, Globe } from 'lucide-react'
+import { Login } from './pages/Login'
+import { AdminLayout } from './layouts/AdminLayout'
+import { ViewerLayout } from './layouts/ViewerLayout'
+import { AvatarManager } from './pages/AvatarManager'
+import { LiveOrchestrator } from './pages/LiveOrchestrator'
+import { KnowledgeManager } from './pages/KnowledgeManager'
+import { MonitoringView } from './pages/MonitoringView'
+import { LiveViewer } from './pages/LiveViewer'
+import { 
+  LayoutDashboard, 
+  Settings, 
+  TerminalSquare, 
+  Flame, 
+  Globe, 
+  Radio, 
+  UserCheck, 
+  Activity 
+} from 'lucide-react'
 import { useTranslation, type Language } from './locales/i18n'
 
 function App() {
@@ -33,6 +50,27 @@ function App() {
 
   return (
     <Routes>
+      {/* 1. Public Authentication Route */}
+      <Route path="/login" element={<Login />} />
+
+      {/* 2. Immersive Live Streaming Viewer Routes */}
+      <Route path="/viewer" element={<ViewerLayout />}>
+        <Route index element={<LiveViewer />} />
+        <Route path=":roomId" element={<LiveViewer />} />
+      </Route>
+      <Route path="/live/:roomId" element={<ViewerLayout />}>
+        <Route index element={<LiveViewer />} />
+      </Route>
+
+      {/* 3. Admin & Live Management Routes */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route path="avatars" element={<AvatarManager />} />
+        <Route path="live" element={<LiveOrchestrator />} />
+        <Route path="knowledge" element={<KnowledgeManager />} />
+        <Route path="monitoring" element={<MonitoringView />} />
+      </Route>
+
+      {/* 4. Short Drama Core Studio Routes (Preserved & Enhanced) */}
       <Route path="/projects/:slug" element={<ProjectDetail />} />
       <Route path="/projects/:slug/assets" element={<AssetGallery />} />
       <Route path="/dance" element={<DanceStudio />} />
@@ -50,37 +88,68 @@ function App() {
                 </div>
               </div>
               
-              <nav className="p-4 space-y-2">
+              <nav className="p-4 space-y-1.5">
                 <button 
                   onClick={() => setCurrentView('dashboard')}
-                  className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${
+                  className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all ${
                     currentView === 'dashboard' 
                       ? 'bg-blue-600/10 text-blue-400 border border-blue-500/30 font-semibold shadow-lg shadow-blue-500/5' 
                       : 'text-gray-400 hover:bg-gray-900 hover:text-gray-200 border border-transparent'
                   }`}
                 >
                   <LayoutDashboard className="w-5 h-5 mr-3" />
-                  <span className="font-medium">{t('app.nav.drama')}</span>
+                  <span className="font-medium text-sm">{t('app.nav.drama')}</span>
                 </button>
 
                 <button 
                   onClick={() => setCurrentView('dance')}
-                  className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${
+                  className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all ${
                     currentView === 'dance' 
                       ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 text-pink-300 font-semibold shadow-lg shadow-pink-500/10' 
                       : 'text-gray-400 hover:bg-gray-900 hover:text-gray-200 border border-transparent'
                   }`}
                 >
                   <Flame className={`w-5 h-5 mr-3 ${currentView === 'dance' ? 'text-pink-400 animate-pulse' : ''}`} />
-                  <span className="font-medium">{t('app.nav.dance')}</span>
+                  <span className="font-medium text-sm">{t('app.nav.dance')}</span>
                 </button>
+
+                {/* LingCast Expansion Links */}
+                <div className="pt-2 pb-1">
+                  <div className="px-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                    LingCast 直播中台
+                  </div>
+                </div>
+
+                <Link
+                  to="/admin/live"
+                  className="w-full flex items-center px-4 py-2.5 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-gray-200 transition-colors text-sm"
+                >
+                  <Radio className="w-5 h-5 mr-3 text-indigo-400" />
+                  <span>智能直播编排</span>
+                </Link>
+
+                <Link
+                  to="/admin/avatars"
+                  className="w-full flex items-center px-4 py-2.5 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-gray-200 transition-colors text-sm"
+                >
+                  <UserCheck className="w-5 h-5 mr-3 text-purple-400" />
+                  <span>数字人资产</span>
+                </Link>
+
+                <Link
+                  to="/admin/monitoring"
+                  className="w-full flex items-center px-4 py-2.5 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-gray-200 transition-colors text-sm"
+                >
+                  <Activity className="w-5 h-5 mr-3 text-emerald-400" />
+                  <span>基础设施监控</span>
+                </Link>
 
                 <button 
                   onClick={() => setShowConsole(!showConsole)}
-                  className={`w-full flex items-center px-4 py-3 rounded-xl transition-colors ${showConsole ? 'bg-green-600/10 text-green-400 border border-green-500/30' : 'text-gray-400 hover:bg-gray-900 hover:text-gray-200 border border-transparent'}`}
+                  className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-colors ${showConsole ? 'bg-green-600/10 text-green-400 border border-green-500/30' : 'text-gray-400 hover:bg-gray-900 hover:text-gray-200 border border-transparent'}`}
                 >
                   <TerminalSquare className="w-5 h-5 mr-3" />
-                  <span className="font-medium">{t('app.nav.console')}</span>
+                  <span className="font-medium text-sm">{t('app.nav.console')}</span>
                 </button>
               </nav>
             </div>
@@ -88,22 +157,22 @@ function App() {
             <div className="p-4 border-t border-gray-800 space-y-2">
               <button 
                 onClick={toggleLanguage}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-gray-200 transition-colors border border-gray-800/80 text-sm"
+                className="w-full flex items-center justify-between px-4 py-2 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-gray-200 transition-colors border border-gray-800/80 text-xs"
               >
                 <div className="flex items-center">
-                  <Globe className="w-4 h-4 mr-2.5 text-indigo-400" />
+                  <Globe className="w-4 h-4 mr-2 text-indigo-400" />
                   <span>Language</span>
                 </div>
-                <span className="text-xs font-bold font-mono bg-gray-800 px-2 py-0.5 rounded text-indigo-300">
+                <span className="text-[10px] font-bold font-mono bg-gray-800 px-2 py-0.5 rounded text-indigo-300">
                   {lang.toUpperCase()}
                 </span>
               </button>
 
               <button 
                 onClick={() => setCurrentView('settings')}
-                className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-colors text-sm ${currentView === 'settings' ? 'bg-blue-600/10 text-blue-400 font-semibold' : 'text-gray-400 hover:bg-gray-900 hover:text-gray-200'}`}
+                className={`w-full flex items-center px-4 py-2 rounded-xl transition-colors text-xs ${currentView === 'settings' ? 'bg-blue-600/10 text-blue-400 font-semibold' : 'text-gray-400 hover:bg-gray-900 hover:text-gray-200'}`}
               >
-                <Settings className="w-4 h-4 mr-2.5" />
+                <Settings className="w-4 h-4 mr-2" />
                 <span>{t('app.nav.settings')}</span>
               </button>
             </div>

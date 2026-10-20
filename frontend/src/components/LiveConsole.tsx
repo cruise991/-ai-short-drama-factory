@@ -1,19 +1,30 @@
 import { useState, useEffect, useRef } from 'react';
-import { Terminal, X, Minimize2, Maximize2, Send } from 'lucide-react';
+import { 
+  Terminal, X, Minimize2, Maximize2, Send, 
+  Trash2, Copy, Check, ArrowDownToLine 
+} from 'lucide-react';
 import { getWsUrl } from '../api/client';
 import { projectsApi } from '../api/projects';
+import { useTranslation } from '../locales/i18n';
 
 interface LiveConsoleProps {
   onClose: () => void;
 }
 
+type ConnectionStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
+
 export default function LiveConsole({ onClose }: LiveConsoleProps) {
+  const { t } = useTranslation();
   const [logs, setLogs] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeInputProjectId, setActiveInputProjectId] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [status, setStatus] = useState<ConnectionStatus>('connecting');
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
@@ -23,18 +34,15 @@ export default function LiveConsole({ onClose }: LiveConsoleProps) {
     let isMounted = true;
 
     function connect() {
+      if (!isMounted) return;
+      setStatus(prev => prev === 'connected' ? 'reconnecting' : 'connecting');
       const wsUrl = getWsUrl('/ws/logs');
       ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
         if (!isMounted) return;
-        setLogs(prev => {
-          if (prev.length > 0 && prev[prev.length - 1]?.includes('disconnected')) {
-            return [...prev, '--- System: Log stream reconnected ---'];
-          }
-          return prev;
-        });
+        setStatus('connected');
       };
 
       ws.onmessage = (event) => {
@@ -46,8 +54,8 @@ export default function LiveConsole({ onClose }: LiveConsoleProps) {
           // Detect AWAITING_USER_INPUT marker
           const match = cleanMessage.match(/\[AWAITING_USER_INPUT\]\s+(\d+)/);
           if (match) {
-              setActiveInputProjectId(parseInt(match[1]));
-              cleanMessage = cleanMessage.replace(/\[AWAITING_USER_INPUT\]\s+(\d+)/, ">>> AWAITING USER FEEDBACK (Type below to reply) <<<");
+            setActiveInputProjectId(parseInt(match[1]));
+            cleanMessage = cleanMessage.replace(/\[AWAITING_USER_INPUT\]\s+(\d+)/, ">>> AWAITING USER FEEDBACK (Type below to reply) <<<");
           }
           
           // Keep only last 1000 lines to prevent memory issues
@@ -58,17 +66,12 @@ export default function LiveConsole({ onClose }: LiveConsoleProps) {
       };
 
       ws.onerror = (error) => {
-        console.warn('WebSocket connection error, will retry...', error);
+        console.warn('WebSocket error:', error);
       };
 
       ws.onclose = () => {
         if (!isMounted) return;
-        setLogs(prev => {
-          if (prev.length === 0 || !prev[prev.length - 1]?.includes('disconnected')) {
-            return [...prev, '--- System: Log stream disconnected, auto-reconnecting in 3s... ---'];
-          }
-          return prev;
-        });
+        setStatus('reconnecting');
         reconnectTimeout = setTimeout(() => {
           if (isMounted) connect();
         }, 3000);
@@ -86,12 +89,33 @@ export default function LiveConsole({ onClose }: LiveConsoleProps) {
     };
   }, []);
 
-  // Auto-scroll to bottom
+  // Smart auto-scroll: only scroll if enabled
   useEffect(() => {
-    if (bottomRef.current) {
+    if (autoScroll && bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [logs, activeInputProjectId]);
+  }, [logs, autoScroll, activeInputProjectId]);
+
+  // Handle user scroll detection
+  const handleScroll = () => {
+    if (!containerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 40;
+    if (isAtBottom !== autoScroll) {
+      setAutoScroll(isAtBottom);
+    }
+  };
+
+  const handleClear = () => {
+    setLogs([]);
+  };
+
+  const handleCopy = () => {
+    if (logs.length === 0) return;
+    navigator.clipboard.writeText(logs.join('\n'));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleSubmitInput = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,32 +134,140 @@ export default function LiveConsole({ onClose }: LiveConsoleProps) {
     }
   };
 
+  // Log style resolver for syntax highlight
+  const getLogStyle = (line: string) => {
+    if (line.includes('>>> AWAITING USER FEEDBACK')) {
+      return 'text-amber-200 bg-amber-950/60 p-2 rounded border border-amber-500/40 my-1 font-bold animate-pulse';
+    }
+    if (line.includes('[System]')) {
+      return 'text-cyan-400 font-medium';
+    }
+    if (line.includes('[Worker]')) {
+      return 'text-indigo-300';
+    }
+    if (line.includes('[Pipeline]')) {
+      return 'text-emerald-400 font-medium';
+    }
+    if (line.includes('[Project]')) {
+      return 'text-amber-300';
+    }
+    if (line.includes('❌') || line.includes('Error') || line.includes('Failed')) {
+      return 'text-red-400 font-semibold';
+    }
+    if (line.includes('⚠️') || line.includes('Warning')) {
+      return 'text-yellow-400';
+    }
+    return 'text-green-300/90';
+  };
 
   return (
-    <div className={`fixed bottom-0 right-0 left-64 bg-gray-950 border-t border-gray-700 shadow-2xl transition-all duration-300 z-40 flex flex-col ${isExpanded ? 'h-[80vh]' : 'h-72'}`}>
+    <div className={`fixed bottom-0 right-0 left-64 bg-gray-950 border-t border-gray-700/80 shadow-2xl transition-all duration-300 z-40 flex flex-col ${isExpanded ? 'h-[80vh]' : 'h-80'}`}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-800">
-        <div className="flex items-center gap-2 text-green-400">
-          <Terminal className="w-4 h-4" />
-          <span className="text-sm font-mono font-semibold tracking-wider">LIVE_CONSOLE // RUNNING</span>
-        </div>
+      <div className="flex items-center justify-between px-4 py-2.5 bg-gray-900/90 backdrop-blur border-b border-gray-800">
         <div className="flex items-center gap-3">
-          <button onClick={() => setIsExpanded(!isExpanded)} className="text-gray-500 hover:text-white transition-colors">
-            {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          <div className="flex items-center gap-2 text-green-400">
+            <Terminal className="w-4 h-4" />
+            <span className="text-xs font-mono font-semibold tracking-wider">
+              {t('console.title') || 'LIVE_CONSOLE // RUNNING'}
+            </span>
+          </div>
+
+          {/* Status Badge */}
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-800/80 border border-gray-700 text-[11px] font-mono">
+            {status === 'connected' && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-green-400">{t('console.connected') || 'ONLINE'}</span>
+              </>
+            )}
+            {status === 'connecting' && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                <span className="text-yellow-400">{t('console.connecting') || 'CONNECTING'}</span>
+              </>
+            )}
+            {status === 'reconnecting' && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                <span className="text-amber-400">{t('console.disconnected') || 'RECONNECTING'}</span>
+              </>
+            )}
+            {status === 'disconnected' && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-red-500" />
+                <span className="text-red-400">OFFLINE</span>
+              </>
+            )}
+          </div>
+
+          {/* Line Counter */}
+          <span className="text-[11px] font-mono text-gray-400 bg-gray-800/50 px-2 py-0.5 rounded">
+            {logs.length} {t('console.lines') || 'lines'}
+          </span>
+        </div>
+
+        {/* Action Toolbar */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setAutoScroll(!autoScroll)}
+            title={t('console.autoScroll') || 'Auto Scroll'}
+            className={`p-1.5 rounded transition-colors text-xs flex items-center gap-1 font-mono ${
+              autoScroll ? 'bg-green-950 text-green-400 border border-green-700/50' : 'text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            <ArrowDownToLine className="w-3.5 h-3.5" />
           </button>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
-            <X className="w-4 h-4" />
+
+          <button
+            onClick={handleCopy}
+            disabled={logs.length === 0}
+            title={t('console.copy') || 'Copy Logs'}
+            className="p-1.5 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition-colors disabled:opacity-40"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+          </button>
+
+          <button
+            onClick={handleClear}
+            disabled={logs.length === 0}
+            title={t('console.clear') || 'Clear'}
+            className="p-1.5 rounded text-gray-400 hover:text-red-400 hover:bg-gray-800 transition-colors disabled:opacity-40"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-gray-700 mx-1" />
+
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-1.5 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+          >
+            {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+          </button>
+          
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
       
-      {/* Terminal Area */}
-      <div className="flex-1 p-4 overflow-y-auto font-mono text-sm">
+      {/* Terminal Output Area */}
+      <div 
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="flex-1 p-4 overflow-y-auto font-mono text-xs leading-relaxed space-y-0.5 bg-black/95 select-text"
+      >
         {logs.length === 0 ? (
-          <div className="text-gray-600 italic">Connecting to orchestrator stream... waiting for logs...</div>
+          <div className="flex items-center gap-2 text-gray-500 italic py-2">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span>{t('console.waitingLogs') || 'Connecting to orchestrator stream... System ready.'}</span>
+          </div>
         ) : (
           logs.map((log, index) => (
-            <div key={index} className="text-green-300 whitespace-pre-wrap break-words mb-1">
+            <div key={index} className={`whitespace-pre-wrap break-words ${getLogStyle(log)}`}>
               {log}
             </div>
           ))
@@ -143,17 +275,17 @@ export default function LiveConsole({ onClose }: LiveConsoleProps) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input Area (Only visible when activeInputProjectId is set) */}
+      {/* Interactive Input Area (Only visible when awaiting user feedback) */}
       {activeInputProjectId !== null && (
-        <div className="p-3 bg-gray-900 border-t border-gray-800">
+        <div className="p-3 bg-gray-900 border-t border-gray-800 animate-fadeIn">
           <form onSubmit={handleSubmitInput} className="flex items-center gap-2">
-            <div className="text-green-500 font-mono font-bold animate-pulse">{'>'}</div>
+            <div className="text-amber-400 font-mono font-bold animate-pulse">{'>'}</div>
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Type your feedback to the Planning Agent..."
-              className="flex-1 bg-gray-950 border border-gray-700 rounded px-3 py-2 text-green-300 font-mono text-sm focus:outline-none focus:border-green-500 transition-colors"
+              placeholder={t('console.placeholder') || 'Type your feedback to the Planning Agent...'}
+              className="flex-1 bg-gray-950 border border-gray-700 rounded px-3 py-2 text-green-300 font-mono text-xs focus:outline-none focus:border-green-500 transition-colors"
               autoFocus
               disabled={isSubmitting}
             />
@@ -162,7 +294,7 @@ export default function LiveConsole({ onClose }: LiveConsoleProps) {
               disabled={isSubmitting || !inputValue.trim()}
               className="bg-green-600 hover:bg-green-500 text-white p-2 rounded transition-colors disabled:opacity-50"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-3.5 h-3.5" />
             </button>
           </form>
         </div>
@@ -170,3 +302,4 @@ export default function LiveConsole({ onClose }: LiveConsoleProps) {
     </div>
   );
 }
+
