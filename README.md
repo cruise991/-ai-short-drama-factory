@@ -12,11 +12,17 @@ It is not just a collection of scripts, but a fully automated digital studio tha
 
 ## 📺 Demo Showcase
 
-We have selected an "AI Dance and Visual Hook" case completely driven by AI for your reference. This video was entirely automated by the Orchestrator (after rigorous physical consistency reinforcement and limb distortion interception):
+We have selected two end-to-end AI-generated showcases driven completely by our autonomous pipeline (incorporating physical consistency locks, multi-camera pacing, and limb distortion interception):
 
-- [▶️ Watch Demo Video: C006_Yumi_dance](https://github.com/cruise991/-ai-short-drama-factory/raw/main/demo/demo_C006_Yumi_dance.mp4)
+### 1. 30s Multi-Shot Dance Showcase (`blue_swimsuit_girl_dance_30s.mp4`)
+- [▶️ Watch 30s Multi-Shot Demo](https://github.com/cruise991/-ai-short-drama-factory/raw/main/demo/demo_blue_swimsuit_girl_dance_30s.mp4)
+- **Highlights**: 30-second continuous choreography, beat-synchronized BGM arrangement, dynamic camera switching, and strict character proportions anti-sinking lock.
 
-You can watch it directly below (GitHub native player):
+https://github.com/cruise991/-ai-short-drama-factory/raw/main/demo/demo_blue_swimsuit_girl_dance_30s.mp4
+
+### 2. Character Dance & Visual Hook (`C006_Yumi_dance.mp4`)
+- [▶️ Watch Single-Shot Demo: C006_Yumi_dance](https://github.com/cruise991/-ai-short-drama-factory/raw/main/demo/demo_C006_Yumi_dance.mp4)
+
 https://github.com/cruise991/-ai-short-drama-factory/raw/main/demo/demo_C006_Yumi_dance.mp4
 
 ---
