@@ -64,6 +64,8 @@ Icon
 !.env.example
 *.secret
 *.credentials
+*cookies.json
+config/*cookies.json
 shared_tools/.api_usage.json
 .api_usage.json
 liblib_config.json
