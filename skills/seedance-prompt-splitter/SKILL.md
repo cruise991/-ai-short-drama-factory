@@ -100,6 +100,12 @@ Create four story beats that cover the full episode arc:
 - Beat 3: reversal, memory fracture, trap, confession, or power shift.
 - Beat 4: cliffhanger, emotional landing, or final image that points to the next episode.
 
+For Dance / K-pop style projects, use this specific choreography progression:
+- Beat 1 (Intro): Medium shot. Action: Follow the music rhythm, hands touching the back of the head then opening to the sides, establishing eye contact with the lens.
+- Beat 2 (Main Dance): Full body / Medium-full shot. Action: Wide hip swings (S-shape body roll), showcasing core control.
+- Beat 3 (Main Dance): Full body / Medium-full shot. Action: Head swaying with the rhythm, hair swaying, clean pop actions on heavy beats.
+- Beat 4 (Outro): Medium shot. Action: Ending pose, confident and cool, stable and deep eye contact with the camera.
+
 Do not summarize the episode generically. Each beat should have a visual job and a narrative job.
 
 ### 3. Write Seedance-ready prompt bodies
@@ -124,6 +130,11 @@ The prompt body should include:
 - Mood, lighting, color palette, texture, and production style.
 - Constraints that avoid identity drift, costume drift, age drift, and continuity breaks.
 - Any important text or symbol rules, including when no readable text should appear.
+
+For Dance / K-pop style projects, ALWAYS include these global constraints:
+- **Global Camera**: "50mm standard lens, f/2.8 aperture, fixed camera, no camera movement, no zoom, no pan."
+- **Global Lighting**: "low-key lighting, high contrast, cold tone dark environment, single-side hard side light from the right"
+- **Global Negative**: "Cartoon, CG, over-smoothed skin, bad anatomy, messy background, extra fingers, deformed arms, text, watermark, logo."
 
 Seedance generation parameters belong in the text only when useful for the operator, for example:
 

@@ -1,0 +1,419 @@
+{
+  "app": {
+    "title": "AI Media Studio",
+    "subtitle": "Video & Dance Generator v2.0",
+    "nav": {
+      "dance": "AI Dance Studio",
+      "drama": "Short Drama",
+      "console": "Live Console",
+      "settings": "System Settings"
+    }
+  },
+  "drama": {
+    "title": "Production Queue",
+    "subtitle": "Monitor and manage your AI short drama generation pipeline.",
+    "newProject": "New Project",
+    "empty": "No projects in the production queue.",
+    "createFirst": "Create your first short drama to get started.",
+    "status": {
+      "pending": "Pending",
+      "running": "Running",
+      "drafting": "Drafting",
+      "draftCompleted": "Script Ready",
+      "assetsGenerated": "Assets Ready",
+      "pausedByError": "Review Required",
+      "completed": "Completed"
+    },
+    "actions": {
+      "viewDetail": "View Timeline",
+      "viewAssets": "Asset Gallery",
+      "approve": "Approve & Next Phase",
+      "reject": "Submit Revision"
+    }
+  },
+  "detail": {
+    "title": "Project Control Panel",
+    "workflow": "Workflow Timeline",
+    "currentPhase": "Current Phase",
+    "scriptDraft": "Storyboard & Script Draft",
+    "waitingApproval": "Awaiting Human-in-the-Loop Review",
+    "approvalTip": "The Planning Department has generated the storyboard script. Please review below and approve or provide critical revision feedback.",
+    "approveBtn": "Approve Script & Proceed to Production",
+    "rejectPlaceholder": "Enter specific direction or correction for the next iteration...",
+    "rejectBtn": "Request Script Revision",
+    "steps": {
+      "planning": "Planning & Outline",
+      "script": "Storyboard & Script",
+      "production": "Assets Generation",
+      "qa": "QA Review & Polish",
+      "post": "Post-Production & Drafts"
+    },
+    "messages": {
+      "approveSuccess": "Approved! Pipeline advancing to asset production...",
+      "rejectSuccess": "Rejected! Feedback injected to Planning & QA agents for regeneration.",
+      "actionFailed": "Action failed, please try again"
+    },
+    "dualDelivery": {
+      "title": "Drama Master & Project Draft Ready",
+      "badge": "Dual Delivery · JianYing Pro Draft Ready",
+      "desc": "Auto-applied 9:16 native vertical slow zoom (12%) & acoustic spatial micro-reverb dialogue",
+      "downloadDraft": "🎬 Download JianYing Draft (ZIP)",
+      "downloadMp4": "Download Master MP4",
+      "downloadSrt": "SRT Subtitles"
+    }
+  },
+  "dance": {
+    "title": "AI Dance Studio",
+    "subtitle": "Single image to 20-30s seamless loop dance · {{count}} viral choreography templates · BPM rhythm sync · 9-head tall proportion guard",
+    "mode": {
+      "choreography": "Custom Choreography Studio (5 Angles 4 Stages)",
+      "template": "Preset Hit Dance Templates",
+      "dualDelivery": "Dual Delivery: JianYing Pro Draft ZIP Supported"
+    },
+    "choreo": {
+      "recipeImport": "Instant Recipe Clone",
+      "recipeImportSub": "| Enter community/friend shared Recipe ID to mirror choreography in seconds",
+      "recipePlaceholder": "e.g. rec_9a8b1c2d",
+      "btnImport": "Clone Recipe",
+      "importSuccess": "✅ Successfully imported choreography recipe: {{title}}",
+      "importFailed": "❌ Recipe ID not found, please double check",
+      "sharedLoaded": "🔥 Automatically loaded community shared recipe: {{title}}",
+      "galleryTitle": "Pose Knowledge Base",
+      "searchPlaceholder": "Search poses / tags / dynamics...",
+      "allCategories": "All Poses",
+      "cameraRig": "3D Camera Rig & Angles",
+      "cameraRigSub": "Dual-track Decoupled · Free Camera Angle",
+      "allAngles": "All",
+      "defaultAngle": "Default:",
+      "addToTimeline": "Add to Timeline",
+      "timelineTitle": "Choreography Timeline",
+      "currentPoses": "Poses:",
+      "totalBeats": "Total Beats:",
+      "estDuration": "Est. Duration:",
+      "emptyTimeline": "Timeline is empty. Click [Add to Timeline] from the pose library on the left.",
+      "beatsUnit": "Beats",
+      "bestTransition": "Kinetic Natural Flow (Best Transition)",
+      "cutTransition": "⚡ Beat-Cut Transition (Cut Transition)",
+      "recipeNamePlaceholder": "Name your choreography...",
+      "defaultRecipeTitle": "High-Energy Viral Girl Group Killing Part",
+      "genRecipeCard": "Create 3:4 Recipe Card",
+      "exportJianying": "Export JianYing Pro Draft (ZIP Dual Delivery · 12% Slow Zoom & Subtitle Tracks)",
+      "renderBtn": "Generate Choreographed Dance ({{seconds}}s · {{count}} Poses)",
+      "rendering": "AI interpolating smooth choreography...",
+      "needDancer": "Please upload a full-body dancer model reference image first",
+      "shareModalTitle": "🔥 AI DANCE CHOREOGRAPHY RECIPE",
+      "posesRecorded": "+ {{count}} more poses included",
+      "recipeIdLabel": "Recipe ID:",
+      "scanToClone": "Scan QR / enter ID to clone instantly",
+      "copied": "Copied Challenge Card & Link!",
+      "copyCard": "Copy 3:4 Viral Challenge Card",
+      "angles": {
+        "front": "Front (0°)",
+        "oblique": "Oblique (45°)",
+        "side": "Side (90°)",
+        "top": "Top (+30°)",
+        "low": "Low (-30°)"
+      },
+      "stages": {
+        "intro": "Intro",
+        "rhythm": "Rhythm",
+        "transition": "Transition",
+        "ending": "Ending Freeze"
+      }
+    },
+    "draftOutput": {
+      "downloadZip": "🎬 Download JianYing Draft (ZIP)",
+      "draftDesc": "• JianYing Draft: Auto-generated 1080x1920 vertical draft with slow zoom keyframes",
+      "synced": "• Draft Sync: ✨ Synced directly to local JianYing Pro app"
+    },
+    "controlPanelTitle": "Creation Console",
+    "stageTitle": "Production Stage",
+    "templates": {
+      "title": "1. Choreography Templates",
+      "count": "{{count}} Templates",
+      "tabs": {
+        "all": "All",
+        "kpop": "Girl Group",
+        "fitness": "Fitness",
+        "street": "Street",
+        "luxury": "Slow Sway"
+      },
+      "selected": "Selected",
+      "select": "Select",
+      "views": "Popularity",
+      "bpm": "{{bpm}} BPM",
+      "unknown": "Choreography"
+    },
+    "badges": {
+      "v2Engine": "V2.0 Visual Fidelity Engine",
+      "facialFidelity": "100% Facial Fidelity",
+      "curvySilhouette": "Adaptive Curvy Silhouette",
+      "antiCompression": "9-Head Model Anti-Squash",
+      "deterministicLoop": "100% Deterministic Loop"
+    },
+    "character": {
+      "title": "2. Character Reference",
+      "aspect": "9:16 Full Body",
+      "reselect": "Reselect",
+      "uploadTitle": "Click or drag character image here",
+      "uploadDesc": "Recommended: 9:16 aspect ratio, clear full-body standing pose",
+      "antiCompressionTip": "9-head tall anti-compression visual lock enabled for natural proportions throughout",
+      "loaded": "Character Loaded",
+      "templateTag": "Motion: {{name}} ({{duration}}s)",
+      "generateNow": "Generate Now",
+      "antiCompressionMounted": "9-Head Anti-Squash Algorithm Active",
+      "loopSubtitle": "✨ 100% Keyframe Alignment · Production-Ready",
+      "productionSpecs": "Production Specs",
+      "seamlessLoop": "Seamless Loop Playback Enabled",
+      "seamlessLoopDesc": "Final frame seamlessly merges into initial reference pose, ideal for high-conversion auto-loop on TikTok and YouTube Shorts.",
+      "taskInterrupted": "Production interrupted, please check logs",
+      "failedToSubmit": "Task submission failed, check network and server status",
+      "generationFailed": "Generation failed",
+      "featureLoopDesc": "100% Keyframe Alignment",
+      "featureProportionsDesc": "Eliminate Character Squashing",
+      "featureBpmDesc": "Millisecond Beat Syncing",
+      "featureQualityDesc": "704x1280 High Bitrate"
+    },
+    "multiview": {
+      "adaptiveBadge": "N-View Adaptive Architecture",
+      "detecting": "AI auto-detecting viewpoints & contours...",
+      "detected": "Detected {{count}} Viewpoints",
+      "frontAnchor": "Front (Start Frame 🌟)",
+      "sideView": "Side (360° Contour)",
+      "backView": "Back (Rear Features)",
+      "selectAsStart": "Set as Start Frame",
+      "singleDetected": "Single-person portrait verified",
+      "hitlTooltip": "AI automatically sets the front view as the starting frame. You can click to change if needed."
+    },
+    "params": {
+      "title": "3. Duration & Vibe",
+      "duration": "Target Duration",
+      "sec20": "20s (4 Shots)",
+      "sec30": "30s (6 Shots)",
+      "aspectRatio": "Aspect Ratio",
+      "ratio916": "9:16 Portrait (Default)",
+      "ratio169": "16:9 Landscape",
+      "style": "Visual Archetype",
+      "styles": {
+        "kpop": "K-pop Group",
+        "fitness": "Fitness Energy",
+        "street": "Street Rhythm",
+        "luxury": "Elegant Sway"
+      },
+      "promptDesc": "Detail Prompt Refinement (Optional)",
+      "promptPlaceholder": "e.g. Wavy long hair, white crop top, black boots, minimalist dark studio backdrop..."
+    },
+    "cta": {
+      "generate": "Generate 100% Seamless Loop Dance",
+      "generating": "Dispatching AI Render Pipeline...",
+      "needImage": "Please upload a full-body character reference image first",
+      "loopClosureNote": "Keyframe loop closure technology · 100% deterministic convergence"
+    },
+    "stage": {
+      "idleTitle": "AI Virtual Stage Ready",
+      "idleSubtitle": "Upload a character image and select a choreography template on the left to render and preview a seamless 9:16 loop dance.",
+      "readyBadge": "New Character Ready",
+      "readyTitle": "Character & Specs Ready to Render",
+      "readySubtitle": "Click below to dispatch the multi-shot AI render pipeline with 100% deterministic loop closure.",
+      "startNow": "Start Dance Generation Now",
+      "readyTemplate": "Motion: {{name}}",
+      "readyDuration": "Duration: {{duration}}s",
+      "features": {
+        "loop": "Deterministic Keyframe Loop Closure",
+        "proportions": "9-Head Tall Anti-Compression Guard",
+        "bpm": "Millisecond-Level Beat & Audio Sync",
+        "quality": "Broadcast H.264 / AAC Encoding"
+      },
+      "renderingTitle": "Rendering Multi-Shot Choreography...",
+      "renderingStep": "Generating sequential dance motions with keyframe loop closure",
+      "pipeline": {
+        "shot1": "Shot 1",
+        "shot2": "Shot 2",
+        "shot3": "Shot 3",
+        "shot4": "Loop Closure",
+        "bgm": "Audio Mix",
+        "mux": "Final Mux"
+      },
+      "completedTitle": "Quality Audit Passed · Media Ready",
+      "videoTitle": "{{duration}}s Broadcast Seamless Loop Video",
+      "meta": {
+        "codec": "Encoding: H.264 / yuv420p (704x1280 Vertical)",
+        "audio": "Audio: AAC 44.1kHz Stereo Rhythm BGM",
+        "loopFeature": "Loop: 100% Deterministic Convergence (No Jitter)",
+        "template": "Motion: {{name}} ({{bpm}} BPM)",
+        "style": "Vibe: {{style}}"
+      },
+      "download": "Download MP4 Dance Video",
+      "recreate": "Re-choreograph / New Video",
+      "privacyNotice": "Your image will be used for AI visual analysis to improve character fidelity",
+      "visionAnalysis": "AI analyzing character & facial features...",
+      "faceEnhance": "HD face enhancement processing...",
+      "showcase": {
+        "title": "V2.0 Visual Fidelity & HD Face Enhancement Verified Demo",
+        "tag": "Verified Masterpiece · 20s Loop",
+        "videoBadge": "V2.0 4-Shot Loop · 115 BPM Beat-Sync",
+        "comparisonTitle": "Reference Portrait vs V2.0 Rendered Video",
+        "auditPassed": "Broadcast QA Passed",
+        "curvyModel": "Voluptuous Silhouette & Facial Detail Preservation",
+        "curvyModelDesc": "Vision 2.5 extracts eyes, aegyo-sal, lips and curvy figure; negative prompts completely calibrated.",
+        "tryYourOwn": "Experience All-New V2.0 Engine",
+        "tryYourOwnDesc": "Select a dance motion on the left and upload your character portrait to generate your custom video.",
+        "uploadBtn": "Upload Character Portrait"
+      }
+    }
+  },
+  "modal": {
+    "title": "Initialize Creative Pipeline",
+    "branch": "CREATIVE BRANCH",
+    "dramaBranch": "AI Episodic Short Drama",
+    "dramaDesc": "Multi-shot episodic script, dramatic twists & auto storyboard",
+    "transformationBranch": "Costume Transformation",
+    "transformationDesc": "3-act contrast makeover (Setup ➔ Glitch ➔ Reveal) with flexible scenes",
+    "danceBranch": "AI Choreography & Dance",
+    "danceDesc": "Fixed character IP & high-fidelity BPM sync dancing",
+    "handdrawBranch": "Handdraw & Whiteboard Deduction",
+    "handdrawDesc": "Deterministic stroke sketching, dual-brain metaphor & pill contrast captions",
+    "explainerBranch": "Neural PiP Explainer",
+    "explainerDesc": "In-depth explainer with AI avatar PiP & dynamic slides",
+
+    "promptLabel": "CREATIVE PROMPT",
+    "promptPlaceholder": "Describe your creative idea... e.g. Cyberpunk girl group dance or suspenseful drama opener...",
+    "trendTitle": "Trend Research & Web Signals",
+    "trendDesc": "Real-time web signals from Xiaohongshu & TikTok injected into planning",
+    "vibeLabel": "VISUAL STYLE & VIBE",
+    "ipLabel": "CHARACTER IP PRESET",
+    "cancel": "Cancel",
+    "submit": "Submit Project",
+    "submitting": "Submitting...",
+    "goalEmpty": "Project goal cannot be empty."
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "success": "Success",
+    "error": "Error"
+  },
+  "console": {
+    "title": "LIVE CONSOLE // STREAM",
+    "connected": "ONLINE",
+    "connecting": "CONNECTING",
+    "disconnected": "RECONNECTING",
+    "clear": "Clear",
+    "copy": "Copy All",
+    "copied": "Copied",
+    "autoScroll": "Auto Scroll",
+    "waitingLogs": "Connecting to orchestrator stream... System ready.",
+    "placeholder": "Type your feedback to the Planning Agent...",
+    "lines": "lines"
+  },
+  "nav": {
+    "projects": "Drama Studio",
+    "avatars": "Avatars & Assets",
+    "live": "Live Orchestrator",
+    "knowledge": "Knowledge & Script",
+    "monitoring": "Infrastructure & Metrics",
+    "openViewer": "Open Live Viewer"
+  },
+  "auth": {
+    "title": "LingCast · AI Live & Drama Platform",
+    "subtitle": "Unified Enterprise Console · Secure Login",
+    "username": "Username / Account",
+    "password": "Password",
+    "tenant": "Tenant Code",
+    "loginBtn": "Sign In"
+  },
+  "live": {
+    "title": "Smart Live Orchestration Hub",
+    "subtitle": "Multi-agent real-time e-commerce streaming, lip-sync & audience orchestration",
+    "startLive": "Start Streaming Pipeline",
+    "stopLive": "Stop Streaming Session",
+    "status": "Session Status",
+    "streaming": "Streaming Active",
+    "idle": "Idle / Not Started",
+    "room": "Room ID",
+    "streamKey": "Stream Key",
+    "rtmpUrl": "RTMP Ingestion Source",
+    "httpFlvUrl": "HTTP-FLV Fast Pull URL",
+    "currentProduct": "Featured Pitch Product",
+    "switchProduct": "Switch Pitch Product",
+    "danmakuStream": "Real-time Danmaku Audit Stream",
+    "insertScript": "Urgent Script Chunk",
+    "insertScriptPlaceholder": "Enter script text to immediately inject into live stream...",
+    "insertBtn": "Inject High-Priority Script",
+    "activeViewers": "Active Viewers",
+    "peakViewers": "Peak Viewers",
+    "latency": "End-to-End Latency",
+    "watermarkCompliant": "Mandatory AI Synthetic Watermark Active"
+  },
+  "avatar": {
+    "title": "Digital Avatar & Asset Workshop",
+    "subtitle": "Manage digital human facial models, voices, and virtual background video clips",
+    "createAvatar": "Create New Avatar",
+    "name": "Avatar Name",
+    "avatarType": "Render Engine",
+    "voiceId": "Voice ID",
+    "status": "Compliance Status",
+    "statusActive": "Active & Licensed",
+    "statusTraining": "Training / Pending",
+    "statusArchived": "Archived / Disabled",
+    "licensingAudit": "Portrait Rights Audit",
+    "verified": "Verified & Registered",
+    "scenesTitle": "Background Scenes & Ambient Clips",
+    "addScene": "Upload Scene Clip",
+    "sceneResolution": "Resolution",
+    "preview": "Live Preview"
+  },
+  "knowledge": {
+    "title": "E-Commerce Knowledge Hub & RAG",
+    "subtitle": "High-precision product Q&A, warranty policies and sales pitch retrieval for LLM Sales Agent",
+    "createKb": "New Knowledge Base",
+    "kbName": "Knowledge Base Name",
+    "docCount": "Document Chunks",
+    "uploadDoc": "Import Document Chunk",
+    "docTitle": "Document Title",
+    "docContent": "Document Content & Rules",
+    "searchTest": "RAG Retrieval Debugger",
+    "searchPlaceholder": "Ask a test question, e.g., Does this headphone support active noise cancellation?",
+    "searchBtn": "Search & Match Chunks",
+    "searchResult": "Matched Knowledge Chunks"
+  },
+  "monitoring": {
+    "title": "Infrastructure & Service Monitoring",
+    "subtitle": "Prometheus metrics collection, microservice health status and real-time throughput",
+    "serviceHealth": "Microservice Cluster Health",
+    "healthy": "Operational",
+    "unhealthy": "Degraded / Alert",
+    "metricsQps": "HTTP Request QPS",
+    "metricsStream": "Active Live Streams",
+    "metricsDanmaku": "Danmaku Processed/sec",
+    "metricsTtsLatency": "Avg TTS Synthesis Latency",
+    "metricsRagLatency": "Avg RAG Retrieval Latency",
+    "systemLoad": "Cluster Load Status"
+  },
+  "viewer": {
+    "title": "LingCast Immersive AI Live Stream",
+    "room": "Room",
+    "streamType": "HTTP-FLV Fast Stream",
+    "viewers": "Watching Now",
+    "watermark": "AI Synthetic Virtual Human Streaming · Consume Responsibly",
+    "buyNow": "Buy Now",
+    "danmakuZone": "Audience Interaction",
+    "sendPlaceholder": "Chat with the AI anchor...",
+    "sendBtn": "Send",
+    "anchor": "Anchor Xiaowan",
+    "likeCount": "Likes"
+  },
+  "videoDesign": {
+    "title": "Chaojifeng Video Design & Code Motion",
+    "rhythmTitle": "Audio-Visual Rhythm & Beat Layout",
+    "reRollShot": "Single Shot Re-roll",
+    "renderCodeMotion": "Render Code Motion Video (Zero Cost)",
+    "bpmLabel": "Musical BPM Rhythm Grid",
+    "focusRelay": "Visual Focus Continuity Relay",
+    "stylesTitle": "44 Procedural Visual Styles",
+    "citation": "Fact & Literature Citation",
+    "aiDeclaration": "Content Generated by AI (Compliance Verified)"
+  }
+}
+

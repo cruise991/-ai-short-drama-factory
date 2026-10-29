@@ -1,0 +1,61 @@
+{
+  "dance_id": "DANCE_THAI_SWAY",
+  "name": "二摆/泰国摇",
+  "stats": {
+    "views": "过亿",
+    "difficulty": 2,
+    "virality": 5
+  },
+  "duration_range": [
+    10,
+    15
+  ],
+  "bpm": "100-110",
+  "tags": [
+    "泰国摇",
+    "抽象",
+    "灵魂出窍",
+    "土嗨",
+    "魔性"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_OVERSIZED_TEE"
+      ],
+      "bottom": [
+        "BOTTOM_SHORTS"
+      ]
+    },
+    "scene": [
+      "SCENE_BEACH",
+      "SCENE_PARK"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-2s",
+      "name": "起手",
+      "action_prompt": "双手自然下垂，微蹲",
+      "expression": "放空"
+    },
+    {
+      "time": "2-8s",
+      "name": "灵魂摇摆",
+      "action_prompt": "身体大幅左右摇摆，手臂放松摆动，头部晃动，原地小碎步",
+      "expression": "放空"
+    },
+    {
+      "time": "8-12s",
+      "name": "加速",
+      "action_prompt": "摇摆幅度加大，转身",
+      "expression": "迷离陶醉"
+    },
+    {
+      "time": "12-15s",
+      "name": "定格",
+      "action_prompt": "突然静止",
+      "expression": "正常微反差"
+    }
+  ]
+}

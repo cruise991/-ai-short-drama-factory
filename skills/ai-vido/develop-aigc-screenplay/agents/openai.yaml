@@ -1,0 +1,6 @@
+interface:
+  display_name: "AIGC故事与大纲共创"
+  short_description: "与用户共创电影北极星、母体发动机、人物关系和完整故事大纲"
+  default_prompt: "Use $develop-aigc-screenplay to co-create the audience promise and mother story engine with me before drafting a complete outline."
+policy:
+  allow_implicit_invocation: true

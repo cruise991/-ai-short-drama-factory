@@ -1,7 +1,6 @@
 import os
 import json
 import time
-import time
 import sys
 try:
     import readline
@@ -98,18 +97,31 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 - 每个 Shot 必须精确到秒，时间线严格连续。
 - 画面描述必须是静态可执行的（人物站立/坐着/特写），严禁复杂物理交互（穿门、握手、奔跑）。
 
-【🔥 旁白演绎规范 (Strict Physics)】
-1. 极简物理约束：强制剥离非必要的物理交互，尽量采用静态中景/特写 (Static shot) 或平移，避免视频大模型生成“肢体变异”。
-2. 场景与软件具象化：严禁使用泛泛的词汇，直接指定UI细节。
-3. 提示词内嵌字卡：充分利用大模型能力生成 UI 文字标签。
-4. 光影情绪反差：在各镜头间通过光影建立强烈对比。
-5. 肢体动作与台词强绑定：**严禁复杂的空间指向交互或手部动作（如：指向屏幕、单手托举）**，只能使用绝对静态的姿态（如：产品静置、人物自然站立持握）。
-6. TTS 情绪底层控制：旁白严禁播音腔，大量使用强情绪标点。
-7. 字秒比铁律：旁白长度严格遵守每 5 秒不超过 15-18 汉字。
-8. 角色一致性：每句英文 Prompt 必须重复主角外貌特征！
-9. 【Agnes 官方提示词结构】Video Prompt (英文) 必须严格遵循官方结构：
-   [主体] + [场景 / 环境] + [风格] + [光照] + [构图] + [质量要求]
-   例如：A luminous floating city above a misty canyon at sunrise, cinematic realism, wide angle, high visual density
+【🔥 旁白演绎规范 (Strict Physics & Native Vertical 9:16)】
+0. 【3秒黄金钩子法则 (3-Second Golden Hook - 完播率生命线)】：
+   - Shot 1 必须是强穿透力的“3秒黄金钩子”，严禁任何温吞铺垫！必须在 0~3 秒内制造强冲突悬念：
+     * A 类 (视觉反常与阶级反差): 破旧外卖服与顶级豪门奢华环境对撞，或低声下气外表下展现令人胆寒的王者冷眼；
+     * B 类 (认知颠覆): 首句旁白/台词直接撕裂常理（如“身家千亿的新董事长，第一天视察就被保安扔出大门……”）；
+     * C 类 (数据连排冲击): “入职三分钟，开除销售总监，全盘清洗董事会，这就是雷霆手段！”
+   - Shot 1 的对白与视觉必须紧扣黄金钩子，立刻促使用户放弃划走！
+1. 极简物理约束：强制剥离非必要的物理交互，尽量采用静态中景/特写 (Static shot) 或电影运镜，避免视频大模型生成“肢体变异”。
+2. 【原生 9:16 竖屏视听法则 (全屏满幅，严禁横排)】：
+   - **构图禁止横排平铺**：严禁使用“人物A在左，人物B在右相隔X米”的传统横屏调度（在 9:16 画布下会被挤压或切掉半身）。
+   - **强制采用 Z 轴纵深站位**：一前一后错落排列（例如前景右下角为反派特写/半身背影，后景纵深处为主角冷峻站立），强化压迫感与阶级反差；或者使用单人特写正反打。
+   - **Y 轴垂直高低对峙**：利用低机位仰拍（Low Angle）凸显主角气场，俯拍凸显反派溃败。
+   - **发顶呼吸留白安全区**：人物头部距画面顶部必须保留 8%~12% 呼吸留白（严格遵守规约第13条，严禁切额头或顶格）。
+3. 【9:16 专属运镜指令库 (Vertical Camera Dynamics)】：每个镜头必须明确指定具体运镜动词：
+   - `Vertical Tilt-Up`：从鞋部/地面缓缓向上摇镜至冷峻面容（身份反转、战神现身专属）；
+   - `Vertical Tilt-Down`：从居高临下的轻蔑眼神向下摇镜至双手（表现反派破防与狼狈）；
+   - `Slow Dramatic Dolly-In`：向主角面部正前方缓缓推近 15%，眼神聚焦与压迫感拉满；
+   - `Vertical Over-The-Shoulder (OTS)`：带前景肩膀虚化的竖直过肩压迫镜头；
+   - `Low-Angle Vertical Hero Framing`：低机位仰拍立体特写。
+4. 场景与软件具象化：严禁使用泛泛的词汇，直接指定建筑材质、金属冷光与光影细节。
+5. TTS 情绪底层控制：旁白严禁播音腔，大量使用强情绪标点，每 5 秒不超过 15-18 汉字。
+6. 角色一致性：每句英文 Prompt 必须重复主角外貌特征！
+7. 【Agnes 官方提示词结构】Video Prompt (英文) 必须严格遵循官方结构：
+   [主体] + [场景 / 环境] + [风格] + [光照] + [原生竖屏构图与运镜] + [质量要求]
+   必须显式包含：`mobile-native vertical 9:16 composition, [Vertical Camera Motion], dramatic vertical lighting, 8k cinematic realism`，严禁使用 `wide angle, landscape composition, split screen`！
 {evolution_rules}{marketing_sop}
 以下是【爆款调研结果】：
 ---
@@ -122,6 +134,7 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 **核心目标 (Goal)**: [目标]
 **受众与风格 (Audience & Style)**: {audience} | {style}
 **形式 (Format)**: {format_type}
+**画幅比例 (Aspect Ratio)**: 9:16 (竖屏满幅)
 **时长**: 约 [总时长] 秒
 
 ## 角色设定 (Characters)
@@ -130,11 +143,53 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 ## Shot 1: [标题]
 **时间范围**: 0:00 - 0:0{max_shot_sec} ({max_shot_sec}s)
 **场景 (Scene)**: [具体场景描述]
+**构图与运镜 (Composition & Camera)**: [Z轴纵深/高低对峙，运镜动词，发顶留白安全区]
 **图像建议 (Image Suggestion)**: [静态画面动作，确保存留安全区，不裁切头部]
 **旁白 (Voiceover)**: [情绪化、口语化台词，无AI味]
-**提示词 (Video Prompt)**: [英文画面描述，包含特征、字卡与 safe margins, no head cropping 等指令]"""
+**提示词 (Video Prompt)**: [英文画面描述，遵循 Agnes 官方结构，包含 vertical 9:16 composition 与运镜动词]
+"""
+
+    elif "手绘" in format_type or "白板" in format_type or "推演" in format_type or format_type in ["Handdraw", "Handdraw_Video"]:
+        system_prompt = f"""你是一个顶级的手绘口播讲解与剧情推演短剧编导。当前选择的分支是【手绘口播与剧情推演】。
+你的工作方式基于确定性手绘渲染管线：
+- 画面将由手绘算法进行逐笔描线、白板勾勒与填色，严禁复杂的 3D 物理动作或大模型运动。
+- 每个 Shot 精确到秒，时间线严格连续（推荐每镜 5-8 秒）。
+- 旁白字数严格匹配落笔预算（每 5 秒 15-20 汉字，留足落笔时间）。
+- 图像建议必须指定极简墨线或淡彩插画，米白或暖白纸张背景，不裁切主体。
+- 每个 Shot 必须包含 **分镜类型 (Shot Type)**: 手绘推演 (handdraw)。
+
+【🔥 手绘口播规范 (Handdraw Blueprint)】
+1. 构图中心化：主体线条位于画面中间 70% 区域，四周保留充足留白安全区。
+2. 提示词规范：英文 Video Prompt 指定 minimalist ink line art illustration, clean outlines, warm cream paper background, high clarity。
+3. 声音卡点：每句旁白是一个明确的线索、反转或论点。
+{evolution_rules}{marketing_sop}
+以下是【爆款调研结果】：
+---
+{trending_research}
+---
+
+【严格格式要求】必须包含以下 Markdown 结构：
+# 剧本与分镜 (Storyboard & Handdraw Blueprint)
+
+**核心目标 (Goal)**: [目标]
+**受众与风格 (Audience & Style)**: {audience} | {style}
+**形式 (Format)**: {format_type}
+**时长**: 约 [总时长] 秒
+
+## 视觉元素设定 (Visual Elements)
+- [核心线索/人物]: [简笔画/线稿特征]
+
+## Shot 1: [标题]
+**时间范围**: 0:00 - 0:05 (5s)
+**分镜类型 (Shot Type)**: 手绘推演 (handdraw)
+**场景 (Scene)**: [手绘纸面/白板线索描述]
+**图像建议 (Image Suggestion)**: [极简黑白墨线或淡彩插画，暖白纸张背景]
+**旁白 (Voiceover)**: [清晰有节奏的口播解说，15-20字]
+**提示词 (Video Prompt)**: [英文线稿描述: minimalist ink drawing of ..., clean outlines, warm paper background]
+"""
 
     elif "换装" in format_type or "变身" in format_type:
+
         system_prompt = f"""你是一个顶级的短视频营销导演。当前分支是【换装变身反差】。
 你的工作方式参考 video-spec-builder 方法论：
 - 拒绝一切模糊词汇。每个镜头必须有具体可拍摄的画面描述。
@@ -248,7 +303,7 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 
         # ─── 调用 LLM 动态切割 Timeline ───────────────────────────────────────
         custom_beats = None
-        timeline_sys_prompt = f"你是一个顶级的短片剪辑师。用户需要一个总长为 {_total_dur} 秒的动态视频。根据 V2.0 规范，单个镜头的上限为 18 秒。请你根据音乐张力和动作连贯性，自主将 {_total_dur} 秒拆分为几个镜头（可长可短，比如 [15, 15] 或 [8, 12, 10]）。请直接返回一个由数字组成的 JSON 数组，要求总和严格等于 {_total_dur}。不要输出任何其他 Markdown 或解释文本。"
+        timeline_sys_prompt = f"你是一个顶级的短片剪辑师。用户需要一个总长为 {_total_dur} 秒的动态视频。根据 V2.0 规范，单个镜头的上限为 18 秒。请你根据音乐张力和动作连贯性，自主将 {_total_dur} 秒拆分为【至少 3 个、至多 6 个】镜头（可长可短，比如 [8, 12, 10] 或 [5, 8, 7, 5, 5]）。绝对不能少于 3 个镜头。请直接返回一个由数字组成的 JSON 数组，要求总和严格等于 {_total_dur}。不要输出任何其他 Markdown 或解释文本。"
         timeline_user_prompt = f"目标：{goal_text}。总时长：{_total_dur} 秒。请输出时间分割数组："
         try:
             raw_beats = call_llm(timeline_sys_prompt, timeline_user_prompt)
@@ -260,14 +315,27 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
                 if sum(custom_beats) != _total_dur:
                     print(f"  [Planning Dept] ⚠️ LLM sum {sum(custom_beats)} != {_total_dur}, using fallback.")
                     custom_beats = None
+                elif len(custom_beats) < 3:
+                    max_idx = custom_beats.index(max(custom_beats))
+                    longest = custom_beats[max_idx]
+                    half1 = round(longest / 2)
+                    half2 = longest - half1
+                    custom_beats[max_idx:max_idx+1] = [half1, half2]
+                    print(f"  [Planning Dept] ⚠️ Beats count < 3, split longest → {custom_beats}")
         except Exception as e:
             print(f"  [Planning Dept] ⚠️ LLM duration parsing error: {e}")
             custom_beats = None
 
         # ─── 调用导演引擎（Layer 4+5）─────────────────────────────────────────
+        if feedback:
+            import random
+            random.seed()
+            _de_mod._CACHE.clear()
+            print(f"[Planning Dept] ⚠️ QA feedback detected in dance branch, re-randomizing: {feedback[:80]}...")
+
         print(f"[Planning Dept] 🎬 Director Engine 启动: {_char_id}, {_total_dur}s, trend={_trend_id}")
         try:
-            _decision = _de_mod.direct(_char_id, _total_dur, _trend_id, custom_beats=custom_beats)
+            _decision = _de_mod.direct(_char_id, _total_dur, _trend_id, module_params=ticket.get("module_params"), custom_beats=custom_beats)
         except Exception as _de_err:
             print(f"[Planning Dept] ⚠️  Director Engine 异常: {_de_err}，使用默认参数重试")
             _decision = _de_mod.direct("C001_Luna", 12, None)
@@ -277,19 +345,26 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
         loop_pattern = _decision.get("stage_2_video", {}).get("loop_pattern", "")
         vibe = _decision.get("metadata", {}).get("vibe", "pure")
         
-        speed_modifier = "moves smoothly, fluidly, slow and alluring rhythm"
+        speed_modifier = "moves smoothly, fluidly, elegant and graceful rhythm"
         if vibe in ["energy", "psychedelic"]:
             speed_modifier = "moves rapidly, explosively, sharp and dynamic rhythm"
         
         # 极简 Stage 2 Video Prompt 组装
+        _cam_descriptions = []
+        for _s in stage_2_timeline:
+            _cp = _s.get("camera_prompt", "")
+            if _cp:
+                _cam_descriptions.append(f"shot {_s['shot']}: {_cp}")
+        _camera_summary = ". ".join(_cam_descriptions) if _cam_descriptions else "Locked camera, no camera movement"
+        
         stage_2_prompt = (
             f"The video begins exactly from the input image. She steps back to reveal full body, "
             f"executes the {loop_pattern} dance move. She {speed_modifier}. "
-            f"She leans intimately towards the camera during the transition. "
+            f"Camera work: {_camera_summary}. Keep camera mostly static to focus on the dance, avoid extreme panning or rapid zooming. "
             f"Spend the last 2 seconds smoothly returning limbs and body to the exact interactive anchor pose from the first frame, locking into it perfectly for seamless loop. "
             f"Constant intense eye contact with the viewer throughout the entire video. "
-            f"Locked camera, no panning, no zooming, no camera movement. "
-            f"Consistent facial features and expressions, no face morphing."
+            f"Consistent facial features and expressions, no face morphing. "
+            f"Consistent clothing, outfit remains exactly the same throughout the entire video, no clothing changes."
         )
         
         task_data = {
@@ -415,7 +490,8 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
             print(f"[Planning Dept] ⚠️  LLM 返回为空 (attempt {_attempt})")
             continue
 
-        if not _qe_available:
+        is_dance = "舞蹈" in str(format_type) or "钩子" in str(format_type)
+        if not _qe_available or not is_dance:
             return _raw_result
 
         # 尝试解析 JSON 评估
@@ -500,7 +576,10 @@ def humanize_storyboard(storyboard_md, qa_feedback=""):
         system_prompt += f"\n🚨 质检部门(QA) 前次打回反馈:\n{qa_feedback}\n请务必在洗稿时严格规避以上违规点！\n"
 
     humanized_md = call_llm(system_prompt, f"请原样返回以下剧本结构，但彻底洗稿里面的旁白/台词：\n\n{storyboard_md}")
-    return humanized_md if humanized_md else storyboard_md
+    if not humanized_md or "FAIL:" in humanized_md or len(humanized_md.strip()) < 50:
+        print("[Planning Dept] ⚠️ 去AI味后处理未取得有效输出，安全保留原始起草剧本。")
+        return storyboard_md
+    return humanized_md
 
 import concurrent.futures
 import importlib.util
@@ -556,18 +635,26 @@ def run_requirements_gathering(ticket):
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         while True:
-            import os
             web_project_id = os.environ.get("CURRENT_WEB_PROJECT_ID")
             
             if web_project_id:
                 print(f"[AWAITING_USER_INPUT] {web_project_id}", flush=True)
-                try:
-                    import requests
-                    resp = requests.get(f"http://localhost:8008/api/projects/{web_project_id}/internal_wait_input", timeout=86400)
-                    user_input = resp.json().get("text", "ok")
-                except Exception as e:
-                    print(f"[Auto-Mock] Web Input Error: {e}")
-                    user_input = "ok"
+                import requests
+                user_input = "ok"
+                ports = [os.environ.get("BACKEND_PORT", ""), "8000", "8008"]
+                for p in filter(None, dict.fromkeys(ports)):
+                    try:
+                        resp = requests.get(f"http://localhost:{p}/api/projects/{web_project_id}/internal_wait_input", timeout=10)
+                        if resp.status_code == 200:
+                            user_input = resp.json().get("text", "ok")
+                            break
+                    except requests.exceptions.Timeout:
+                        print("[Auto-Advance] ⏱️ 10秒无人工介入，AI导演自动确认推荐方案并推进...")
+                        user_input = "ok"
+                        break
+                    except Exception:
+                        continue
+
             else:
                 import sys as _sys
                 # Non-interactive mode: stdin is a pipe, auto-confirm
@@ -721,9 +808,11 @@ def process_ticket(episode_dir):
         ticket.get("goal"), audience, style, format_type, trending_research, qa_feedback, previous_draft, ticket
     )
 
-    if not storyboard_content:
-        print("[Planning Dept] 🚨 LLM 接口调用失败 (可能因为 503 宕机或达到速率限制)。为防止死锁，将暂停任务。")
+    if not storyboard_content or "FAIL:" in storyboard_content or len(storyboard_content.strip()) < 50:
+        err_msg = f"策划部剧本生成异常或被限流: {storyboard_content[:150]}"
+        print(f"[Planning Dept] 🚨 {err_msg}")
         ticket["status"] = "Paused_By_Error"
+        ticket["last_error"] = err_msg
         with open(ticket_path, "w", encoding="utf-8") as f:
             json.dump(ticket, f, ensure_ascii=False, indent=2)
         return False
@@ -753,11 +842,10 @@ def process_ticket(episode_dir):
     dist_path = os.path.join(scripts_dir, "01_distribution.json")
     _dist_saved = False
     try:
-        import re
-        json_match = re.search(r'```json\s*(.*?)\s*```', storyboard_content, re.DOTALL)
-        json_content = json_match.group(1) if json_match else storyboard_content
+        from shared_tools.api_pool import extract_json_payload
+        json_content = extract_json_payload(storyboard_content)
         parsed_data = json.loads(json_content)
-        if "distribution" in parsed_data:
+        if isinstance(parsed_data, dict) and "distribution" in parsed_data:
             with open(dist_path, "w", encoding="utf-8") as df:
                 json.dump(parsed_data["distribution"], df, ensure_ascii=False, indent=2)
             print(f"  [Planning Dept] Saved distribution metadata to {dist_path}")
@@ -788,6 +876,70 @@ def process_ticket(episode_dir):
     print("[Planning Dept] Ticket status updated to QA_Pending_Planning. Handing over to QA Dept.")
     return True
 
+
+def generate_marketing_recap(run_dir: str, output_file: str = None) -> dict:
+    """Extract key highlights, dramatic conflicts and CTA from a finished drama run to produce a marketing explainer script."""
+    run_dir = os.path.abspath(run_dir)
+    ticket_path = os.path.join(run_dir, "00_task_ticket.json")
+    storyboard_path = os.path.join(run_dir, "01_storyboards_scripts", "01_storyboard.md")
+    
+    goal = "AI短剧精选"
+    if os.path.exists(ticket_path):
+        try:
+            with open(ticket_path, "r", encoding="utf-8") as f:
+                t = json.load(f)
+                goal = t.get("goal", goal)
+        except Exception:
+            pass
+
+    storyboard_text = ""
+    if os.path.exists(storyboard_path):
+        try:
+            with open(storyboard_path, "r", encoding="utf-8") as f:
+                storyboard_text = f.read()[:1000]
+        except Exception:
+            pass
+
+    prompt = f"""你是一个短剧爆款宣发专家。请根据以下短剧主题与剧本大纲，写一段 30-45 秒的短视频宣发解说文案（用于数字人口播+视频切片包装）。
+文案结构要求：
+1. 黄金前3秒爆点钩子（如“千万别在深夜看这部剧！”或“家人们，反转太刺激了！”）
+2. 核心剧情冲突与高光看点提炼（2-3句话，紧凑刺激）
+3. 强力引导追剧 CTA（如“关注我看全集完整版！”）
+
+短剧主题：{goal}
+剧本节选：
+{storyboard_text if storyboard_text else "精彩反转剧情，扣人心弦。"}
+
+请直接输出纯文案内容，不要包含分镜头标记或多余说明。"""
+
+    recap_text = ""
+    try:
+        recap_text = call_llm("你是一个顶尖的影视短视频宣发策划大师。", prompt)
+    except Exception as e:
+        print(f"  [Planning Dept] LLM generation fallback: {e}")
+
+    if not recap_text or len(recap_text.strip()) < 10:
+        recap_text = f"家人们谁懂啊！今天推荐的这部短剧《{goal}》简直绝了！全程高能无尿点，反转不断，剧情刺激到让人停不下来！想看大结局的赶紧点赞关注，带你一口气刷全集！"
+
+    recap_text = recap_text.strip()
+    result = {
+        "title": f"Marketing_{os.path.basename(run_dir)}",
+        "text": recap_text,
+        "source_run_dir": run_dir,
+        "timestamp": time.time(),
+    }
+
+    if not output_file:
+        output_file = os.path.join(run_dir, "01_storyboards_scripts", "marketing_recap_script.json")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+
+    print(f"  [Planning Dept] 📣 宣发解说文案已生成并保存至: {output_file}")
+    return result
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         run_dir = sys.argv[1]
@@ -795,3 +947,4 @@ if __name__ == "__main__":
         workspace_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         run_dir = os.path.join(workspace_dir, "projects", "paperai-series", "episode-01")
     process_ticket(run_dir)
+

@@ -1,0 +1,139 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "title": "当前活动数字人直播间 (Active Streams)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "shortdrama_active_live_streams",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 2,
+      "title": "已处理弹幕总数 (Danmaku Total)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "shortdrama_danmaku_processed_total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "title": "TTS 语音合成触发总次数 (TTS Calls)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "shortdrama_tts_synthesis_total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 4,
+      "title": "RAG 知识库问答检索量 (RAG Queries)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "shortdrama_rag_queries_total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "id": 5,
+      "title": "API QPS & 请求吞吐分布",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(shortdrama_http_requests_total[1m])",
+          "legendFormat": "{{method}} {{path}} ({{status}})",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "id": 6,
+      "title": "弹幕处理速率 (Danmaku / min)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(shortdrama_danmaku_processed_total[1m]) * 60",
+          "legendFormat": "弹幕/分钟",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["shortdrama", "lingcast", "live"],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "LingCast 数字人直播基础设施运营监控",
+  "version": 1
+}

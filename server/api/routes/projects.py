@@ -7,15 +7,32 @@ import os
 import glob
 import asyncio
 from pydantic import BaseModel
+from ws.logger import manager
 
-router = APIRouter(prefix="/api/projects", tags=["projects"])
+router = APIRouter(prefix="/projects", tags=["projects"])
+
 
 # Global dictionary to hold asyncio.Future objects for pending inputs
 PENDING_INPUTS = {}
 
+class CreateProjectRequest(BaseModel):
+    goal: str
+    format_type: str = "vertical"
+    branch_type: str = "short_drama" # short_drama, transformation_video, dance_video, handdraw_video, neural_explainer
+    selected_ip: Optional[str] = None
+    vibe: Optional[str] = None
+    trend_enabled: bool = False
+    costume_id: Optional[str] = None
+    scene_id: Optional[str] = None
+    motion_id: Optional[str] = None
+    hand_preset: Optional[str] = None
+    caption_style: Optional[str] = None
+
 @router.post("/", response_model=Project)
 def create_project(
-    goal: str, 
+    payload: Optional[CreateProjectRequest] = None,
+    # Keep query parameters as fallback for backward compatibility
+    goal: Optional[str] = None, 
     format_type: str = "vertical", 
     branch_type: str = "short_drama",
     selected_ip: Optional[str] = None,
@@ -24,26 +41,45 @@ def create_project(
     session: Session = Depends(get_session)
 ):
     import re
-    # Create a simple slug from the goal
-    slug = re.sub(r'[^a-zA-Z0-9]', '_', goal.lower())[:30].strip('_')
-    if not slug:
+    # Resolve values from JSON payload first, then fallback to query parameters
+    req_goal = (payload.goal if payload else goal) or ""
+    req_format = (payload.format_type if payload else format_type) or "vertical"
+    req_branch = (payload.branch_type if payload else branch_type) or "short_drama"
+    req_ip = payload.selected_ip if payload else selected_ip
+    req_vibe = payload.vibe if payload else vibe
+    req_trend = payload.trend_enabled if payload else trend_enabled
+    req_costume = payload.costume_id if payload else None
+    req_scene = payload.scene_id if payload else None
+    req_motion = payload.motion_id if payload else None
+    req_hand = payload.hand_preset if payload else None
+    req_caption = payload.caption_style if payload else None
+
+    # Create a clean slug from the goal
+    clean_goal = re.sub(r'[^a-zA-Z0-9\u4e00-\u9fa5]', '_', req_goal.lower())[:30].strip('_')
+    if not clean_goal:
         slug = f"project_{int(datetime.utcnow().timestamp())}"
     else:
-        slug = f"{slug}_{int(datetime.utcnow().timestamp())}"
+        slug = f"{clean_goal}_{int(datetime.utcnow().timestamp())}"
         
     project = Project(
         project_slug=slug,
-        goal=goal,
-        format_type=format_type,
-        branch_type=branch_type,
-        selected_ip=selected_ip,
-        vibe=vibe,
-        trend_enabled=trend_enabled,
+        goal=req_goal,
+        format_type=req_format,
+        branch_type=req_branch,
+        selected_ip=req_ip,
+        vibe=req_vibe,
+        trend_enabled=req_trend,
+        costume_id=req_costume,
+        scene_id=req_scene,
+        motion_id=req_motion,
+        hand_preset=req_hand,
+        caption_style=req_caption,
         status="Pending"
     )
     session.add(project)
     session.commit()
     session.refresh(project)
+    manager.broadcast_sync(f"[Project] 📝 New project created: #{project.id} ({project.project_slug}) - Goal: {project.goal[:40]}")
     return project
 
 @router.get("/", response_model=List[Project])
@@ -71,36 +107,201 @@ def submit_input(project_id: int, user_input: UserInput):
         future = PENDING_INPUTS[project_id]
         if not future.done():
             future.set_result(user_input.message)
+        manager.broadcast_sync(f"[Project] 💬 Project #{project_id} feedback submitted: {user_input.message[:60]}")
         return {"success": True}
     return {"success": False, "reason": "No pending input"}
 
+@router.post("/{project_id}/approve")
+def approve_project(project_id: int):
+    """One-click approval for script/storyboard or current phase."""
+    if project_id in PENDING_INPUTS:
+        future = PENDING_INPUTS[project_id]
+        if not future.done():
+            future.set_result("ok")
+        manager.broadcast_sync(f"[Project] ✅ Project #{project_id} received human director APPROVAL.")
+        return {"success": True, "message": "Phase approved successfully"}
+    return {"success": False, "reason": "Project is not currently awaiting manual approval"}
+
+@router.post("/{project_id}/reject")
+def reject_project(project_id: int, user_input: UserInput):
+    """Reject and submit critical correction feedback to QA & Planning."""
+    if project_id in PENDING_INPUTS:
+        future = PENDING_INPUTS[project_id]
+        if not future.done():
+            future.set_result(user_input.message)
+        manager.broadcast_sync(f"[Project] ⚠️ Project #{project_id} received human director REVISION FEEDBACK: {user_input.message[:60]}")
+        return {"success": True, "message": "Feedback submitted successfully"}
+    return {"success": False, "reason": "Project is not currently awaiting manual approval"}
+
+
+@router.get("/{slug}/detail")
+def get_project_detail(slug: str, session: Session = Depends(get_session)):
+    """Fetch structured pipeline status, storyboard script, and feedback states."""
+    project = session.exec(select(Project).where(Project.project_slug == slug)).first()
+    if not project:
+        # Fallback: check if slug matches without timestamp suffix
+        project = session.exec(select(Project).where(Project.project_slug.like(f"{slug}%"))).first()
+        
+    base_dir = get_base_dir()
+    runs_dir = os.path.join(base_dir, "projects", slug, "runs")
+    
+    ticket_data = {}
+    storyboard_text = ""
+    latest_run_id = None
+    
+    if os.path.exists(runs_dir):
+        run_ids = sorted([d for d in os.listdir(runs_dir) if os.path.isdir(os.path.join(runs_dir, d))], reverse=True)
+        if run_ids:
+            latest_run_id = run_ids[0]
+            run_path = os.path.join(runs_dir, latest_run_id)
+            
+            # Read ticket
+            t_path = os.path.join(run_path, "00_task_ticket.json")
+            if os.path.exists(t_path):
+                try:
+                    with open(t_path, "r", encoding="utf-8") as f:
+                        ticket_data = json.load(f)
+                except Exception:
+                    pass
+                    
+            # Read storyboard script if available
+            sb_path = os.path.join(run_path, "01_storyboards_scripts", "01_storyboard.md")
+            if os.path.exists(sb_path):
+                try:
+                    with open(sb_path, "r", encoding="utf-8") as f:
+                        storyboard_text = f.read()
+                except Exception:
+                    pass
+                    
+    is_waiting_approval = False
+    project_id = project.id if project else None
+    if project_id and project_id in PENDING_INPUTS:
+        is_waiting_approval = True
+        
+    return {
+        "project": project,
+        "latest_run_id": latest_run_id,
+        "ticket": ticket_data,
+        "storyboard": storyboard_text,
+        "is_waiting_approval": is_waiting_approval,
+        "current_status": ticket_data.get("status", project.status if project else "Unknown")
+    }
+
+
+def get_base_dir() -> str:
+    if os.path.exists("/workspace/out"):
+        return "/workspace"
+    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 @router.get("/{slug}/assets")
 def get_assets(slug: str):
-    # Base paths
-    out_dir = f"/workspace/out/{slug}"
-    runs_dir = f"/workspace/projects/{slug}/runs"
+    base_dir = get_base_dir()
+    out_dirs = [
+        os.path.join(base_dir, "out", slug),
+        os.path.join(os.path.dirname(base_dir), "out", slug),
+    ]
+    runs_dirs = [
+        os.path.join(base_dir, "projects", slug, "runs"),
+        os.path.join(os.path.dirname(base_dir), "projects", slug, "runs"),
+    ]
     
     videos = []
     images = []
+    seen_videos = set()
+    seen_images = set()
+    drafts = []
+    subtitles = []
     
-    # Check out_dir for videos
-    if os.path.exists(out_dir):
-        for f in glob.glob(f"{out_dir}/*.mp4"):
-            videos.append(f"/media/out/{slug}/{os.path.basename(f)}")
+    seen_drafts = set()
+    seen_subtitles = set()
+    
+    # Check out_dirs for videos, drafts and subtitles
+    for out_dir in out_dirs:
+        if os.path.exists(out_dir):
+            for f in glob.glob(f"{out_dir}/*.mp4"):
+                fname = os.path.basename(f)
+                if fname not in seen_videos:
+                    seen_videos.add(fname)
+                    videos.append(f"/media/out/{slug}/{fname}")
+            for f in glob.glob(f"{out_dir}/*draft*.zip") + glob.glob(f"{out_dir}/*jianying*.zip"):
+                fname = os.path.basename(f)
+                if fname not in seen_drafts:
+                    seen_drafts.add(fname)
+                    drafts.append(f"/media/out/{slug}/{fname}")
+            for f in glob.glob(f"{out_dir}/*.srt"):
+                fname = os.path.basename(f)
+                if fname not in seen_subtitles:
+                    seen_subtitles.add(fname)
+                    subtitles.append(f"/media/out/{slug}/{fname}")
             
-    # Check runs_dir for images (storyboards)
-    if os.path.exists(runs_dir):
-        # run_ids
-        for run_id in os.listdir(runs_dir):
-            run_path = os.path.join(runs_dir, run_id)
-            if os.path.isdir(run_path):
-                img_path = os.path.join(run_path, "assets", "02_storyboards")
-                if os.path.exists(img_path):
-                    for f in glob.glob(f"{img_path}/*.*"):
-                        if f.lower().endswith(('.png', '.jpg', '.jpeg')):
-                            images.append(f"/media/projects/{slug}/runs/{run_id}/assets/02_storyboards/{os.path.basename(f)}")
+    # Check runs_dirs for images (storyboards)
+    for runs_dir in runs_dirs:
+        if os.path.exists(runs_dir):
+            for run_id in os.listdir(runs_dir):
+                run_path = os.path.join(runs_dir, run_id)
+                if os.path.isdir(run_path):
+                    img_path = os.path.join(run_path, "assets", "02_storyboards")
+                    if os.path.exists(img_path):
+                        for f in glob.glob(f"{img_path}/*.*"):
+                            if f.lower().endswith(('.png', '.jpg', '.jpeg')):
+                                fname = os.path.basename(f)
+                                if (run_id, fname) not in seen_images:
+                                    seen_images.add((run_id, fname))
+                                    images.append(f"/media/projects/{slug}/runs/{run_id}/assets/02_storyboards/{fname}")
                             
     return {
         "videos": videos,
-        "images": images
+        "images": images,
+        "drafts": drafts,
+        "subtitles": subtitles
     }
+
+@router.delete("/{project_id}")
+def delete_project(project_id: int, session: Session = Depends(get_session)):
+    """Delete project from database and optionally archive files."""
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+        
+    slug = project.project_slug
+    session.delete(project)
+    session.commit()
+    
+    # Try removing pending future if any
+    if project_id in PENDING_INPUTS:
+        del PENDING_INPUTS[project_id]
+        
+    manager.broadcast_sync(f"[Project] 🗑️ Project #{project_id} ({slug}) deleted by user.")
+    return {"success": True, "message": f"Project {project_id} deleted successfully"}
+
+@router.post("/{project_id}/retry")
+def retry_project(project_id: int, session: Session = Depends(get_session)):
+    """Reset a paused or failed project back to Pending so worker restarts pipeline."""
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+        
+    project.status = "Pending"
+    project.error_message = None
+    session.add(project)
+    session.commit()
+    
+    # Reset ticket if exists
+    base_dir = get_base_dir()
+    runs_dir = os.path.join(base_dir, "projects", project.project_slug, "runs")
+    if os.path.exists(runs_dir):
+        run_ids = sorted([d for d in os.listdir(runs_dir) if os.path.isdir(os.path.join(runs_dir, d))], reverse=True)
+        if run_ids:
+            t_path = os.path.join(runs_dir, run_ids[0], "00_task_ticket.json")
+            if os.path.exists(t_path):
+                try:
+                    with open(t_path, "r", encoding="utf-8") as f:
+                        t_data = json.load(f)
+                    t_data["status"] = "Pending"
+                    with open(t_path, "w", encoding="utf-8") as f:
+                        json.dump(t_data, f, ensure_ascii=False, indent=2)
+                except Exception:
+                    pass
+                    
+    manager.broadcast_sync(f"[Project] 🔄 Project #{project_id} ({project.project_slug}) manually queued for RETRY.")
+    return {"success": True, "message": f"Project {project_id} reset to Pending"}

@@ -10,12 +10,12 @@ from shared_tools.audio.tts_engine import TTSEngine
 from shared_tools.config_loader import get_config
 import importlib
 FFmpegWrapper = importlib.import_module("departments.06_post_production.tools.ffmpeg_wrapper").FFmpegWrapper
+from shared_tools.drafts.jianying_exporter import JianyingExporter
+from shared_tools.audio.acoustic_enhancer import AcousticEnhancer
 
 def _do_concat(workspace_dir, episode_dir, is_dance, beat_drop, clips, out_path, ffmpeg):
     if os.environ.get("RENDER_ENGINE") == "remotion":
-        import sys
-        sys.path.append(os.path.join(workspace_dir, "departments", "05_post_production"))
-        import montage_adapter
+        montage_adapter = importlib.import_module("departments.06_post_production.montage_adapter")
         beat_drops = [beat_drop] if beat_drop > 0.0 else []
         branch = "dance" if is_dance else "short_drama"
         montage_adapter.render_with_openmontage(
@@ -63,6 +63,9 @@ def process_ticket(episode_dir):
         return False
         
     processed_clips = []
+    srt_entries = []
+    shots_draft_data = []
+    current_timeline = 0.0
     
     # 1.5 Load Global BGM if Dance Format
     global_bgm_file = None
@@ -120,44 +123,108 @@ def process_ticket(episode_dir):
             shutil.copy2(video_in, clip_out)
             print(f"    [Local Tool: FFmpeg] Copied silent video to {clip_out} (Dance Factory Mode - No TTS)")
         elif text:
-            # Voice Allocation Logic: Voiceovers are narrated by configured default voice
-            voice_id = get_config("DEFAULT_VOICE", "zh-CN-XiaoxiaoNeural")
+            # --- 智能多角色/多情感短剧配音分发引擎 ---
+            # 彻底杜绝单一机械生硬女声，按剧情冲突分发专属 Profile 与声学特征
+            raw_text = text.strip()
+            goal = (ticket.get("goal") or "").lower()
+            style = (ticket.get("style") or "").lower()
+            character = (ticket.get("character") or "").lower()
+            is_drama_male = any(k in goal or k in style or k in character for k in [
+                "霸总", "反转", "战神", "打脸", "逆袭", "外卖", "男", "冷峻", "低沉", "都市", "林宇", "沈浪"
+            ])
             
-            # --- New Logic: Parse character prefix and re-allocate voice ---
+            configured_default = get_config("DEFAULT_VOICE", "zh-CN-YunjianNeural")
+            base_default_voice = configured_default if configured_default != "zh-CN-XiaoxiaoNeural" else ("zh-CN-YunjianNeural" if is_drama_male else "zh-CN-XiaoxiaoNeural")
+            base_profile = get_config("DEFAULT_VOICE_PROFILE", "profile_narrator_epic" if is_drama_male else "profile_heroine_lengyan")
+
             import re
-            
-            clean_text = text.strip()
-            # Try to match speaker prefix like "男：", "女：", "Brother Jian:"
-            match = re.match(r'^([^：:]+)[：:]\s*[“"\'‘]?(.*)', clean_text)
-            if match:
-                speaker_name = match.group(1).strip()
-                dialogue = match.group(2).strip(' ”"\'’')
-                
-                # Check for male keywords
-                if any(k in speaker_name.lower() for k in ["男", "jian", "brother", "man", "male"]):
-                    voice_id = "zh-CN-YunxiNeural"
-                # Check for female keywords
-                elif any(k in speaker_name.lower() for k in ["女", "ya", "xiao", "woman", "female"]):
-                    voice_id = "zh-CN-XiaoxiaoNeural"
-                
-                # Update text to the actual dialogue to avoid TTS reading "男：" 
-                text = dialogue
+            match = re.match(r'^([^：:\[\]]{1,8})[：:]\s*[“"\'‘]?(.*)', raw_text)
+            speaker = match.group(1).strip() if match else ""
+            clean_dialogue = match.group(2).strip(' ”"\'’') if match else re.sub(r'^[“"\'‘]|[”"\'’]$', '', raw_text)
+
+            voice_id = base_default_voice
+            profile_id = base_profile
+            rate_offset = None
+            pitch_offset = None
+
+            lowered_speaker = speaker.lower()
+            lowered_text = clean_dialogue.lower()
+
+            # 规则 A: 反派 / 傲慢经理 / 尖酸挑衅 (如周经理台词)
+            if any(k in lowered_speaker for k in ["周经理", "经理", "反派", "主管", "保安", "前台"]) or \
+               any(k in lowered_text for k in ["送外卖", "闯会议室", "穷酸", "赶出去", "我公司的车", "凭你也配", "滚出去"]):
+                voice_id = "zh-CN-YunyangNeural"
+                profile_id = "profile_villain_aoman"
+                rate_offset = "+2%"
+                pitch_offset = "+2Hz"
+                if "车" in clean_dialogue and "等等" in clean_dialogue:
+                    clean_dialogue = clean_dialogue.replace("...", "……").replace("！", "？！")
+            # 规则 B: 霸总主角 / 冷峻权威 (如林宇台词)
+            elif any(k in lowered_speaker for k in ["林宇", "沈浪", "总裁", "老板", "董事长", "霸总"]) or \
+                 any(k in lowered_text for k in ["隐藏大佬", "看了吗", "新老板", "跪下"]):
+                voice_id = "zh-CN-YunjianNeural"
+                profile_id = "profile_boss_lengjun"
+                rate_offset = "-5%"
+                pitch_offset = "-5Hz"
+            # 规则 C: 行动号召 (CTA 转化卡片)
+            elif any(k in lowered_speaker for k in ["cta", "号召", "主播"]) or \
+                 any(k in lowered_text for k in ["左下角", "看完整", "点赞", "关注", "追剧"]):
+                voice_id = "zh-CN-YunxiNeural"
+                profile_id = "profile_cta_explosive"
+                rate_offset = "+6%"
+                pitch_offset = "+1Hz"
+            # 规则 D: 黄金史诗解说 / 悬念爆发 (带颗粒感沉稳男声)
             else:
-                # If no prefix, just strip outer quotes if any
-                text = re.sub(r'^[“"\'‘]|[”"\'’]$', '', clean_text)
-            # ----------------------------------------------------------------
+                voice_id = "zh-CN-YunjianNeural"
+                profile_id = "profile_narrator_epic"
+                rate_offset = "-8%"
+                pitch_offset = "-6Hz"
+                if "就是新老板" in clean_dialogue:
+                    clean_dialogue = clean_dialogue.replace("...", "……").replace("林宇", "——林宇！")
+
+            print(f"    [Voice Dispatcher] {shot_id} -> Voice: {voice_id}, Profile: {profile_id}, Pitch: {pitch_offset}, Text: '{clean_dialogue}'")
             
-            # Step 1: TTS
-            tts.generate_audio(text, audio_out, voice_id=voice_id)
+            # Step 1: TTS 配音生成 (传入定制 Profile 与音调参数)
+            tts.generate_audio(clean_dialogue, audio_out, voice_id=voice_id, profile_id=profile_id, rate_offset=rate_offset, pitch_offset=pitch_offset)
             
-            # Step 2: Multiplex Video + Audio to Video
-            ffmpeg.replace_audio_in_video(video_in, audio_out, clip_out)
+            # Step 1.5: 空间声学混响增强 (VoiceStudio 沉浸式环境混响)
+            scene_visual = shot.get("visual", "")
+            matched_preset = AcousticEnhancer.match_acoustic_preset(scene_visual, style)
+            reverb_audio_out = os.path.join(assets_dir, f"{shot_id}_audio_reverb.wav")
+            actual_audio_for_shot = audio_out
+            if AcousticEnhancer.apply_spatial_acoustics(audio_out, reverb_audio_out, environment=matched_preset):
+                actual_audio_for_shot = reverb_audio_out
+                print(f"    [AcousticEnhancer] Applied spatial preset '{matched_preset}' to {shot_id}")
+            
+            # Step 2: Multiplex Video + Audio + Burn-in Subtitles
+            ffmpeg.replace_audio_in_video(video_in, actual_audio_for_shot, clip_out, subtitle_text=clean_dialogue)
         else:
-            import shutil
-            shutil.copy2(video_in, clip_out)
-            print(f"    [Local Tool: FFmpeg] Copied silent video to {clip_out}")
+            ffmpeg.normalize_silent_video(video_in, clip_out)
+            actual_audio_for_shot = None
+            clean_dialogue = ""
+            print(f"    [Local Tool: FFmpeg] Normalized silent video to {clip_out}")
             
         processed_clips.append(clip_out)
+
+        # 累计字幕时间轴
+        clip_dur = ffmpeg.get_duration(clip_out)
+        if text and clean_dialogue:
+            srt_entries.append({
+                "start": current_timeline,
+                "end": current_timeline + clip_dur,
+                "text": clean_dialogue
+            })
+
+        # 收集剪映专业版工程草稿镜头数据 (双模导出备用)
+        shots_draft_data.append({
+            "id": shot_id,
+            "video_path": video_in,
+            "audio_path": actual_audio_for_shot if (actual_audio_for_shot and os.path.exists(actual_audio_for_shot)) else None,
+            "duration": clip_dur,
+            "subtitle": clean_dialogue,
+            "enable_slow_zoom": True
+        })
+        current_timeline += clip_dur
         
     # 2. Beat Syncing and Final Rendering
     print("\n>> Final Rendering & Beat Syncing...")
@@ -216,8 +283,27 @@ def process_ticket(episode_dir):
         _do_concat(workspace_dir, episode_dir, is_dance_format, drop_timestamp_sec, processed_clips, concat_video_path, ffmpeg)
         
     if is_dance_format and global_bgm_file and os.path.exists(global_bgm_file):
-        print(f"\n>> Mixing Global BGM: {global_bgm_file}")
+        print(f"\n>> Mixing Global Dance BGM: {global_bgm_file}")
         ffmpeg.replace_audio_in_video(concat_video_path, global_bgm_file, final_episode_path)
+    elif not is_dance_format and global_bgm_file and os.path.exists(global_bgm_file):
+        # 短剧剧情模式：提取对白音频并执行专业 VoiceStudio 智能侧链闪避混音
+        print(f"\n>> [VoiceStudio] Applying Intelligent Sidechain Ducking with BGM: {global_bgm_file}")
+        voice_track = os.path.join(final_dir, f"{episode_name}_voice_track.wav")
+        ducked_mix_audio = os.path.join(final_dir, f"{episode_name}_ducked_master.aac")
+        
+        # 提取成片中的纯人声音轨
+        extract_cmd = ["ffmpeg", "-y", "-v", "error", "-i", concat_video_path, "-vn", "-acodec", "pcm_s16le", voice_track]
+        try:
+            import subprocess
+            subprocess.run(extract_cmd, check=True)
+            if AcousticEnhancer.sidechain_duck_bgm(voice_track, global_bgm_file, ducked_mix_audio, ducking_db=-14.0):
+                ffmpeg.replace_audio_in_video(concat_video_path, ducked_mix_audio, final_episode_path)
+                print(f"    [VoiceStudio] Master audio ducking mix successfully generated and injected!")
+            else:
+                shutil.copy2(concat_video_path, final_episode_path)
+        except Exception as ee:
+            print(f"    [VoiceStudio Ducking Notice] Fallback to raw audio: {ee}")
+            shutil.copy2(concat_video_path, final_episode_path)
     else:
         import shutil
         shutil.copy2(concat_video_path, final_episode_path)
@@ -231,6 +317,50 @@ def process_ticket(episode_dir):
     
     import shutil
     shutil.copy2(final_episode_path, isolated_master_path)
+
+    # 导出外挂标准 SRT 字幕文件
+    if srt_entries:
+        def _format_srt_time(seconds: float) -> str:
+            if seconds < 0:
+                seconds = 0
+            ms = int(round(seconds * 1000))
+            h, rem = divmod(ms, 3_600_000)
+            m, rem = divmod(rem, 60_000)
+            s, milli = divmod(rem, 1000)
+            return f"{h:02}:{m:02}:{s:02},{milli:03}"
+
+        final_srt_path = os.path.join(final_dir, f"{episode_name}_master.srt")
+        isolated_srt_path = os.path.join(out_dir, f"{project_name}_master_final.srt")
+        srt_lines = []
+        for idx, entry in enumerate(srt_entries, 1):
+            s_str = _format_srt_time(entry["start"])
+            e_str = _format_srt_time(entry["end"])
+            srt_lines.append(f"{idx}\n{s_str} --> {e_str}\n{entry['text']}\n")
+        
+        with open(final_srt_path, "w", encoding="utf-8") as sf:
+            sf.write("\n".join(srt_lines))
+        shutil.copy2(final_srt_path, isolated_srt_path)
+        print(f"    [Post-Production Dept] Synchronous SRT subtitles saved to: {isolated_srt_path}")
+
+    # 导出剪映专业版 (JianYing Pro) 原生草稿工程 (双模交付)
+    if shots_draft_data:
+        try:
+            print("\n>> [Dual-Delivery] Generating native JianYing Pro project draft...")
+            exporter = JianyingExporter()
+            draft_result = exporter.export_project_draft(
+                project_name=project_name,
+                shots_data=shots_draft_data,
+                output_dir=out_dir,
+                bgm_path=global_bgm_file if (global_bgm_file and os.path.exists(global_bgm_file)) else None
+            )
+            if draft_result and draft_result.get("zip_path"):
+                ticket["jianying_draft_zip"] = os.path.relpath(draft_result["zip_path"], workspace_dir)
+                ticket["jianying_synced"] = draft_result.get("synced_to_local", False)
+                print(f"    [JianYing Pro] Draft zip exported: {draft_result['zip_path']}")
+                if draft_result.get("synced_to_local"):
+                    print(f"    [JianYing Pro] Automatically synced to Mac local draft folder: {draft_result.get('local_synced_path')}")
+        except Exception as je:
+            print(f"    [JianYing Pro] Export notice (non-fatal): {je}")
     
     # 3. Update Ticket Status
     ticket["status"] = "QA_Pending_Final"

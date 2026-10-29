@@ -1,0 +1,18 @@
+{
+  "natural": {
+    "prompt": "natural light everyday makeup, soft pink lips, clear skin",
+    "code": "MAKEUP_NATURAL"
+  },
+  "stage": {
+    "prompt": "glamorous stage makeup, glitter eyeshadow, bold red lips, contoured face",
+    "code": "MAKEUP_STAGE"
+  },
+  "sweet": {
+    "prompt": "sweet cute makeup, peach blush, glossy coral lips, aegyosal",
+    "code": "MAKEUP_SWEET"
+  },
+  "edgy": {
+    "prompt": "edgy cool makeup, dark smokey eyes, sharp eyeliner, dark lipstick",
+    "code": "MAKEUP_EDGY"
+  }
+}

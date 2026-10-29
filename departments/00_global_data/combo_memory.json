@@ -268,6 +268,44 @@
           "is_flop": false
         }
       ]
+    },
+    "e1f4b863": {
+      "features": {
+        "character": "C006_Yumi",
+        "setup_outfit": "tight white crop top and white shorts",
+        "hook_outfit": "",
+        "routine": "Circle Flow",
+        "scene": "bright modern luxury interior with large windows, cherry blossoms park",
+        "bgm_id": ""
+      },
+      "weight": 2.0,
+      "history": [
+        {
+          "views": 3323116,
+          "completion_rate": 51.97,
+          "is_hit": true,
+          "is_flop": false
+        }
+      ]
+    },
+    "0e90b08b": {
+      "features": {
+        "character": "C001_Luna",
+        "setup_outfit": "stylish oversized t-shirt and loose sweatpants",
+        "hook_outfit": "stylish oversized t-shirt and loose sweatpants",
+        "routine": "Beat Drop - face_closeup_stare → body_groove/bounce → arm_movements/circle → hair_flip_freeze",
+        "scene": "luxury penthouse rooftop with modern infinity pool and glass railings, bright golden hour sunlight",
+        "bgm_id": ""
+      },
+      "weight": 2.0,
+      "history": [
+        {
+          "views": 4476765,
+          "completion_rate": 31.99,
+          "is_hit": true,
+          "is_flop": false
+        }
+      ]
     }
   }
 }

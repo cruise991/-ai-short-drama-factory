@@ -1,7 +1,8 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-workspace = "/Users/workspace/ai_short_company /ai-short-drama/projects/paperai-series/episode-01/02_raw_assets"
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+workspace = os.path.join(base_dir, "projects", "paperai-series", "episode-01", "02_raw_assets")
 os.makedirs(workspace, exist_ok=True)
 
 # Generate Shot 01

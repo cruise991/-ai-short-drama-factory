@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Git Pre-Push Hook: 开源仓库防误推与敏感泄露安全门禁
+# ==============================================================================
+
+remote="$1"
+url="$2"
+
+# 检查目标远程是否包含 opensource 关键字或开源仓库 URL
+if [[ "$remote" == "opensource" ]] || [[ "$url" == *"ai-short-drama-factory"* ]]; then
+    if [ "$ALLOW_OPENSOURCE_PUSH" != "1" ]; then
+        echo -e "\n========================================================"
+        echo "🚨 [安全拦截] 严禁直接向开源公共仓库 (opensource) 推送未脱敏代码！"
+        echo "目标地址: $url"
+        echo "根据系统第 6 条规则，开源仓库仅允许推送已脱敏、安全且通过精选的代码。"
+        echo "若已完成完整脱敏与密钥审计并确认发布，请使用授权指令："
+        echo "  ALLOW_OPENSOURCE_PUSH=1 git push $remote <branch>"
+        echo "========================================================\n"
+        exit 1
+    else
+        echo "⚠️ [安全审计] 已检测到授权标识 ALLOW_OPENSOURCE_PUSH=1，允许执行开源发布推送。"
+    fi
+fi
+
+# 检查是否有任何包含明文私钥特征的 commit 即将被推送到远端
+while read local_ref local_sha remote_ref remote_sha; do
+    if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+        continue # 分支删除操作
+    fi
+
+    # 扫描待推送 commit 中是否包含疑似私钥、token 或 API Key
+    if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+        DIFF_RANGE="$local_sha"
+    else
+        DIFF_RANGE="$remote_sha..$local_sha"
+    fi
+
+    SUSPICIOUS=$(git diff "$DIFF_RANGE" | grep -E "^\\+[^+]" | grep -iE "(sk-[a-zA-Z0-9]{32,}|AIza[0-9A-Za-z_\\-]{35}|ghp_[a-zA-Z0-9]{36})" || true)
+    if [ -n "$SUSPICIOUS" ]; then
+        echo -e "\n🚨 [安全拦截] 在即将推送的 commit 中扫描到高危密钥特征！"
+        echo "$SUSPICIOUS" | head -n 5
+        echo "推送已被紧急终止！请撤销提交或修改敏感配置后重试。\n"
+        exit 1
+    fi
+done
+
+exit 0

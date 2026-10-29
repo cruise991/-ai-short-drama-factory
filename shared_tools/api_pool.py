@@ -3,7 +3,37 @@ import json
 import time
 import urllib.request
 import fcntl
+import re
 from shared_tools.config_loader import get_config
+
+def clean_thought_tags(text: str) -> str:
+    """Strip <thought>...</thought> or <thinking>...</thinking> tags from LLM responses."""
+    if not text:
+        return ""
+    cleaned = re.sub(r'<(?:thought|thinking)>[\s\S]*?</(?:thought|thinking)>', '', text, flags=re.IGNORECASE)
+    return cleaned.strip()
+
+def extract_json_payload(text: str) -> str:
+    """Robust extractor for JSON content from markdown code fences or raw text."""
+    if not text:
+        return "{}"
+    cleaned = clean_thought_tags(text)
+    m = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', cleaned, re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+    start_brace = cleaned.find('{')
+    start_bracket = cleaned.find('[')
+    
+    if start_brace != -1 and (start_bracket == -1 or start_brace < start_bracket):
+        end_brace = cleaned.rfind('}')
+        if end_brace != -1 and end_brace > start_brace:
+            return cleaned[start_brace:end_brace+1].strip()
+    elif start_bracket != -1:
+        end_bracket = cleaned.rfind(']')
+        if end_bracket != -1 and end_bracket > start_bracket:
+            return cleaned[start_bracket:end_bracket+1].strip()
+            
+    return cleaned.strip()
 
 USAGE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".api_usage.json")
 
@@ -150,18 +180,26 @@ def call_llm(system_prompt, user_prompt):
     base_url = get_config("AGNES_BASE_URL", "https://apihub.agnes-ai.com/v1")
     # Mock block removed to enforce real API calls
     
-    model = get_config("PLANNING_LLM_MODEL", "agnes-2.0-flash")
+    model = get_config("PLANNING_LLM_MODEL", "agnes-3.0-flash")
     
     import urllib.request
     import json
     import ssl
+    # SSL context preserved for potential urllib fallback, using system CAs
     ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
     
     keys = get_agnes_keys()
-    for attempt in range(3):
+    current_model = model
+    for attempt in range(4):
+        # Rule 10 Fallback: On retry after failure/timeout, switch to agnes-2.5-flash
+        if attempt > 0 and current_model == "agnes-3.0-flash":
+            current_model = "agnes-2.5-flash"
+            print(f"  [LLM Pool] 🔄 Rule 10 Fallback: Switching model to '{current_model}' (Attempt {attempt+1})...")
+
         api_key = get_available_key(keys, resource_type="text")
+        if not api_key and keys:
+            api_key = keys[attempt % len(keys)]["key"]
+
         is_gemini = "generativelanguage.googleapis.com" in base_url
         if is_gemini:
             payload = {
@@ -173,96 +211,58 @@ def call_llm(system_prompt, user_prompt):
                     }
                 ]
             }
-            endpoint = f"{base_url}/models/{model}:generateContent"
+            endpoint = f"{base_url}/models/{current_model}:generateContent"
         else:
             payload = {
-                "model": model,
+                "model": current_model,
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                "temperature": 0.7,
-                "chat_template_kwargs": {
-                    "enable_thinking": True
-                }
+                "temperature": 0.7
             }
+            # Only enable thinking for agnes-3.0-flash
+            if current_model == "agnes-3.0-flash":
+                payload["chat_template_kwargs"] = {"enable_thinking": True}
             endpoint = f"{base_url}/chat/completions"
         
         try:
-            import subprocess
-            import json
-            import os
-            
-            # Resolve DNS via Python socket (bypasses mDNSResponder for curl)
-            import socket as _socket
-            from urllib.parse import urlparse as _urlparse
-            _parsed = _urlparse(endpoint)
-            _host = _parsed.hostname
-            _port = _parsed.port or (443 if _parsed.scheme == 'https' else 80)
-            _resolve_arg = None
-            try:
-                _ip = _socket.gethostbyname(_host)
-                _resolve_arg = f"{_host}:{_port}:{_ip}"
-            except Exception:
-                pass
-            
-            cmd = [
-                "/usr/bin/curl",
-                "-sS",
-                "-k",
-                "--http1.1",
-                "-X", "POST",
-                endpoint,
-                "-H", "Content-Type: application/json"
-            ]
+            import requests
+            headers = {"Content-Type": "application/json"}
             if is_gemini:
-                cmd.extend(["-H", f"X-goog-api-key: {api_key}"])
+                headers["X-goog-api-key"] = api_key
             else:
-                cmd.extend(["-H", f"Authorization: Bearer {api_key}"])
-            
-            cmd.extend([
-                "-d", "@-",
-                "--max-time", "60"
-            ])
-            if _resolve_arg:
-                cmd.extend(["--resolve", _resolve_arg])
-            
-            env = {}
-            for k in ["http_proxy", "https_proxy", "all_proxy", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"]:
-                if k in os.environ:
-                    env[k] = os.environ[k]
-                    
-            proc = subprocess.run(cmd, input=json.dumps(payload), capture_output=True, text=True, env=env)
-            
-            if proc.returncode != 0:
-                raise Exception(f"curl failed: {proc.stderr}")
-                
-            response_text = proc.stdout
-            if not response_text:
-                raise Exception("Empty response from curl")
-                
-            data = json.loads(response_text)
-            
+                headers["Authorization"] = f"Bearer {api_key}"
+
+            resp = requests.post(endpoint, json=payload, headers=headers, timeout=120)
+            if resp.status_code == 429:
+                print(f"  [LLM API RateLimit] 429 on key {api_key[:8]}...")
+                record_429(api_key, resource_type="text")
+                continue
+
+            data = resp.json()
             if "error" in data:
-                error_msg = data["error"].get("message", "Unknown error")
-                if "rate limit" in error_msg.lower() or "429" in str(error_msg) or "429" in str(data["error"].get("code", "")):
+                error_msg = str(data["error"].get("message", "Unknown error"))
+                if "rate limit" in error_msg.lower() or "429" in error_msg or "429" in str(data["error"].get("code", "")):
+                    print(f"  [LLM API RateLimit] Rate limit error on key {api_key[:8]}: {error_msg}")
                     record_429(api_key, resource_type="text")
                     continue
                 else:
                     print(f"  [LLM API Error] {error_msg}")
-                    record_429(api_key, resource_type="text")
                     continue
-                    
+
             if is_gemini:
                 content = data["candidates"][0]["content"]["parts"][0]["text"]
             else:
                 content = data["choices"][0]["message"]["content"]
-            return content
+            return clean_thought_tags(content)
+        except requests.exceptions.Timeout:
+            print(f"  [LLM API Timeout] Request timed out for key {api_key[:8]} using {current_model}. Will retry/fallback.")
+            continue
         except Exception as e:
-            print(f"  [LLM API Error] {e}")
-            record_429(api_key, resource_type="text")
-            
-    print("  [LLM Pool] All API keys failed, falling back to mock")
+            from shared_tools.log_sanitizer import sanitize
+            print(f"  [LLM API Error] {sanitize(str(e))}")
+            continue
     if "质检员" in system_prompt:
         return "FAIL: All API keys failed. QA cannot proceed."
     elif "You are a Prompt Renderer" in system_prompt:

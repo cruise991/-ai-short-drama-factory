@@ -1,0 +1,96 @@
+{
+  "_version": "2.0",
+  "_desc": "舞蹈动作库分层版",
+  "hand_movements": {
+    "flower_basic": {
+      "prompt": "hands crossed in front of chest, wrists rotating rapidly in alternating circles, fast dynamic flower hand dance",
+      "code": "HAND_FLOWER_BASIC"
+    },
+    "rub": {
+      "prompt": "palms rubbing together very fast",
+      "code": "HAND_RUB"
+    },
+    "snap": {
+      "prompt": "snapping fingers sharply to the beat",
+      "code": "HAND_SNAP"
+    },
+    "heart": {
+      "prompt": "hands forming a heart shape, holding pose",
+      "code": "HAND_HEART"
+    },
+    "thumbs_up": {
+      "prompt": "confident thumbs up gesture, smiling",
+      "code": "HAND_THUMBS_UP"
+    },
+    "wink_gesture": {
+      "prompt": "playful wink while pointing to the camera with one hand",
+      "code": "HAND_WINK"
+    }
+  },
+  "arm_movements": {
+    "horizontal": {
+      "prompt": "both arms stretched out horizontally to the sides, wide wingspan",
+      "code": "ARM_HORIZONTAL"
+    },
+    "raised": {
+      "prompt": "arms raised straight up above head",
+      "code": "ARM_RAISED"
+    },
+    "cross": {
+      "prompt": "arms crossed confidently in an X shape in front of chest",
+      "code": "ARM_CROSS"
+    },
+    "wave": {
+      "prompt": "fluid arm wave rolling from shoulder to fingertips",
+      "code": "ARM_WAVE"
+    },
+    "circle": {
+      "prompt": "arms swinging in large sweeping circular motion",
+      "code": "ARM_CIRCLE"
+    }
+  },
+  "body_groove": {
+    "sway_left_right": {
+      "prompt": "hips swaying rhythmically side to side, smooth body groove",
+      "code": "BODY_SWAY_LEFT_RIGHT"
+    },
+    "sway_forward_back": {
+      "prompt": "body shifting weight forward and back to the beat",
+      "code": "BODY_SWAY_FORWARD_BACK"
+    },
+    "bounce": {
+      "prompt": "knees bending slightly, energetic whole body bouncing to the rhythm",
+      "code": "BODY_BOUNCE"
+    },
+    "turn": {
+      "prompt": "dynamic 360 degree body turn spinning around",
+      "code": "BODY_TURN"
+    },
+    "hip_roll": {
+      "prompt": "smooth circular hip roll isolation",
+      "code": "BODY_HIP_ROLL"
+    },
+    "shoulder_shimmy": {
+      "prompt": "shoulders shaking and shimmying rapidly",
+      "code": "BODY_SHOULDER_SHIMMY"
+    }
+  },
+  "footwork": {
+    "step_in_place": {
+      "prompt": "feet stepping in place rhythmically",
+      "code": "FOOT_STEP_IN_PLACE"
+    },
+    "slide": {
+      "prompt": "smooth foot slide gliding across the floor",
+      "code": "FOOT_SLIDE"
+    },
+    "kick": {
+      "prompt": "sharp high leg kick",
+      "code": "FOOT_KICK"
+    },
+    "tap": {
+      "prompt": "toe tapping the floor to the beat",
+      "code": "FOOT_TAP"
+    }
+  }
+}

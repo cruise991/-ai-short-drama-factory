@@ -1,0 +1,71 @@
+{
+  "_version": "2.1",
+  "_desc": "核心规则引擎。定义角色->风格包加权映射。weight 由 Feedback Engine 自动调整。引擎读取时自动归一化。v2.1: 所有角色加入 long_30s/standard_20s 节奏偏好，支持30秒内容生产。",
+
+  "C001_Luna": {
+    "preferred_styles": {
+      "kpop_studio": 0.40,
+      "cyber": 0.25,
+      "luxury": 0.20,
+      "kemuzisan": 0.15
+    },
+    "preferred_hooks": ["face_closeup_stare", "hair_flip_reveal", "blink_wink"],
+    "preferred_poses": ["finger_heart", "look_back", "hair_flip_freeze"],
+    "preferred_rhythms": ["kpop_12s", "fast_10s", "slow_15s", "standard_20s", "long_30s"],
+    "preferred_shot_templates": ["tiktok_classic", "reveal_build"],
+    "banned_combinations": []
+  },
+
+  "C002_Mika": {
+    "preferred_styles": {
+      "kpop_studio": 0.55,
+      "beach": 0.25,
+      "street": 0.20
+    },
+    "preferred_hooks": ["blink_wink", "hand_block_reveal", "fast_zoom_in"],
+    "preferred_poses": ["peace_sign", "finger_heart", "one_leg_raise"],
+    "preferred_rhythms": ["kpop_12s", "fast_10s", "energetic_10s", "standard_20s", "long_30s"],
+    "preferred_shot_templates": ["tiktok_classic"],
+    "banned_combinations": []
+  },
+
+  "C003_Aria": {
+    "preferred_styles": {
+      "fitness": 0.50,
+      "street": 0.30,
+      "beach": 0.20
+    },
+    "preferred_hooks": ["turn_from_back", "fast_zoom_in"],
+    "preferred_poses": ["cross_arms", "squat_pose", "hip_twist_freeze"],
+    "preferred_rhythms": ["hiphop_12s", "medium_18s", "standard_20s", "long_30s"],
+    "preferred_shot_templates": ["power_impact", "dynamic_follow"],
+    "banned_combinations": []
+  },
+
+  "C004_Nyx": {
+    "preferred_styles": {
+      "cyber": 0.65,
+      "luxury": 0.20,
+      "street": 0.15
+    },
+    "preferred_hooks": ["mirror_reflection", "turn_from_back", "face_closeup_stare"],
+    "preferred_poses": ["look_back", "cross_arms", "hip_twist_freeze"],
+    "preferred_rhythms": ["fast_10s", "hiphop_12s", "medium_18s", "standard_20s", "long_30s"],
+    "preferred_shot_templates": ["orbit_showcase", "power_impact"],
+    "banned_combinations": []
+  },
+
+  "C005_Lili": {
+    "preferred_styles": {
+      "luxury": 0.40,
+      "beach": 0.30,
+      "kpop_studio": 0.20,
+      "street": 0.10
+    },
+    "preferred_hooks": ["hair_flip_reveal", "face_closeup_stare", "blink_wink"],
+    "preferred_poses": ["hair_flip_freeze", "look_back", "hip_twist_freeze"],
+    "preferred_rhythms": ["slow_15s", "medium_18s", "standard_20s", "long_30s"],
+    "preferred_shot_templates": ["reveal_build", "orbit_showcase"],
+    "banned_combinations": []
+  }
+}

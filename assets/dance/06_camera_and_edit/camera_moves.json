@@ -1,0 +1,64 @@
+{
+  "_version": "1.0",
+  "_desc": "独立运镜库。与舞蹈动作完全分离，可自由组合搭配。",
+  "static_wide": {
+    "prompt": "static wide shot, centered composition, full body visible from head to toe",
+    "type": "static",
+    "framing": "wide"
+  },
+  "slow_dolly_in": {
+    "prompt": "slow smooth dolly in movement, camera gliding from wide shot to medium shot",
+    "type": "dolly",
+    "framing": "medium"
+  },
+  "dolly_out": {
+    "prompt": "gradual dolly out movement, camera pulling back to reveal full scene and environment",
+    "type": "dolly",
+    "framing": "wide"
+  },
+  "orbit_close": {
+    "prompt": "slow orbital camera movement circling around the subject at close range, 3/4 body framing",
+    "type": "orbit",
+    "framing": "medium"
+  },
+  "orbit_wide": {
+    "prompt": "wide orbital pan circling the subject at medium distance, full body with environment visible",
+    "type": "orbit",
+    "framing": "wide"
+  },
+  "low_angle_push": {
+    "prompt": "low angle camera looking up at subject, slowly pushing forward, empowering and dynamic perspective",
+    "type": "push",
+    "framing": "full_body"
+  },
+  "tracking_side": {
+    "prompt": "smooth side tracking shot following the subject, camera moving horizontally in sync with movement",
+    "type": "track",
+    "framing": "medium"
+  },
+  "fpv_follow": {
+    "prompt": "dynamic first-person-view style camera following behind and around the subject with fluid motion",
+    "type": "fpv",
+    "framing": "full_body"
+  },
+  "crane_down": {
+    "prompt": "crane shot starting high above and descending to eye level, revealing the subject from above",
+    "type": "crane",
+    "framing": "wide"
+  },
+  "handheld_close": {
+    "prompt": "intimate handheld camera held close to subject, slight natural gentle movement, documentary energy",
+    "type": "handheld",
+    "framing": "medium"
+  },
+  "top_down": {
+    "prompt": "top-down aerial view looking straight down at subject from directly above, abstract and cinematic",
+    "type": "aerial",
+    "framing": "wide"
+  },
+  "tilt_up": {
+    "prompt": "slow tilt from feet upward to face, gradually revealing the full outfit from bottom to top",
+    "type": "tilt",
+    "framing": "full_body"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "smile_confident": {
+    "prompt": "confident smile, corners of the mouth turned up, firm gaze",
+    "code": "EXP_SMILE_CONFIDENT"
+  },
+  "wink_playful": {
+    "prompt": "playful wink, one eye closed, slight smirk",
+    "code": "EXP_WINK_PLAYFUL"
+  },
+  "focus": {
+    "prompt": "intense focused look, straight gaze, lips slightly parted",
+    "code": "EXP_FOCUS"
+  },
+  "laugh": {
+    "prompt": "laughing out loud, showing teeth, eyes crinkled",
+    "code": "EXP_LAUGH"
+  },
+  "cool": {
+    "prompt": "cool expressionless face, sharp piercing gaze, serious vibe",
+    "code": "EXP_COOL"
+  },
+  "surprised": {
+    "prompt": "surprised expression, wide eyes, mouth slightly open",
+    "code": "EXP_SURPRISED"
+  }
+}

@@ -1,0 +1,419 @@
+{
+  "app": {
+    "title": "AI 影业工厂",
+    "subtitle": "短剧与舞蹈视频自动化制作引擎 v2.0",
+    "nav": {
+      "dance": "AI 舞蹈工坊",
+      "drama": "短剧制作线",
+      "console": "实时终端",
+      "settings": "系统配置"
+    }
+  },
+  "drama": {
+    "title": "生产任务队列",
+    "subtitle": "监控并管理您的 AI 短剧自动化闭环生成流水线。",
+    "newProject": "新建短剧项目",
+    "empty": "当前生产队列暂无任务。",
+    "createFirst": "立即创建您的第一个短剧任务以启动流水线。",
+    "status": {
+      "pending": "等待排期",
+      "running": "执行中",
+      "drafting": "大纲构思中",
+      "draftCompleted": "剧本已完成",
+      "assetsGenerated": "分镜资产就绪",
+      "pausedByError": "需人工介入",
+      "completed": "全链路完工"
+    },
+    "actions": {
+      "viewDetail": "查看流转详情",
+      "viewAssets": "资产展厅",
+      "approve": "确认通过并推进",
+      "reject": "提出修改意见"
+    }
+  },
+  "detail": {
+    "title": "项目流转控制看板",
+    "workflow": "部门流转节点",
+    "currentPhase": "当前执行阶段",
+    "scriptDraft": "分镜剧本在线审阅",
+    "waitingApproval": "等待 CEO 人机在环确认",
+    "approvalTip": "策划部与编剧已完成本集分镜大纲设计，请在线审阅。您可以一键批准直接投产，或输入修改意见打回重写。",
+    "approveBtn": "批准剧本并推进制作",
+    "rejectPlaceholder": "请输入具体的修改意见或纠偏要求...",
+    "rejectBtn": "打回并提交修改要求",
+    "steps": {
+      "planning": "策划与大纲",
+      "script": "分镜剧本",
+      "production": "资产生成",
+      "qa": "QA 质量纠偏",
+      "post": "后期与成片"
+    },
+    "messages": {
+      "approveSuccess": "已批准通过！流水线正在推进至资产制作阶段...",
+      "rejectSuccess": "已打回！修改反馈已注入策划与 QA 智能体重新生成。",
+      "actionFailed": "操作提交失败，请重试"
+    },
+    "dualDelivery": {
+      "title": "短剧成片与工程已就绪",
+      "badge": "双模交付 · 剪映原生草稿已就绪",
+      "desc": "已自动应用 9:16 原生竖屏慢速推拉运镜 (12% 缓推) 与空间声学微混响对白",
+      "downloadDraft": "🎬 下载剪映专业版工程 (ZIP)",
+      "downloadMp4": "下载成品 MP4",
+      "downloadSrt": "SRT 字幕"
+    }
+  },
+  "dance": {
+    "title": "AI Dance Studio 舞蹈工坊",
+    "subtitle": "单图生成 20-30s 无缝循环舞蹈 · {{count}} 款爆款热舞模版 · BPM 节拍音乐卡点 · 9头身高挑身材防压缩",
+    "mode": {
+      "choreography": "自由动作编舞工作台 (5视角 4阶段知识库)",
+      "template": "官方爆款预置模版",
+      "dualDelivery": "双模交付：支持剪映专业版工程草稿 (ZIP 一键导入)"
+    },
+    "choreo": {
+      "recipeImport": "配方一键同款",
+      "recipeImportSub": "| 输入社群或好友分享的配方 ID 即可秒级复刻动势",
+      "recipePlaceholder": "例如: rec_9a8b1c2d",
+      "btnImport": "一键同款",
+      "importSuccess": "✅ 成功导入同款配方：{{title}}",
+      "importFailed": "❌ 未找到该配方 ID，请核对",
+      "sharedLoaded": "🔥 已自动加载社群分享配方：{{title}}",
+      "galleryTitle": "动作知识库",
+      "searchPlaceholder": "搜索动作 / 标签 / 动势...",
+      "allCategories": "全部动作",
+      "cameraRig": "3D 摄影机运镜机位",
+      "cameraRigSub": "双轨解耦 · 自由指定视角",
+      "allAngles": "全部",
+      "defaultAngle": "默认:",
+      "addToTimeline": "加入时间轴",
+      "timelineTitle": "自由编舞时间轴 (Timeline)",
+      "currentPoses": "当前动作:",
+      "totalBeats": "总拍数:",
+      "estDuration": "预计成片:",
+      "emptyTimeline": "时间轴为空，请在左侧点击动作卡片的【加入时间轴】",
+      "beatsUnit": "拍",
+      "bestTransition": "动力学自然流线衔接 (Best Transition)",
+      "cutTransition": "⚡ 律动重音切点过渡 (Cut Transition)",
+      "recipeNamePlaceholder": "为本套编舞命名...",
+      "defaultRecipeTitle": "纯欲爆闪·女团 Killing Part",
+      "genRecipeCard": "生成配方挑战卡",
+      "exportJianying": "同步导出剪映专业版工程草稿 (ZIP 双模交付 · 含 12% 缓推关键帧与字幕轨)",
+      "renderBtn": "立即生成自由编舞成片 ({{seconds}}s · {{count}}个动作)",
+      "rendering": "AI 正在调度多动作连贯插帧渲染...",
+      "needDancer": "请在右侧先上传全身角色模特参考图",
+      "shareModalTitle": "🔥 AI DANCE CHOREOGRAPHY RECIPE",
+      "posesRecorded": "+ 剩余 {{count}} 个动作已收录",
+      "recipeIdLabel": "配方 ID:",
+      "scanToClone": "扫码或导入即刻同款",
+      "copied": "已复制分享挑战口令与链接！",
+      "copyCard": "复制 3:4 社交挑战卡口令",
+      "angles": {
+        "front": "正面 (0°)",
+        "oblique": "斜侧 (45°)",
+        "side": "侧面 (90°)",
+        "top": "俯视 (+30°)",
+        "low": "仰视 (-30°)"
+      },
+      "stages": {
+        "intro": "亮相起势",
+        "rhythm": "核心律动",
+        "transition": "旋转过渡",
+        "ending": "终场定格"
+      }
+    },
+    "draftOutput": {
+      "downloadZip": "🎬 下载剪映工程草稿 (ZIP)",
+      "draftDesc": "• 剪映工程：已自动生成 1080x1920 竖屏草稿与缓推运镜",
+      "synced": "• 草稿同步：✨ 已自动同步至本机剪映专业版草稿箱"
+    },
+    "controlPanelTitle": "创作控制台",
+    "stageTitle": "作品舞台展厅",
+    "templates": {
+      "title": "1. 灵感舞蹈动作模版",
+      "count": "共 {{count}} 款",
+      "tabs": {
+        "all": "全部模版",
+        "kpop": "女团流行",
+        "fitness": "健身活力",
+        "street": "街头律动",
+        "luxury": "优雅慢摇"
+      },
+      "selected": "已选用",
+      "select": "选用动作",
+      "views": "热度",
+      "bpm": "{{bpm}} BPM",
+      "unknown": "未知动作"
+    },
+    "badges": {
+      "v2Engine": "V2.0 视觉保真引擎",
+      "facialFidelity": "五官特征 100% 确定性保真",
+      "curvySilhouette": "自适应沙漏身材曲线",
+      "antiCompression": "9头身高挑防压缩",
+      "deterministicLoop": "100% 确定性闭环"
+    },
+    "character": {
+      "title": "2. 人物角色立绘",
+      "aspect": "9:16 全身立绘",
+      "reselect": "重新选择",
+      "uploadTitle": "点击或拖拽上传人物图",
+      "uploadDesc": "推荐 9:16 黄金比例、清晰全身站姿/全身立绘",
+      "antiCompressionTip": "系统已启用 9头身防压缩视觉锁，确保动作过程身材比例始终高挑舒展",
+      "loaded": "立绘已载入",
+      "templateTag": "模版：{{name}} ({{duration}}s)",
+      "generateNow": "立即生成",
+      "antiCompressionMounted": "9头身防压缩身材算法已挂载",
+      "loopSubtitle": "✨ 100% 关键帧首尾对齐闭环 · 生成即是成品",
+      "productionSpecs": "影视级工程规格 (Production Specs)",
+      "seamlessLoop": "无缝循环播放已启用",
+      "seamlessLoopDesc": "视频末帧与参考图首帧无缝重合，适合作为 TikTok / Shorts 自动循环播放的高转化素材。",
+      "taskInterrupted": "制作中断，请查看日志",
+      "failedToSubmit": "任务提交失败，请检查网络和服务状态",
+      "generationFailed": "生成失败",
+      "featureLoopDesc": "100% 关键帧首尾对齐",
+      "featureProportionsDesc": "拒绝人物身材矮缩",
+      "featureBpmDesc": "毫秒级打击音画对齐",
+      "featureQualityDesc": "704x1280 竖屏高码率"
+    },
+    "multiview": {
+      "adaptiveBadge": "通用多视角自适应架构",
+      "detecting": "AI 正在自动嗅探主体视角与轮廓...",
+      "detected": "已自动识别 {{count}} 个视角",
+      "frontAnchor": "正面 (首帧专属 🌟)",
+      "sideView": "侧面 (360° 身材曲线)",
+      "backView": "背面 (后背与发流)",
+      "selectAsStart": "设为起始首帧",
+      "singleDetected": "已识别为原生单人图",
+      "hitlTooltip": "AI 默认将正面视角锁定为起始首帧，您也可以点击其他切片进行切换调整。"
+    },
+    "params": {
+      "title": "3. 规格与微调",
+      "duration": "视频目标时长",
+      "sec20": "20 秒 (4 段镜头)",
+      "sec30": "30 秒 (6 段镜头)",
+      "aspectRatio": "画面画幅比例",
+      "ratio916": "9:16 竖屏 (默认)",
+      "ratio169": "16:9 横屏",
+      "style": "视觉风格调性",
+      "styles": {
+        "kpop": "K-pop 女团",
+        "fitness": "健身活力",
+        "street": "街头律动",
+        "luxury": "优雅慢摇"
+      },
+      "promptDesc": "细节特征微调 (可选)",
+      "promptPlaceholder": "例如：留着微卷长发，白色短裙，黑色高跟长靴，纯黑影棚背景..."
+    },
+    "cta": {
+      "generate": "一键生成 100% 闭环循环舞蹈",
+      "generating": "正在调度 AI 渲染管线...",
+      "needImage": "请先上传一张全身模特或人物立绘参考图",
+      "loopClosureNote": "采用关键帧首尾对齐闭环技术 · 100% 确定性收敛无跳帧"
+    },
+    "stage": {
+      "idleTitle": "AI 虚拟舞台就绪",
+      "idleSubtitle": "在左侧上传人物角色并选用舞蹈动作模版，即可在此处实时预览与渲染 100% 闭环的 9:16 循环舞蹈。",
+      "readyBadge": "新角色已就绪",
+      "readyTitle": "角色立绘与参数已就绪",
+      "readySubtitle": "点击下方按钮立即启动 AI 舞蹈多镜头渲染管线，生成 100% 确定性闭环成片。",
+      "startNow": "立即开始制作 AI 舞蹈",
+      "readyTemplate": "动作：{{name}}",
+      "readyDuration": "时长：{{duration}} 秒",
+      "features": {
+        "loop": "首尾姿态确定性闭环收敛",
+        "proportions": "9头身身材比例防压缩算法",
+        "bpm": "BPM 毫秒级音乐鼓点卡点",
+        "quality": "广播级 H.264 / AAC 封装"
+      },
+      "renderingTitle": "AI 舞蹈多镜头渲染中...",
+      "renderingStep": "正在按节拍序列生成多镜头画面与闭环过渡",
+      "pipeline": {
+        "shot1": "镜头 1",
+        "shot2": "镜头 2",
+        "shot3": "镜头 3",
+        "shot4": "闭环收敛",
+        "bgm": "音乐混音",
+        "mux": "封装成片"
+      },
+      "completedTitle": "渲染质检已通过 · 成品就绪",
+      "videoTitle": "{{duration}}s 广播级无缝循环成片",
+      "meta": {
+        "codec": "编码标准：H.264 / yuv420p (704x1280 竖屏)",
+        "audio": "音频配置：AAC 44.1kHz 多声部卡点舞曲",
+        "loopFeature": "闭环特性：首尾姿态 100% 确定性收敛无跳帧",
+        "template": "舞蹈动作：{{name}} ({{bpm}} BPM)",
+        "style": "风格调性：{{style}}"
+      },
+      "download": "下载 MP4 舞蹈视频",
+      "recreate": "重新编排 / 制作新视频",
+      "privacyNotice": "您的图片将仅用于 AI 视觉分析以提升人物特征还原度",
+      "visionAnalysis": "AI 正在分析角色面部与体型特征...",
+      "faceEnhance": "正在进行超高清面部细节增强...",
+      "showcase": {
+        "title": "V2.0 视觉保真与面部超分实测成果演示",
+        "tag": "实测成果 · 20s 无缝闭环卡点",
+        "videoBadge": "V2.0 4-Shot 闭环 · 115 BPM 卡点",
+        "comparisonTitle": "【参考立绘 vs V2.0 渲染成片】对比",
+        "auditPassed": "广播级三级质检已通过",
+        "curvyModel": "丰满身材曲线与精细五官保持",
+        "curvyModelDesc": "Vision 2.5 深度解析眼型、卧蚕、唇色及沙漏体态，负向词与提示词全面纠偏。",
+        "tryYourOwn": "立即体验全新 V2.0 引擎",
+        "tryYourOwnDesc": "在左侧选择舞蹈动作并上传您的立绘图片，系统将自动进行多模态角色深度解析与高清渲染。",
+        "uploadBtn": "点击上传我的立绘图片"
+      }
+    }
+  },
+  "modal": {
+    "title": "初始化创作引擎",
+    "branch": "创作分支 (BRANCH)",
+    "dramaBranch": "AI 剧情连载短剧",
+    "dramaDesc": "多镜头连载短剧，冲突反转与剧情大纲",
+    "transformationBranch": "换装变身反差短剧",
+    "transformationDesc": "三段式反差变装 (Setup ➔ Glitch ➔ Reveal)，服装与场景自由切换",
+    "danceBranch": "AI 唱跳律动短视频",
+    "danceDesc": "固定角色 IP 与高保真 BPM 音乐律动",
+    "handdrawBranch": "手绘口播思维推演",
+    "handdrawDesc": "逐笔手绘线稿、白板推演、戈尔曼双脑隐喻与曜石黑胶囊字幕",
+    "explainerBranch": "神经画中画长解说",
+    "explainerDesc": "深度知识长视频，数字人画中画与动态课件",
+
+    "promptLabel": "灵感提示词 (PROMPT)",
+    "promptPlaceholder": "请输入你的创意想法... 例如：赛博朋克风女团舞蹈，或是悬疑微短剧开场...",
+    "trendTitle": "全网热点扫描 (Trend Research)",
+    "trendDesc": "联网抓取小红书/抖音最新爆款标签融入生成",
+    "vibeLabel": "视觉风格调性",
+    "ipLabel": "固定角色 IP 预设",
+    "cancel": "取消",
+    "submit": "提交任务",
+    "submitting": "提交中...",
+    "goalEmpty": "项目目标或创意想法不能为空。"
+  },
+  "common": {
+    "loading": "加载中...",
+    "save": "保存",
+    "cancel": "取消",
+    "success": "成功",
+    "error": "错误"
+  },
+  "console": {
+    "title": "实时终端 // 运行日志",
+    "connected": "已连接",
+    "connecting": "连接中",
+    "disconnected": "已断开，重连中",
+    "clear": "清屏",
+    "copy": "复制全部",
+    "copied": "已复制",
+    "autoScroll": "自动吸底",
+    "waitingLogs": "正在连接编排引擎日志流... 监控就绪",
+    "placeholder": "输入对策划智能体(Planning Agent)的反馈建议...",
+    "lines": "行"
+  },
+  "nav": {
+    "projects": "短剧创作工坊",
+    "avatars": "数字人与资产",
+    "live": "智能直播编排",
+    "knowledge": "知识库与台本",
+    "monitoring": "基础设施监控",
+    "openViewer": "打开观众端直播"
+  },
+  "auth": {
+    "title": "LingCast · 智能直播与短剧平台",
+    "subtitle": "统一控制台 · 多租户安全登录",
+    "username": "用户名 / 账号",
+    "password": "访问密码",
+    "tenant": "企业租户编号 (Tenant Code)",
+    "loginBtn": "登 录 空 间"
+  },
+  "live": {
+    "title": "智能直播控制中台",
+    "subtitle": "多智能体协同实时带货、数字人口型同步与互动调度",
+    "startLive": "一键开启直播推流",
+    "stopLive": "立即停止直播",
+    "status": "直播间状态",
+    "streaming": "直播推流中",
+    "idle": "闲置未开播",
+    "room": "房间号",
+    "streamKey": "推流密钥",
+    "rtmpUrl": "RTMP 摄入源",
+    "httpFlvUrl": "HTTP-FLV 极速拉流",
+    "currentProduct": "当前讲解主推商品",
+    "switchProduct": "切换讲解商品",
+    "danmakuStream": "实时互动弹幕审核流",
+    "insertScript": "紧急插播话术",
+    "insertScriptPlaceholder": "输入需要主播立即优先插播的话术...",
+    "insertBtn": "优先插队播报",
+    "activeViewers": "实时在看人数",
+    "peakViewers": "峰值人气",
+    "latency": "端到端网络延迟",
+    "watermarkCompliant": "法定 AI 数字人水印已生效"
+  },
+  "avatar": {
+    "title": "数字人与虚拟资产工坊",
+    "subtitle": "管理数字人面部模型、音色参数及背景场景视频切片",
+    "createAvatar": "新增数字人形象",
+    "name": "形象名称",
+    "avatarType": "驱动引擎",
+    "voiceId": "语音音色",
+    "status": "合规状态",
+    "statusActive": "已签约有效",
+    "statusTraining": "训练准备中",
+    "statusArchived": "已归档停用",
+    "licensingAudit": "肖像授权备案",
+    "verified": "合规已备案",
+    "scenesTitle": "背景场景与氛围视频库",
+    "addScene": "上传场景切片",
+    "sceneResolution": "标准分辨率",
+    "preview": "实时预览"
+  },
+  "knowledge": {
+    "title": "智能带货知识库与问答中枢",
+    "subtitle": "为 LLM Sales Agent 提供高精度商品问答、售后规则与促销台本检索",
+    "createKb": "新建知识库",
+    "kbName": "知识库名称",
+    "docCount": "切片文档数",
+    "uploadDoc": "导入文档切片",
+    "docTitle": "文档标题",
+    "docContent": "文档内容与问答规则",
+    "searchTest": "RAG 检索效果联调",
+    "searchPlaceholder": "输入测试观众提问，如：这个耳机支持降噪吗？包邮吗？",
+    "searchBtn": "检索匹配切片",
+    "searchResult": "匹配召回切片"
+  },
+  "monitoring": {
+    "title": "LingCast 基础设施与服务监控看板",
+    "subtitle": "Prometheus 指标采集、服务健康状态与实时吞吐量观测",
+    "serviceHealth": "微服务集群拓扑健康",
+    "healthy": "正常运行",
+    "unhealthy": "异常告警",
+    "metricsQps": "HTTP 接口吞吐 QPS",
+    "metricsStream": "活跃实时推流数",
+    "metricsDanmaku": "弹幕处理吞吐/秒",
+    "metricsTtsLatency": "TTS 平均合成时延",
+    "metricsRagLatency": "RAG 平均检索时延",
+    "systemLoad": "核心集群负载"
+  },
+  "viewer": {
+    "title": "LingCast 沉浸式数字人直播",
+    "room": "房间",
+    "streamType": "HTTP-FLV 极速流",
+    "viewers": "人本场在看",
+    "watermark": "AI虚拟数字人直播中 · 请理性消费",
+    "buyNow": "立即抢购",
+    "danmakuZone": "观众互动区",
+    "sendPlaceholder": "跟主播聊两句吧...",
+    "sendBtn": "发送",
+    "anchor": "主播小婉",
+    "likeCount": "点赞数"
+  },
+  "videoDesign": {
+    "title": "超级峰视听设计与代码动效",
+    "rhythmTitle": "声画节拍与时码编排",
+    "reRollShot": "单镜头局部重编",
+    "renderCodeMotion": "生成代码动效成片 (0成本)",
+    "bpmLabel": "音乐BPM节奏网格",
+    "focusRelay": "视线焦点连续性接力",
+    "stylesTitle": "44套程序化视觉风格库",
+    "citation": "文献事实出处",
+    "aiDeclaration": "内容由AI生成 (官方合规认证)"
+  }
+}
+

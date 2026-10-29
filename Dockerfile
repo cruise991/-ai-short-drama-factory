@@ -17,8 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire project code into the container
 COPY . /app
 
-# Expose Streamlit default port
-EXPOSE 8501
+# Expose FastAPI backend default port
+EXPOSE 8000
 
-# Start the unified entry point
-CMD ["python3", "main.py"]
+# Start the unified entry point in server mode
+CMD ["python3", "main.py", "--server"]
+

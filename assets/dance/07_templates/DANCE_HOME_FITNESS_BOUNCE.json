@@ -1,0 +1,74 @@
+{
+  "dance_id": "DANCE_HOME_FITNESS_BOUNCE",
+  "name": "居家甜美元气动感快摇",
+  "stats": {
+    "views": "爆款千万级",
+    "difficulty": 2,
+    "virality": 5
+  },
+  "duration_range": [
+    15,
+    30
+  ],
+  "bpm": "128",
+  "tags": [
+    "居家甜妹",
+    "瑜伽裤动感摇",
+    "卡点快节奏",
+    "S曲线律动",
+    "无缝循环"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_TIGHT_TEE",
+        "TOP_CROP_TOP"
+      ],
+      "bottom": [
+        "BOTTOM_LEGGINGS",
+        "BOTTOM_YOGA_PANTS"
+      ]
+    },
+    "scene": [
+      "SCENE_INDOOR_LIVING_ROOM"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-5s",
+      "name": "元气起手",
+      "action_prompt": "双手轻扶腰间，随128BPM快节奏轻快晃肩律动，面带含蓄甜美微笑，身体微幅弹跳，保持圆润丰满体态",
+      "expression": "含蓄甜美微笑"
+    },
+    {
+      "time": "5-10s",
+      "name": "核心S曲线快摇",
+      "action_prompt": "保持正面挺拔站姿，双脚原地固定站立，双手轻搭髋侧，腰腹随动感电音节拍做快速流畅的S曲线律动，机位严格固定不推近",
+      "expression": "含蓄俏皮微笑"
+    },
+    {
+      "time": "10-15s",
+      "name": "踏步核心律动",
+      "action_prompt": "双脚原地踏步律动绝不向前移动，保持与镜头固定距离，双手轻贴大腿两侧，头部上方保持充足留白，自然动感弹润",
+      "expression": "温柔甜美"
+    },
+    {
+      "time": "15-20s",
+      "name": "胸腔波浪与核心律动",
+      "action_prompt": "身体做流畅连贯的胸腔波浪起伏与快节奏腰胯摇摆，双手自然保持在腰侧，保持丰满沙漏身材不变形",
+      "expression": "自信含蓄甜美"
+    },
+    {
+      "time": "20-25s",
+      "name": "高潮快节奏摇摆",
+      "action_prompt": "原地快速腰臀摇摆，双手自然随节拍在身侧摆动，身形稳居沙发前画面中心，上身丰满曲线保持饱满圆润",
+      "expression": "甜美微笑"
+    },
+    {
+      "time": "25-30s",
+      "name": "无缝闭环收尾",
+      "action_prompt": "动作平稳优雅减速，双手自然收拢放回身后，挺拔站立，面带标志性温柔闭唇甜笑定格，完全回到初始站姿闭环",
+      "expression": "温柔闭唇微笑定格"
+    }
+  ]
+}

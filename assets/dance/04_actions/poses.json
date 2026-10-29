@@ -1,0 +1,31 @@
+{
+  "_version": "1.0",
+  "_desc": "定格收尾 Pose 库。爆款视频的最后一帧通常是一个有张力的固定 Pose，让观众截图和传播。Director Engine 强制将 pose 注入最后一个 shot。",
+  "finger_heart": {
+    "prompt": "Korean finger heart gesture held close to cheek, sweet genuine smile, slight head tilt, eyes sparkling with warmth"
+  },
+  "hip_twist_freeze": {
+    "prompt": "dramatic hip twist frozen perfectly mid-motion, one hand confidently on hip, other arm extended, weight shifted, fierce and striking"
+  },
+  "look_back": {
+    "prompt": "body turned slightly away, head turned to look back over shoulder directly at camera, mysterious half-smile, eyes full of allure"
+  },
+  "hair_flip_freeze": {
+    "prompt": "caught perfectly mid hair-flip, hair suspended dramatically in motion blur, fierce expression, eyes wide and intense"
+  },
+  "cross_arms": {
+    "prompt": "arms crossed confidently over chest, chin tilted slightly upward, powerful commanding stance, steady direct gaze"
+  },
+  "peace_sign": {
+    "prompt": "peace sign held up beside face with bright genuine smile, playful energy, head tilted to one side, cheerful and charming"
+  },
+  "hands_pocket": {
+    "prompt": "hands casually in pockets or hooked on waistband, relaxed cool stance, weight on one leg, slight effortless smirk"
+  },
+  "one_leg_raise": {
+    "prompt": "one leg raised gracefully behind the body, arms extended outward for balance, ballet-inspired elegant frozen pose, poised and beautiful"
+  },
+  "squat_pose": {
+    "prompt": "deep athletic squat hold with arms crossed over chest, intense direct gaze to camera, low-angle powerful pose, raw energy"
+  }
+}

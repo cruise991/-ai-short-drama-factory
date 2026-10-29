@@ -1,0 +1,6 @@
+interface:
+  display_name: "AIGC剧本成稿共创"
+  short_description: "先与用户对齐电影执行语言，再扩写成完整可制作的剧本成稿"
+  default_prompt: "Use $draft-aigc-screenplay to align the film execution language with me before drafting the complete production-readable screenplay."
+policy:
+  allow_implicit_invocation: true

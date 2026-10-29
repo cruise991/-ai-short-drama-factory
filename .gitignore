@@ -1,0 +1,121 @@
+# ==============================
+# Python & Bytecode
+# ==============================
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
+.tox/
+htmlcov/
+.coverage
+.coverage.*
+
+# ==============================
+# Node / Frontend
+# ==============================
+node_modules/
+frontend/dist/
+frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==============================
+# OS & IDEs
+# ==============================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+*.swp
+*.swo
+.vscode/
+.idea/
+*.iml
+
+# ==============================
+# Local Secrets & Credentials (NEVER COMMIT)
+# ==============================
+.env
+.env.*
+!.env.example
+*.secret
+*.credentials
+*cookies.json
+config/*cookies.json
+shared_tools/.api_usage.json
+.api_usage.json
+liblib_config.json
+*_config.json
+!config/company_config.yaml.example
+!config/00_requirements.json
+
+# ==============================
+# Runtime Outputs & Storage
+# ==============================
+projects/
+out/
+logs/
+archive/
+tmp_*/
+*.log
+*.bak
+*.aiff
+*.npy
+*.pkl
+frame.jpg
+mock_input.txt
+test.txt
+test_r2_upload.txt
+git_log_llm.txt
+trend_report_latest.md
+ceo_improvement_log.md
+data/app.db
+server/data/
+*.db
+*.sqlite
+*.sqlite3
+test_ref_character.png
+00_requirements.json
+assets/fonts/
+*.ttc
+*.ttf
+*.otf
+
+# ==============================
+# Debug & Temporary Scratch
+# ==============================
+debug_*/
+debug_*.png
+scratch/
+test_multiview_input.png
+analyze_density.py
+check_pixels.py
+test_agnes_vision.py
+test_classifier.py
+test_gradient_bg.py
+test_slicing.py
+services/tts/cache/

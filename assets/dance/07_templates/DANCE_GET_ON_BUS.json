@@ -1,0 +1,71 @@
+{
+  "dance_id": "DANCE_GET_ON_BUS",
+  "name": "上车舞",
+  "stats": {
+    "views": "10亿",
+    "difficulty": 2,
+    "virality": 5
+  },
+  "duration_range": [
+    12,
+    15
+  ],
+  "bpm": "100-110",
+  "tags": [
+    "上车",
+    "搞笑",
+    "全民挑战",
+    "明星同款"
+  ],
+  "recommendations": {
+    "character": {
+      "age": "AGE_YOUNG_ADULT",
+      "body": [
+        "BODY_SLIM",
+        "BODY_ATHLETIC"
+      ]
+    },
+    "outfit": {
+      "top": [
+        "TOP_OVERSIZED_TEE"
+      ],
+      "bottom": [
+        "BOTTOM_JEANS"
+      ]
+    },
+    "scene": [
+      "SCENE_OUTDOOR_STREET",
+      "SCENE_CORRIDOR"
+    ],
+    "music": [
+      "MUSIC_HIPHOP",
+      "MUSIC_POP"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-2s",
+      "name": "等车",
+      "action_prompt": "单手招手打车，身体前倾张望",
+      "expression": "期待"
+    },
+    {
+      "time": "2-5s",
+      "name": "上车",
+      "action_prompt": "双手做扶车门动作，身体模仿跨步上车，向前迈一步身体下沉",
+      "expression": "期待"
+    },
+    {
+      "time": "5-10s",
+      "name": "坐稳开车",
+      "action_prompt": "双手握方向盘，身体随节奏左右摇摆，头部点头",
+      "expression": "享受与自信"
+    },
+    {
+      "time": "10-12s",
+      "name": "到站下车",
+      "action_prompt": "单手拉扶手，身体前倾准备下车，最后双手摊开定格",
+      "expression": "自然"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "long_straight": {
+    "prompt": "long straight black hair flowing down waist, hair moving beautifully with motion",
+    "code": "HAIR_LONG_STRAIGHT"
+  },
+  "high_pony": {
+    "prompt": "high ponytail swinging, hair tied up tightly, dynamic hair movement",
+    "code": "HAIR_HIGH_PONY"
+  },
+  "double_pony": {
+    "prompt": "cute double ponytails, symmetrical twintails, bouncing hair",
+    "code": "HAIR_DOUBLE_PONY"
+  },
+  "short": {
+    "prompt": "stylish short bob hair, collarbone length, light and airy",
+    "code": "HAIR_SHORT"
+  },
+  "bun": {
+    "prompt": "neat hair bun on top of head, clean and elegant updo",
+    "code": "HAIR_BUN"
+  }
+}

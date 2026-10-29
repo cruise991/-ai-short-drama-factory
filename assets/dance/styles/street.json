@@ -1,0 +1,50 @@
+{
+  "style_id": "street",
+  "name": "Street Dance",
+  "scenes": {
+    "urban_alley": {
+      "prompt": "gritty urban alley, graffiti walls, concrete ground, dramatic side street lighting, raw authentic street atmosphere",
+      "weight": 0.35
+    },
+    "city_rooftop": {
+      "prompt": "urban rooftop at golden hour, city skyline in background, warm ambient light, street culture aesthetic",
+      "weight": 0.30
+    },
+    "underpass": {
+      "prompt": "concrete underpass with scattered graffiti, dramatic shaft lighting from above, urban tunnel atmosphere",
+      "weight": 0.20
+    },
+    "basketball_court": {
+      "prompt": "outdoor basketball court at dusk, chain-link fence, urban neighborhood backdrop, authentic street vibe",
+      "weight": 0.15
+    }
+  },
+  "lighting": {
+    "golden_hour_street": { "prompt": "warm golden hour backlight on city street, long dramatic shadows, urban sunset glow", "weight": 0.40 },
+    "street_lamp": { "prompt": "cool urban street lamp lighting, pools of light on ground, cinematic night street mood", "weight": 0.35 },
+    "dramatic_side": { "prompt": "strong dramatic side lighting from alley entrance, half-shadow half-light contrast", "weight": 0.25 }
+  },
+  "costumes": {
+    "street_dancer": { "prompt": "oversized vintage graphic tee, baggy cargo pants with chains, retro high-top sneakers, hip-hop dancer outfit", "weight": 0.35 },
+    "streetwear_set": { "prompt": "fitted crop hoodie, loose jogger pants, chunky platform sneakers, streetwear aesthetic", "weight": 0.35 },
+    "urban_style": { "prompt": "oversized varsity jacket, biker shorts, bucket hat, urban streetwear look", "weight": 0.30 }
+  },
+  "hairstyles": {
+    "space_buns": { "prompt": "two space buns with loose strands, playful and street-ready", "weight": 0.30 },
+    "high_puff": { "prompt": "high puff natural hairstyle, voluminous and bold", "weight": 0.25 },
+    "braids_down": { "prompt": "long box braids hanging loose, urban authentic style", "weight": 0.25 },
+    "baseball_cap": { "prompt": "worn backwards baseball cap over straight hair, street cool attitude", "weight": 0.20 }
+  },
+  "expressions": {
+    "cool_attitude": { "prompt": "cool unbothered attitude, slight smirk, effortlessly confident", "weight": 0.40 },
+    "fierce_energy": { "prompt": "fierce competitive energy, intense gaze, street battle readiness", "weight": 0.35 },
+    "playful_swag": { "prompt": "playful swagger, tongue-in-cheek smile, fun and charismatic", "weight": 0.25 }
+  },
+  "effects": {
+    "prompt": "gritty urban cinematic look, slight film grain, punchy desaturated colors, 8K, authentic street photography aesthetic",
+    "negative": "clean studio look, soft lighting, pastel colors, too polished or commercial"
+  },
+  "music_style": "Hip-hop / Trap / R&B",
+  "pace": "groove-driven, 90-120 BPM feel",
+  "music_pace_hint": "hip-hop groove, trap beat, street dance cypher energy"
+}

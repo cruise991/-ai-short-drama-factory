@@ -1,0 +1,61 @@
+{
+  "dance_id": "DANCE_CURRY_SONG",
+  "name": "库里之歌",
+  "stats": {
+    "views": "过亿",
+    "difficulty": 1,
+    "virality": 4
+  },
+  "duration_range": [
+    10,
+    15
+  ],
+  "bpm": "110-120",
+  "tags": [
+    "库里之歌",
+    "企鹅",
+    "投篮",
+    "呆萌",
+    "健身"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_HOODIE"
+      ],
+      "bottom": [
+        "BOTTOM_LEGGINGS"
+      ]
+    },
+    "scene": [
+      "SCENE_SOLID_COLOR",
+      "SCENE_PARK"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-2s",
+      "name": "企鹅亮相",
+      "action_prompt": "双臂夹紧身体，双脚并拢",
+      "expression": "呆萌"
+    },
+    {
+      "time": "2-7s",
+      "name": "企鹅摇摆加投篮",
+      "action_prompt": "身体左右企鹅步摇摆，右手做投篮动作",
+      "expression": "认真搞笑"
+    },
+    {
+      "time": "7-11s",
+      "name": "加速摇摆",
+      "action_prompt": "摇摆加大，转身，双手投篮",
+      "expression": "开心"
+    },
+    {
+      "time": "11-15s",
+      "name": "收尾",
+      "action_prompt": "恢复企鹅姿势，双手比V",
+      "expression": "wink"
+    }
+  ]
+}

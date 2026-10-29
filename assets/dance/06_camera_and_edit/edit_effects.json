@@ -1,0 +1,26 @@
+{
+  "speed_ramp": {
+    "prompt": "dynamic speed ramping, transitioning from slow motion to fast forward",
+    "code": "EDIT_SPEED_RAMP"
+  },
+  "loop": {
+    "prompt": "seamless looping visual",
+    "code": "EDIT_LOOP"
+  },
+  "split_screen": {
+    "prompt": "split screen composition",
+    "code": "EDIT_SPLIT_SCREEN"
+  },
+  "filter_cyberpunk": {
+    "prompt": "cyberpunk color grading, neon highlights, teal and orange",
+    "code": "EDIT_FILTER_CYBERPUNK"
+  },
+  "filter_retro": {
+    "prompt": "retro film grain, vintage color palette, light leaks",
+    "code": "EDIT_FILTER_RETRO"
+  },
+  "transition_flash": {
+    "prompt": "bright white flash transition",
+    "code": "EDIT_TRANSITION_FLASH"
+  }
+}

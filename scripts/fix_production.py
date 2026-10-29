@@ -1,7 +1,9 @@
 import re
 import os
 
-with open("/Users/workspace/ai_short_company /ai-short-drama/departments/03_production/production_agent.py", "r") as f:
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+prod_agent_path = os.path.join(base_dir, "departments", "03_production", "production_agent.py")
+with open(prod_agent_path, "r") as f:
     content = f.read()
 
 process_ticket_end = """
@@ -78,7 +80,7 @@ if __name__ == "__main__":
 match_idx = content.find("        return True, \"\", img_url")
 if match_idx != -1:
     new_content = content[:match_idx + len("        return True, \"\", img_url")] + "\n" + process_ticket_end
-    with open("/Users/workspace/ai_short_company /ai-short-drama/departments/03_production/production_agent.py", "w") as f:
+    with open(prod_agent_path, "w") as f:
         f.write(new_content)
     print("Fixed!")
 else:

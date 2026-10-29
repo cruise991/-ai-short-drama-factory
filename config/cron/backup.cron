@@ -1,0 +1,3 @@
+# LingCast & AI Short Drama Crontab Schedule
+# Run PostgreSQL automated backup every night at 02:00 AM
+0 2 * * * /workspace/scripts/backup_postgres.sh >> /workspace/data/backups/postgres/backup_cron.log 2>&1

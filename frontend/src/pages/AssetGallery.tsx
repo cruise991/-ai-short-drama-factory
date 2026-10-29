@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { ArrowLeft, Video, Image as ImageIcon, Loader2 } from 'lucide-react';
-
-interface AssetsResponse {
-  videos: string[];
-  images: string[];
-}
+import { ArrowLeft, Video, Image as ImageIcon, Loader2, Download } from 'lucide-react';
+import { projectsApi, type ProjectAssetsResponse } from '../api/projects';
+import { getMediaUrl } from '../api/client';
 
 export default function AssetGallery() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const [assets, setAssets] = useState<AssetsResponse>({ videos: [], images: [] });
+  const [assets, setAssets] = useState<ProjectAssetsResponse>({ videos: [], images: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -19,9 +15,9 @@ export default function AssetGallery() {
     if (!slug) return;
     
     setIsLoading(true);
-    axios.get(`http://localhost:8008/api/projects/${slug}/assets`)
-      .then(res => {
-        setAssets(res.data);
+    projectsApi.getProjectAssets(slug)
+      .then(data => {
+        setAssets(data);
       })
       .catch(err => {
         console.error(err);
@@ -67,7 +63,7 @@ export default function AssetGallery() {
                 <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
                   <Video className="w-5 h-5" />
                 </div>
-                <h2 className="text-xl font-semibold">成片视频 (Final Videos)</h2>
+                <h2 className="text-xl font-semibold">成片母带 (Rendered Masters)</h2>
               </div>
               
               {assets.videos.length === 0 ? (
@@ -77,14 +73,22 @@ export default function AssetGallery() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {assets.videos.map((src, idx) => (
-                    <div key={idx} className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div key={idx} className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
                       <video 
-                        src={`http://localhost:8008${src}`} 
+                        src={getMediaUrl(src)} 
                         controls 
                         className="w-full aspect-[9/16] object-cover bg-black"
                       />
-                      <div className="p-4 border-t border-gray-800">
+                      <div className="p-4 border-t border-gray-800 flex items-center justify-between">
                         <p className="text-sm text-gray-400 truncate">Video {idx + 1}</p>
+                        <a 
+                          href={getMediaUrl(src)} 
+                          download 
+                          className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          下载
+                        </a>
                       </div>
                     </div>
                   ))}
@@ -98,7 +102,7 @@ export default function AssetGallery() {
                 <div className="p-2 bg-purple-500/20 text-purple-400 rounded-lg">
                   <ImageIcon className="w-5 h-5" />
                 </div>
-                <h2 className="text-xl font-semibold">分镜剧本 (Storyboards)</h2>
+                <h2 className="text-xl font-semibold">分镜剧本原画 (Storyboards)</h2>
               </div>
               
               {assets.images.length === 0 ? (
@@ -108,12 +112,12 @@ export default function AssetGallery() {
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {assets.images.map((src, idx) => (
-                    <div key={idx} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden group">
+                    <div key={idx} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden group shadow-md">
                       <div className="aspect-[9/16] overflow-hidden bg-black relative">
                         <img 
-                          src={`http://localhost:8008${src}`} 
+                          src={getMediaUrl(src)} 
                           alt={`Storyboard ${idx}`}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-85 group-hover:opacity-100"
                         />
                       </div>
                     </div>

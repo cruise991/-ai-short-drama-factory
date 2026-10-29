@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Knowledge Card"
+  short_description: "从 GitHub 项目生成知识图谱封面和自媒体文案"
+  default_prompt: "Use $github-knowledge-card to turn one or more GitHub repository URLs into a knowledge-map cover image prompt and concise social-media summary."

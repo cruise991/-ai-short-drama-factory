@@ -1,0 +1,46 @@
+{
+  "style_id": "kpop_studio",
+  "name": "K-pop Practice Room",
+  "scenes": {
+    "dance_studio": {
+      "prompt": "spacious modern dance studio, smooth hardwood floor, massive floor-to-ceiling mirrors, clean white walls, professional practice room atmosphere",
+      "weight": 0.45
+    },
+    "mirror_room": {
+      "prompt": "infinity mirror room, thousands of warm LED lights hanging from ceiling, endless reflections, surreal and mesmerizing",
+      "weight": 0.25
+    },
+    "sunlight_studio": {
+      "prompt": "airy dance studio, golden morning sunlight streaming through tall windows, dust particles floating in light beams, warm and dreamy atmosphere",
+      "weight": 0.30
+    }
+  },
+  "lighting": {
+    "golden_hour": { "prompt": "warm golden hour sunlight from side windows, long soft shadows on floor, dreamy and warm", "weight": 0.45 },
+    "studio_soft": { "prompt": "even soft studio lighting, professional key light with fill, clean and bright", "weight": 0.35 },
+    "backlight_halo": { "prompt": "strong backlight creating hair halo glow, slightly overexposed background, angelic feel", "weight": 0.20 }
+  },
+  "costumes": {
+    "crop_hoodie_set": { "prompt": "white short crop hoodie, black high-waist yoga leggings, white chunky sneakers, sleek activewear", "weight": 0.35 },
+    "sports_bra_set": { "prompt": "pastel sports bra top, matching high-waist bike shorts, barefoot, minimal and clean look", "weight": 0.25 },
+    "oversized_tee": { "prompt": "oversized vintage K-pop band tee tucked on one side, black leggings, retro sneakers", "weight": 0.25 },
+    "school_uniform": { "prompt": "pleated mini skirt, white shirt loosely tied, knee-high socks, JK style outfit", "weight": 0.15 }
+  },
+  "hairstyles": {
+    "high_ponytail": { "prompt": "sleek high ponytail, swinging with movement, clean and sporty", "weight": 0.40 },
+    "long_straight": { "prompt": "long straight silky hair flowing freely, catching light", "weight": 0.30 },
+    "double_ponytail": { "prompt": "playful double ponytails with ribbon, youthful and cute", "weight": 0.30 }
+  },
+  "expressions": {
+    "confident_smile": { "prompt": "bright confident smile, eyes sparkling with energy, star quality charisma", "weight": 0.40 },
+    "playful_wink": { "prompt": "playful wink at camera, tongue slightly out, cute and cheeky", "weight": 0.25 },
+    "focused_dance": { "prompt": "intense focused dance expression, lips slightly parted, professional concentration", "weight": 0.35 }
+  },
+  "effects": {
+    "prompt": "clean cinematic look, soft skin retouching, natural color grading, high detail, 8K, slightly warm tones, professional music video quality",
+    "negative": "dark moody lighting, neon colors, grungy textures, heavy grain"
+  },
+  "music_style": "K-pop / Dance Pop",
+  "pace": "fast, 128-140 BPM feel",
+  "music_pace_hint": "upbeat K-pop energy, clean crisp beats, idol practice room vibe"
+}

@@ -1,6 +1,12 @@
 import os
 
+_env_cache = None
+
 def load_env(filepath=None):
+    global _env_cache
+    if filepath is None and _env_cache is not None:
+        return _env_cache
+        
     if not filepath:
         filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
         
@@ -14,6 +20,10 @@ def load_env(filepath=None):
                 if "=" in line:
                     key, val = line.split("=", 1)
                     config[key.strip()] = val.strip()
+                    
+    if filepath == os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"):
+        _env_cache = config
+        
     return config
 
 def get_config(key, default=None):

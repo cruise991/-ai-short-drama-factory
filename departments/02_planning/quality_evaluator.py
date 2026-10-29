@@ -81,7 +81,21 @@ def _check_temporal_continuity(storyboard: dict, weight: float) -> float:
         camera_ok = (prev_camera not in camera_graph or
                      curr_camera in camera_graph.get(prev_camera, []))
 
-        if action_ok and camera_ok:
+        # 超级峰方法论焦点连续性校验
+        focus_ok = True
+        if "visual_focus_exit" in shots[i-1] and "visual_focus_entry" in shots[i]:
+            try:
+                from shared_tools.video_design.visual_focus_router import validate_focus_continuity
+                ok, _ = validate_focus_continuity(
+                    shots[i-1].get("visual_focus_exit", "center"),
+                    shots[i].get("visual_focus_entry", "center"),
+                    shots[i-1].get("transition_out", "cut")
+                )
+                focus_ok = ok
+            except Exception:
+                pass
+
+        if action_ok and camera_ok and focus_ok:
             valid_transitions += 1
 
     ratio = valid_transitions / total_transitions if total_transitions > 0 else 1.0
@@ -202,7 +216,29 @@ def evaluate(storyboard: Union[dict, str],
     # 支持传入文件路径
     if isinstance(storyboard, str):
         with open(storyboard, "r", encoding="utf-8") as f:
-            storyboard = json.load(f)
+            content = f.read().strip()
+            if content.startswith("```"):
+                import re
+                content = re.sub(r"^```(?:json)?\n?", "", content)
+                content = re.sub(r"\n?```$", "", content)
+            storyboard = json.loads(content)
+
+    # V2.0 格式兼容归一化
+    if "stage_2_video" in storyboard and "timeline" in storyboard["stage_2_video"]:
+        v2_shots = storyboard["stage_2_video"]["timeline"]
+        normalized_shots = []
+        for s in v2_shots:
+            s_copy = dict(s)
+            if "visual_prompt" not in s_copy:
+                s_copy["visual_prompt"] = storyboard.get("stage_1_image", {}).get("prompt", "")
+            normalized_shots.append(s_copy)
+        
+        storyboard = dict(storyboard)
+        storyboard["shots"] = normalized_shots
+        if "anchor_prompt" not in storyboard:
+            storyboard["anchor_prompt"] = storyboard.get("stage_1_image", {}).get("prompt", "")
+        if "negative_prompt" not in storyboard:
+            storyboard["negative_prompt"] = storyboard.get("stage_1_image", {}).get("negative_prompt", "")
 
     # 加载权重配置
     cfg = _load_quality_weights()

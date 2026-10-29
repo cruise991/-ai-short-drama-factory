@@ -1,0 +1,88 @@
+{
+  "system": "vibe-knowledge-visual-catalog",
+  "version": "1.0.0",
+  "total_styles": 44,
+  "categories": [
+    {
+      "category_id": "traditional_eastern",
+      "name": "东方意象与古风文人",
+      "styles": [
+        {"id": "ink_wash_scroll", "name": "水墨长卷 (Ink Wash)", "primary_color": "#1A1A1A", "bg_color": "#F4F0EA", "accent": "#C4473D", "mood": "古典/诗意/博大"},
+        {"id": "dunhuang_mineral", "name": "敦煌矿物壁画 (Dunhuang)", "primary_color": "#B85D38", "bg_color": "#EFE6D5", "accent": "#2B6B6D", "mood": "厚重/神圣/古迹"},
+        {"id": "blue_and_white_porcelain", "name": "青花釉里红 (Porcelain)", "primary_color": "#1B3B6F", "bg_color": "#FBFBFB", "accent": "#9E2A2B", "mood": "素雅/严谨/器物"},
+        {"id": "woodcut_print", "name": "木刻版画 (Woodcut)", "primary_color": "#111111", "bg_color": "#EDE7D9", "accent": "#A33327", "mood": "力量/革命/粗粝"},
+        {"id": "golden_stone_rubbing", "name": "金石拓片 (Stone Rubbing)", "primary_color": "#232323", "bg_color": "#E0D7C6", "accent": "#C59B27", "mood": "考据/考古/铭文"},
+        {"id": "song_dynasty_celadon", "name": "宋瓷汝窑 (Song Celadon)", "primary_color": "#3D5A5B", "bg_color": "#E2EAE7", "accent": "#8DAA9D", "mood": "极简/温润/美学"},
+        {"id": "traditional_seal_script", "name": "朱砂朱文篆刻 (Seal Script)", "primary_color": "#942923", "bg_color": "#F7F3EE", "accent": "#1A1A1A", "mood": "印章/定论/认证"},
+        {"id": "ancient_bamboo_slips", "name": "战国秦简 (Bamboo Slips)", "primary_color": "#2A231C", "bg_color": "#CDBE9F", "accent": "#6E3826", "mood": "断代/典籍/源起"}
+      ]
+    },
+    {
+      "category_id": "dark_modern_tech",
+      "name": "暗金质感与前沿科技",
+      "styles": [
+        {"id": "dark_gold_lines", "name": "暗金线描 (Dark Gold Lines)", "primary_color": "#E5C07B", "bg_color": "#0F1117", "accent": "#61AFEF", "mood": "高级/深度/洞察"},
+        {"id": "celestial_particles", "name": "星空光点 (Celestial Particles)", "primary_color": "#82AAFF", "bg_color": "#090B10", "accent": "#FFCB6B", "mood": "宇宙/微观/量化"},
+        {"id": "cyber_grid", "name": "赛博向量网格 (Cyber Grid)", "primary_color": "#00F0FF", "bg_color": "#0A0E1A", "accent": "#FF0055", "mood": "极客/硬核/逻辑"},
+        {"id": "terminal_green", "name": "极简终端矩阵 (Terminal Matrix)", "primary_color": "#00FF66", "bg_color": "#050B05", "accent": "#73D216", "mood": "极客/底牌/解码"},
+        {"id": "circuit_blueprint", "name": "工程蓝图 (Blueprint)", "primary_color": "#FFFFFF", "bg_color": "#0D3B66", "accent": "#F4D35E", "mood": "结构/拆解/原理"},
+        {"id": "obsidian_flow", "name": "黑曜石流体 (Obsidian)", "primary_color": "#D4AF37", "bg_color": "#121212", "accent": "#999999", "mood": "奢华/冷峻/权威"},
+        {"id": "hologram_wireframe", "name": "全息线框 (Hologram)", "primary_color": "#50E3C2", "bg_color": "#0B132B", "accent": "#4A90E2", "mood": "未来/虚拟/投影"},
+        {"id": "quantum_field", "name": "量子概率场 (Quantum Field)", "primary_color": "#BB86FC", "bg_color": "#121212", "accent": "#03DAC6", "mood": "前沿科学/不可见"}
+      ]
+    },
+    {
+      "category_id": "pop_editorial",
+      "name": "杂志出版与波普拼贴",
+      "styles": [
+        {"id": "swiss_typography", "name": "瑞士国际排版 (Swiss Typo)", "primary_color": "#000000", "bg_color": "#FFFFFF", "accent": "#FF2A00", "mood": "理性/秩序/客观"},
+        {"id": "halftone_collage", "name": "半调报刊拼贴 (Halftone)", "primary_color": "#222222", "bg_color": "#F3EAD8", "accent": "#E63946", "mood": "复古/调查/纪实"},
+        {"id": "bauhaus_geometry", "name": "包豪斯几何 (Bauhaus)", "primary_color": "#1D3557", "bg_color": "#F1FAEE", "accent": "#E63946", "mood": "构成/现代/功能"},
+        {"id": "newspaper_breaking", "name": "号外头条报纸 (Newspaper)", "primary_color": "#1C1C1C", "bg_color": "#F0EBE1", "accent": "#C92A2A", "mood": "大事件/披露/真相"},
+        {"id": "vintage_risograph", "name": "孔版印刷 (Risograph)", "primary_color": "#1B4965", "bg_color": "#FFFDF7", "accent": "#FF6B6B", "mood": "艺术/小众/手工"},
+        {"id": "brutalist_poster", "name": "新野兽派海报 (Brutalism)", "primary_color": "#000000", "bg_color": "#F5F500", "accent": "#FF00FF", "mood": "冲击/反叛/高饱和"},
+        {"id": "monochrome_editorial", "name": "黑白时尚大片 (Monochrome)", "primary_color": "#111111", "bg_color": "#FFFFFF", "accent": "#777777", "mood": "克制/高级/张力"},
+        {"id": "neon_pop_magazine", "name": "霓虹波普视觉 (Neon Pop)", "primary_color": "#FFFFFF", "bg_color": "#2B0938", "accent": "#FF007F", "mood": "年轻/流行/消费"}
+      ]
+    },
+    {
+      "category_id": "science_and_knowledge",
+      "name": "学术严谨与科学图解",
+      "styles": [
+        {"id": "nature_journal", "name": "学术顶刊论文 (Journal Nature)", "primary_color": "#212529", "bg_color": "#F8F9FA", "accent": "#B71C1C", "mood": "同行评审/顶刊/实证"},
+        {"id": "medical_infographic", "name": "医学解剖图解 (Medical Anatomy)", "primary_color": "#263238", "bg_color": "#ECEFF1", "accent": "#00838F", "mood": "精细/器官/生命"},
+        {"id": "astronomy_deep_sky", "name": "深空天体光谱 (Deep Sky)", "primary_color": "#E0E6ED", "bg_color": "#05070D", "accent": "#F5A623", "mood": "深空/引力/恒星"},
+        {"id": "botanical_plate", "name": "本草植物图谱 (Botanical)", "primary_color": "#2D3748", "bg_color": "#FAF5ED", "accent": "#38A169", "mood": "自然/观察/图谱"},
+        {"id": "geological_strata", "name": "地质层剖面 (Geology)", "primary_color": "#4A3E3D", "bg_color": "#E8DEC8", "accent": "#D35400", "mood": "时间跨度/演变"},
+        {"id": "macro_economic_chart", "name": "宏观经济K线 (Economics)", "primary_color": "#2C3E50", "bg_color": "#F4F6F9", "accent": "#27AE60", "mood": "资本/周期/趋势"},
+        {"id": "dna_double_helix", "name": "基因双螺旋 (Genetics)", "primary_color": "#E2E8F0", "bg_color": "#0F172A", "accent": "#38BDF8", "mood": "遗传/密码/生物"},
+        {"id": "patent_drawing", "name": "发明专利图纸 (Patent)", "primary_color": "#1F2937", "bg_color": "#F3F4F6", "accent": "#4B5563", "mood": "发明/构件/发明家"}
+      ]
+    },
+    {
+      "category_id": "playful_creative",
+      "name": "趣味复古与像素插画",
+      "styles": [
+        {"id": "pixel_retro", "name": "8-Bit复古像素 (8-Bit Pixel)", "primary_color": "#F4F4F4", "bg_color": "#202028", "accent": "#FFCC00", "mood": "童年/游戏/趣味"},
+        {"id": "clay_stopmotion", "name": "黏土定格动画 (Claymation)", "primary_color": "#3E2723", "bg_color": "#FFF3E0", "accent": "#FF7043", "mood": "质朴/手工/童趣"},
+        {"id": "chalkboard_sketch", "name": "讲堂粉笔板书 (Chalkboard)", "primary_color": "#F5F5F5", "bg_color": "#1C2826", "accent": "#FFF59D", "mood": "授业/推导/大师"},
+        {"id": "origami_papercraft", "name": "折纸立体几何 (Origami)", "primary_color": "#37474F", "bg_color": "#ECEFF1", "accent": "#FF5722", "mood": "折叠/层次/空间"},
+        {"id": "comic_noir", "name": "黑白美漫分镜 (Comic Noir)", "primary_color": "#000000", "bg_color": "#FFFFFF", "accent": "#FFEB3B", "mood": "张力/戏剧/宿命"},
+        {"id": "isometric_3d", "name": "等距轴测箱庭 (Isometric)", "primary_color": "#2E3440", "bg_color": "#ECEFF4", "accent": "#88C0D0", "mood": "微缩/模型/沙盘"},
+        {"id": "crayon_graffiti", "name": "蜡笔手绘随笔 (Crayon)", "primary_color": "#212121", "bg_color": "#FCFBF7", "accent": "#FF4081", "mood": "天真/灵感/发散"},
+        {"id": "neon_arcade_80s", "name": "80年代街机霓虹 (Synthwave)", "primary_color": "#00FFFF", "bg_color": "#1A0826", "accent": "#FF007F", "mood": "怀旧/电音/速度"}
+      ]
+    },
+    {
+      "category_id": "minimalist_modern",
+      "name": "极简留白与现代动态",
+      "styles": [
+        {"id": "minimal_geometry", "name": "极简几何动力学 (Kinetics)", "primary_color": "#111111", "bg_color": "#FAFAFA", "accent": "#0052FF", "mood": "克制/精英/准确"},
+        {"id": "frosted_glassmorphism", "name": "磨砂玻璃拟物 (Glassmorphism)", "primary_color": "#FFFFFF", "bg_color": "#0E1525", "accent": "#6C5CE7", "mood": "精致/层级/现代"},
+        {"id": "duotone_contrast", "name": "双色高对比撞色 (Duotone)", "primary_color": "#101010", "bg_color": "#FFD600", "accent": "#000000", "mood": "注意力黑洞/强视觉"},
+        {"id": "clean_whiteboard", "name": "纯净白板思维导图 (Mindmap)", "primary_color": "#2C3E50", "bg_color": "#FFFFFF", "accent": "#3498DB", "mood": "逻辑/结构/梳理"}
+      ]
+    }
+  ]
+}
+

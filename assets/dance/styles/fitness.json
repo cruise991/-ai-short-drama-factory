@@ -1,0 +1,45 @@
+{
+  "style_id": "fitness",
+  "name": "Fitness Power",
+  "scenes": {
+    "gym_floor": {
+      "prompt": "modern gym with industrial design, rubber floors, heavy equipment in background, dramatic overhead lighting, high-energy atmosphere",
+      "weight": 0.40
+    },
+    "outdoor_court": {
+      "prompt": "outdoor basketball court at golden hour, urban skyline in background, warm late-afternoon light, raw street energy",
+      "weight": 0.30
+    },
+    "rooftop_workout": {
+      "prompt": "building rooftop with city view, open sky, warm sunset light, urban fitness aesthetic",
+      "weight": 0.30
+    }
+  },
+  "lighting": {
+    "high_contrast": { "prompt": "strong overhead gym lighting, dramatic shadows, high contrast athletic photography style", "weight": 0.45 },
+    "golden_outdoor": { "prompt": "warm golden outdoor sunlight, natural glow on skin, athletic editorial style", "weight": 0.35 },
+    "spotlight": { "prompt": "focused spotlight on subject, dark background, stage performance feel", "weight": 0.20 }
+  },
+  "costumes": {
+    "athletic_set": { "prompt": "matching athletic sports bra and high-waist compression leggings, white running sneakers, sporty and powerful", "weight": 0.40 },
+    "crop_tank": { "prompt": "fitted crop tank top, loose track pants with side stripe, chunky sneakers, casual athletic style", "weight": 0.35 },
+    "bodysuit_shorts": { "prompt": "athletic bodysuit, bike shorts, sports socks, minimalist athletic look", "weight": 0.25 }
+  },
+  "hairstyles": {
+    "high_ponytail": { "prompt": "high tight ponytail secured with scrunchie, sleek and athletic", "weight": 0.45 },
+    "messy_bun": { "prompt": "casual messy bun, sweaty strands framing face, authentic workout look", "weight": 0.35 },
+    "braids": { "prompt": "tight French braids pulled back, sporty and practical", "weight": 0.20 }
+  },
+  "expressions": {
+    "powerful_focus": { "prompt": "intense focused expression, jaw set with determination, athletic concentration", "weight": 0.40 },
+    "confident_strong": { "prompt": "confident powerful expression, slight smile of strength, champion energy", "weight": 0.35 },
+    "fierce_energy": { "prompt": "fierce energetic expression, wide eyes with competitive fire", "weight": 0.25 }
+  },
+  "effects": {
+    "prompt": "high contrast athletic photography, sharp crisp details, HDR, 8K, punchy colors, professional fitness editorial quality",
+    "negative": "soft dreamy look, pastel colors, romantic lighting, low contrast"
+  },
+  "music_style": "Hip-hop / EDM / Trap",
+  "pace": "powerful, 130-160 BPM feel",
+  "music_pace_hint": "driving hip-hop beat, powerful EDM drop, high-energy athletic rhythm"
+}

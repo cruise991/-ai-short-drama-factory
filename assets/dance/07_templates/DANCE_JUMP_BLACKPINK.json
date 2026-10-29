@@ -1,0 +1,64 @@
+{
+  "dance_id": "DANCE_JUMP_BLACKPINK",
+  "name": "JUMP",
+  "stats": {
+    "views": "破亿",
+    "difficulty": 3,
+    "virality": 5
+  },
+  "duration_range": [
+    15,
+    20
+  ],
+  "bpm": "125-130",
+  "tags": [
+    "BLACKPINK",
+    "JUMP",
+    "Kpop",
+    "女团",
+    "墨色"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_CASUAL_TEE"
+      ],
+      "bottom": [
+        "BOTTOM_JEANS"
+      ],
+      "shoes": [
+        "SHOE_SNEAKERS"
+      ]
+    },
+    "scene": [
+      "SCENE_PARKING_LOT",
+      "SCENE_DANCE_STUDIO"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-3s",
+      "name": "预备",
+      "action_prompt": "双脚并拢微蹲，双手下垂",
+      "expression": "专注"
+    },
+    {
+      "time": "3-8s",
+      "name": "跳跃段",
+      "action_prompt": "双脚跳起，空中手臂画圈，落地缓冲身体摇摆",
+      "expression": "专注"
+    },
+    {
+      "time": "8-13s",
+      "name": "手臂波浪",
+      "action_prompt": "双手从指尖到肩膀做Wave，身体左右摇摆，原地踏步",
+      "expression": "专注"
+    },
+    {
+      "time": "13-15s",
+      "name": "收尾",
+      "action_prompt": "双手交叉胸前定格",
+      "expression": "酷飒"
+    }
+  ]
+}

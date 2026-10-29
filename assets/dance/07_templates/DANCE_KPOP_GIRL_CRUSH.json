@@ -1,0 +1,74 @@
+{
+  "dance_id": "DANCE_KPOP_GIRL_CRUSH",
+  "name": "K-Pop财阀千金卡点舞/Girl Crush Point Dance",
+  "stats": {
+    "views": "爆款千万级",
+    "difficulty": 2,
+    "virality": 5
+  },
+  "duration_range": [
+    15,
+    30
+  ],
+  "bpm": "128",
+  "tags": [
+    "Kpop千金舞",
+    "Girl Crush",
+    "卡点手势舞",
+    "直角肩律动",
+    "无缝闭环"
+  ],
+  "recommendations": {
+    "outfit": {
+      "top": [
+        "TOP_TUBE_TOP",
+        "TOP_CROP_TOP"
+      ],
+      "bottom": [
+        "BOTTOM_PLEATED_SKIRT"
+      ]
+    },
+    "scene": [
+      "SCENE_STUDIO",
+      "SCENE_INDOOR"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "0-5s",
+      "name": "千金亮相卡点",
+      "action_prompt": "舞者保持挺拔高贵站姿，全程面向镜头，双眼自信注视镜头，双手从初始姿态自然下放至身侧微晃，随128BPM重音鼓点利落轻晃直角肩与侧腰卡点，发丝微动，短裙随身体轻微摆动",
+      "expression": "自信高贵微笑"
+    },
+    {
+      "time": "5-10s",
+      "name": "名媛指尖框脸与S律动",
+      "action_prompt": "面向镜头，双手轻抬至脸侧与锁骨旁，修长美甲指尖轻巧做出K-Pop框脸卡点手势，腰腹带动裙摆做流畅柔美的S曲线律动，头部轻点节拍，眼神流转灵动",
+      "expression": "迷人自信微笑"
+    },
+    {
+      "time": "10-15s",
+      "name": "核心胸腔卡点与双臂展开",
+      "action_prompt": "面向镜头定点站立，双手轻落于身侧，随电音重低音做干脆利落的胸腔轻震与优雅双臂微展，双脚原地固定站立，保持固定视距与直接眼神接触",
+      "expression": "飒爽从容微笑"
+    },
+    {
+      "time": "15-20s",
+      "name": "高潮GirlCrush弹跳律动",
+      "action_prompt": "进入高潮Drop段落，舞者保持正面定点面向镜头不转身，双臂在身前利落微交叉后向两侧帅气轻推，配合快速腰胯轻摇与原地节拍弹动，气场全开，动作利落有力",
+      "expression": "明艳灵动笑容"
+    },
+    {
+      "time": "20-25s",
+      "name": "灵动指尖点拍与肩部摇摆",
+      "action_prompt": "保持正面面向镜头，单手轻拂耳侧长发，另一手在身前随节拍做轻快指尖点拍律动，双肩有节奏地下沉微晃，眼神自信锁定镜头，动作连贯紧凑",
+      "expression": "甜美含蓄微笑"
+    },
+    {
+      "time": "25-30s",
+      "name": "优雅减速回正定格闭环",
+      "action_prompt": "动作自然平稳减速，舞者身姿流畅回正面向镜头，双手自然抬于胸侧，面带标志性含蓄温柔笑意定格，完全回到初始姿态无缝闭环",
+      "expression": "高贵温柔微笑定格"
+    }
+  ]
+}
