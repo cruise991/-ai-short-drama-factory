@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, CheckCircle2, Clock, 
-  FileText, Film, RefreshCw, Send, Check, Sparkles
+  FileText, Film, RefreshCw, Send, Check, Sparkles, Download
 } from 'lucide-react';
-import { projectsApi, type ProjectDetailResponse } from '../api/projects';
+import { projectsApi, type ProjectDetailResponse, type ProjectAssetsResponse } from '../api/projects';
+import { getMediaUrl } from '../api/client';
 import { useTranslation } from '../locales/i18n';
 import { HanddrawStudio } from '../components/handdraw/HanddrawStudio';
 
@@ -18,14 +19,18 @@ export default function ProjectDetail() {
   const [rejectFeedback, setRejectFeedback] = useState('');
   const [submittingAction, setSubmittingAction] = useState(false);
   const [actionSuccessMsg, setActionSuccessMsg] = useState('');
+  const [assets, setAssets] = useState<ProjectAssetsResponse | null>(null);
 
   const fetchDetail = async () => {
     if (!slug) return;
     try {
       const data = await projectsApi.getProjectDetail(slug);
       setDetail(data);
+      
+      const assetData = await projectsApi.getProjectAssets(slug);
+      setAssets(assetData);
     } catch (err) {
-      console.error('Failed to load project detail', err);
+      console.error('Failed to load project detail/assets', err);
     } finally {
       setLoading(false);
     }
@@ -43,10 +48,10 @@ export default function ProjectDetail() {
     setActionSuccessMsg('');
     try {
       await projectsApi.approveProject(detail.project.id);
-      setActionSuccessMsg('已批准通过！流水线正在推进至资产制作阶段...');
+      setActionSuccessMsg(t('detail.messages.approveSuccess'));
       setTimeout(() => fetchDetail(), 1000);
     } catch (err) {
-      alert('批准提交失败，请重试');
+      alert(t('detail.messages.actionFailed'));
     } finally {
       setSubmittingAction(false);
     }
@@ -59,21 +64,21 @@ export default function ProjectDetail() {
     try {
       await projectsApi.rejectProject(detail.project.id, rejectFeedback);
       setRejectFeedback('');
-      setActionSuccessMsg('已打回！修改反馈已注入策划与 QA 智能体重新生成。');
+      setActionSuccessMsg(t('detail.messages.rejectSuccess'));
       setTimeout(() => fetchDetail(), 1000);
     } catch (err) {
-      alert('打回提交失败，请重试');
+      alert(t('detail.messages.actionFailed'));
     } finally {
       setSubmittingAction(false);
     }
   };
 
   const workflowSteps = [
-    { id: 'planning', label: '02 策划与大纲', status: 'done' },
-    { id: 'script', label: '02 分镜细化', status: detail?.storyboard ? 'done' : 'current' },
-    { id: 'qa', label: '04 QA 质量纠偏', status: detail?.is_waiting_approval ? 'current' : 'pending' },
-    { id: 'production', label: '03 资产生成', status: ['Assets_Generated', 'Completed'].includes(detail?.current_status || '') ? 'done' : 'pending' },
-    { id: 'post', label: '06 后期与成片', status: detail?.current_status === 'Completed' ? 'done' : 'pending' },
+    { id: 'planning', label: t('detail.steps.planning'), status: 'done' },
+    { id: 'script', label: t('detail.steps.script'), status: detail?.storyboard ? 'done' : 'current' },
+    { id: 'production', label: t('detail.steps.production'), status: ['Assets_Generated', 'Completed'].includes(detail?.current_status || '') ? 'done' : 'pending' },
+    { id: 'qa', label: t('detail.steps.qa'), status: detail?.is_waiting_approval ? 'current' : 'pending' },
+    { id: 'post', label: t('detail.steps.post'), status: detail?.current_status === 'Completed' ? 'done' : 'pending' },
   ];
 
   if (loading && !detail) {
@@ -150,6 +155,76 @@ export default function ProjectDetail() {
             captionStyle={project?.caption_style}
             storyboard={detail?.storyboard}
           />
+        )}
+
+        {/* Final Output & Dual-Delivery Showcase */}
+        {assets && (assets.videos.length > 0 || (assets.drafts && assets.drafts.length > 0)) && (
+          <div className="bg-gradient-to-br from-gray-900 via-indigo-950/30 to-purple-950/30 border border-purple-500/30 rounded-2xl p-6 mb-8 shadow-2xl animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-800">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <span>{t('detail.dualDelivery.title')}</span>
+                    <span className="text-xs font-normal px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                      {t('detail.dualDelivery.badge')}
+                    </span>
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {t('detail.dualDelivery.desc')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                {assets.drafts && assets.drafts.length > 0 && (
+                  <a
+                    href={getMediaUrl(assets.drafts[0])}
+                    download
+                    className="inline-flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-purple-500/25 transition-all active:scale-[0.98]"
+                  >
+                    <Film className="w-4 h-4 text-purple-200" />
+                    <span>{t('detail.dualDelivery.downloadDraft')}</span>
+                  </a>
+                )}
+                {assets.videos.length > 0 && (
+                  <a
+                    href={getMediaUrl(assets.videos[0])}
+                    download
+                    className="inline-flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-500/25 transition-all active:scale-[0.98]"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>{t('detail.dualDelivery.downloadMp4')}</span>
+                  </a>
+                )}
+                {assets.subtitles && assets.subtitles.length > 0 && (
+                  <a
+                    href={getMediaUrl(assets.subtitles[0])}
+                    download
+                    className="inline-flex items-center space-x-1.5 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold transition-all border border-gray-700"
+                  >
+                    <span>{t('detail.dualDelivery.downloadSrt')}</span>
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Video Player */}
+            {assets.videos.length > 0 && (
+              <div className="mt-6 flex justify-center">
+                <div className="w-full max-w-sm aspect-[9/16] bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                  <video
+                    src={getMediaUrl(assets.videos[0])}
+                    controls
+                    className="w-full h-full object-contain bg-black"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Approval Card (if waiting) */}

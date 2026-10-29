@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -54,6 +54,8 @@ export const AvatarManager: React.FC = () => {
   const [previewAvatar, setPreviewAvatar] = useState<AvatarItem | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<'luxury' | 'tech' | 'green'>('luxury');
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+  const [isLoadingVoice, setIsLoadingVoice] = useState(false);
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
 
   // 新建数字人弹窗状态
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -162,44 +164,59 @@ export const AvatarManager: React.FC = () => {
     }
   };
 
-  const handleToggleVoicePreview = () => {
+  const handleToggleVoicePreview = async () => {
     if (isPlayingVoice) {
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+        audioPlayerRef.current = null;
       }
       setIsPlayingVoice(false);
-    } else {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const text = '哈喽各位宝贝们！欢迎来到我们的直播间。今天这款爆款好物立减50元，正品保真包邮！喜欢的宝宝赶紧点击右下角小黄车下单抢购吧！';
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'zh-CN';
-        utterance.rate = 1.05;
-        utterance.pitch = 1.0;
+      return;
+    }
 
-        const voices = window.speechSynthesis.getVoices();
-        const zhVoice = voices.find(v => v.lang.includes('zh') || v.name.includes('Chinese') || v.name.includes('Xiaoxiao') || v.name.includes('Tingting'));
-        if (zhVoice) {
-          utterance.voice = zhVoice;
-        }
+    try {
+      setIsLoadingVoice(true);
+      const targetVoice = previewAvatar?.voice_id || 'zh-CN-XiaoxiaoNeural';
+      const text = '哈喽各位宝贝们！欢迎来到我们的专属演播间。今天这款爆款好物立减50元，正品保真包邮！喜欢的宝宝赶紧点击右下角小黄车下单抢购吧！';
 
-        utterance.onstart = () => setIsPlayingVoice(true);
-        utterance.onend = () => setIsPlayingVoice(false);
-        utterance.onerror = () => setIsPlayingVoice(false);
+      const resp = await client.post('/api/v1/tts/preview', {
+        text,
+        voice: targetVoice,
+        speed: 1.0
+      });
 
-        window.speechSynthesis.speak(utterance);
-        setIsPlayingVoice(true);
+      if (resp.data?.audio_base64) {
+        const audio = new Audio(resp.data.audio_base64);
+        audioPlayerRef.current = audio;
+
+        audio.onplay = () => {
+          setIsLoadingVoice(false);
+          setIsPlayingVoice(true);
+        };
+        audio.onended = () => {
+          setIsPlayingVoice(false);
+        };
+        audio.onerror = () => {
+          setIsLoadingVoice(false);
+          setIsPlayingVoice(false);
+        };
+
+        await audio.play();
       } else {
-        setIsPlayingVoice(true);
-        setTimeout(() => setIsPlayingVoice(false), 4500);
+        setIsLoadingVoice(false);
       }
+    } catch (e) {
+      console.error('真实配音试听失败:', e);
+      setIsLoadingVoice(false);
+      setIsPlayingVoice(false);
     }
   };
 
   useEffect(() => {
     return () => {
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+        audioPlayerRef.current = null;
       }
     };
   }, []);
@@ -418,12 +435,26 @@ export const AvatarManager: React.FC = () => {
 
               <div>
                 <label className="text-gray-300 block mb-1">{t('avatar.voiceId')}</label>
-                <Input
-                  placeholder="如: zh-CN-XiaoxiaoNeural"
+                <select
                   value={newVoice}
                   onChange={(e) => setNewVoice(e.target.value)}
-                  required
-                />
+                  className="w-full bg-gray-900 border border-white/15 rounded-xl px-3 py-2 text-gray-200 text-xs focus:outline-none focus:border-indigo-500 font-mono"
+                >
+                  <optgroup label="官方高质量预设音色">
+                    <option value="zh-CN-XiaoxiaoNeural">晓晓 (温柔女声 / 标配推荐)</option>
+                    <option value="zh-CN-YunxiNeural">云希 (活力男声 / 热血对白)</option>
+                    <option value="zh-CN-YunjianNeural">云健 (稳重男声 / 悬疑解说)</option>
+                    <option value="zh-CN-XiaoyiNeural">晓伊 (多情感女声 / 甜美知性)</option>
+                    <option value="zh-CN-YunyangNeural">云扬 (专业新闻 / 播音级男声)</option>
+                    <option value="en-US-JennyNeural">Jenny (Natural US Female 出海)</option>
+                    <option value="en-US-GuyNeural">Guy (Natural US Male 出海)</option>
+                  </optgroup>
+                  <optgroup label="专属角色声纹资产 (Voice Profiles)">
+                    <option value="profile_hero_shenlang">主角沈浪 (冷峻霸气 / 压迫感低音)</option>
+                    <option value="profile_heroine_lengyan">女主苏清雪 (高冷女总裁 / 干练纯净)</option>
+                    <option value="profile_narrator_epic">黄金史诗旁白 (短剧高潮黄金解说)</option>
+                  </optgroup>
+                </select>
               </div>
 
               <div>
@@ -651,9 +682,10 @@ export const AvatarManager: React.FC = () => {
                     size="sm"
                     variant={isPlayingVoice ? 'danger' : 'primary'}
                     onClick={handleToggleVoicePreview}
+                    disabled={isLoadingVoice}
                     leftIcon={isPlayingVoice ? <Volume2 className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                   >
-                    {isPlayingVoice ? '停止试听' : '试听带货口播'}
+                    {isLoadingVoice ? '真实生成中...' : (isPlayingVoice ? '停止试听' : '试听真实声线 (16kHz WAV)')}
                   </Button>
                 </div>
               </div>

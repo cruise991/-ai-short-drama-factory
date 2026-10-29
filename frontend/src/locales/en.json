@@ -41,11 +41,91 @@
     "approveBtn": "Approve Script & Proceed to Production",
     "rejectPlaceholder": "Enter specific direction or correction for the next iteration...",
     "rejectBtn": "Request Script Revision",
-    "noScriptYet": "Script drafting is in progress. Logs and storyboards will stream here automatically."
+    "steps": {
+      "planning": "Planning & Outline",
+      "script": "Storyboard & Script",
+      "production": "Assets Generation",
+      "qa": "QA Review & Polish",
+      "post": "Post-Production & Drafts"
+    },
+    "messages": {
+      "approveSuccess": "Approved! Pipeline advancing to asset production...",
+      "rejectSuccess": "Rejected! Feedback injected to Planning & QA agents for regeneration.",
+      "actionFailed": "Action failed, please try again"
+    },
+    "dualDelivery": {
+      "title": "Drama Master & Project Draft Ready",
+      "badge": "Dual Delivery · JianYing Pro Draft Ready",
+      "desc": "Auto-applied 9:16 native vertical slow zoom (12%) & acoustic spatial micro-reverb dialogue",
+      "downloadDraft": "🎬 Download JianYing Draft (ZIP)",
+      "downloadMp4": "Download Master MP4",
+      "downloadSrt": "SRT Subtitles"
+    }
   },
   "dance": {
     "title": "AI Dance Studio",
     "subtitle": "Single image to 20-30s seamless loop dance · {{count}} viral choreography templates · BPM rhythm sync · 9-head tall proportion guard",
+    "mode": {
+      "choreography": "Custom Choreography Studio (5 Angles 4 Stages)",
+      "template": "Preset Hit Dance Templates",
+      "dualDelivery": "Dual Delivery: JianYing Pro Draft ZIP Supported"
+    },
+    "choreo": {
+      "recipeImport": "Instant Recipe Clone",
+      "recipeImportSub": "| Enter community/friend shared Recipe ID to mirror choreography in seconds",
+      "recipePlaceholder": "e.g. rec_9a8b1c2d",
+      "btnImport": "Clone Recipe",
+      "importSuccess": "✅ Successfully imported choreography recipe: {{title}}",
+      "importFailed": "❌ Recipe ID not found, please double check",
+      "sharedLoaded": "🔥 Automatically loaded community shared recipe: {{title}}",
+      "galleryTitle": "Pose Knowledge Base",
+      "searchPlaceholder": "Search poses / tags / dynamics...",
+      "allCategories": "All Poses",
+      "cameraRig": "3D Camera Rig & Angles",
+      "cameraRigSub": "Dual-track Decoupled · Free Camera Angle",
+      "allAngles": "All",
+      "defaultAngle": "Default:",
+      "addToTimeline": "Add to Timeline",
+      "timelineTitle": "Choreography Timeline",
+      "currentPoses": "Poses:",
+      "totalBeats": "Total Beats:",
+      "estDuration": "Est. Duration:",
+      "emptyTimeline": "Timeline is empty. Click [Add to Timeline] from the pose library on the left.",
+      "beatsUnit": "Beats",
+      "bestTransition": "Kinetic Natural Flow (Best Transition)",
+      "cutTransition": "⚡ Beat-Cut Transition (Cut Transition)",
+      "recipeNamePlaceholder": "Name your choreography...",
+      "defaultRecipeTitle": "High-Energy Viral Girl Group Killing Part",
+      "genRecipeCard": "Create 3:4 Recipe Card",
+      "exportJianying": "Export JianYing Pro Draft (ZIP Dual Delivery · 12% Slow Zoom & Subtitle Tracks)",
+      "renderBtn": "Generate Choreographed Dance ({{seconds}}s · {{count}} Poses)",
+      "rendering": "AI interpolating smooth choreography...",
+      "needDancer": "Please upload a full-body dancer model reference image first",
+      "shareModalTitle": "🔥 AI DANCE CHOREOGRAPHY RECIPE",
+      "posesRecorded": "+ {{count}} more poses included",
+      "recipeIdLabel": "Recipe ID:",
+      "scanToClone": "Scan QR / enter ID to clone instantly",
+      "copied": "Copied Challenge Card & Link!",
+      "copyCard": "Copy 3:4 Viral Challenge Card",
+      "angles": {
+        "front": "Front (0°)",
+        "oblique": "Oblique (45°)",
+        "side": "Side (90°)",
+        "top": "Top (+30°)",
+        "low": "Low (-30°)"
+      },
+      "stages": {
+        "intro": "Intro",
+        "rhythm": "Rhythm",
+        "transition": "Transition",
+        "ending": "Ending Freeze"
+      }
+    },
+    "draftOutput": {
+      "downloadZip": "🎬 Download JianYing Draft (ZIP)",
+      "draftDesc": "• JianYing Draft: Auto-generated 1080x1920 vertical draft with slow zoom keyframes",
+      "synced": "• Draft Sync: ✨ Synced directly to local JianYing Pro app"
+    },
     "controlPanelTitle": "Creation Console",
     "stageTitle": "Production Stage",
     "templates": {
@@ -323,6 +403,17 @@
     "sendBtn": "Send",
     "anchor": "Anchor Xiaowan",
     "likeCount": "Likes"
+  },
+  "videoDesign": {
+    "title": "Chaojifeng Video Design & Code Motion",
+    "rhythmTitle": "Audio-Visual Rhythm & Beat Layout",
+    "reRollShot": "Single Shot Re-roll",
+    "renderCodeMotion": "Render Code Motion Video (Zero Cost)",
+    "bpmLabel": "Musical BPM Rhythm Grid",
+    "focusRelay": "Visual Focus Continuity Relay",
+    "stylesTitle": "44 Procedural Visual Styles",
+    "citation": "Fact & Literature Citation",
+    "aiDeclaration": "Content Generated by AI (Compliance Verified)"
   }
 }
 

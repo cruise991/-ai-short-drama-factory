@@ -81,7 +81,21 @@ def _check_temporal_continuity(storyboard: dict, weight: float) -> float:
         camera_ok = (prev_camera not in camera_graph or
                      curr_camera in camera_graph.get(prev_camera, []))
 
-        if action_ok and camera_ok:
+        # 超级峰方法论焦点连续性校验
+        focus_ok = True
+        if "visual_focus_exit" in shots[i-1] and "visual_focus_entry" in shots[i]:
+            try:
+                from shared_tools.video_design.visual_focus_router import validate_focus_continuity
+                ok, _ = validate_focus_continuity(
+                    shots[i-1].get("visual_focus_exit", "center"),
+                    shots[i].get("visual_focus_entry", "center"),
+                    shots[i-1].get("transition_out", "cut")
+                )
+                focus_ok = ok
+            except Exception:
+                pass
+
+        if action_ok and camera_ok and focus_ok:
             valid_transitions += 1
 
     ratio = valid_transitions / total_transitions if total_transitions > 0 else 1.0

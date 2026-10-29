@@ -608,13 +608,23 @@ def main():
     print("\n>>> Step 3: Planning Professional Choreography <<<")
     is_kneeling = char_meta.get("is_kneeling_pose", False)
     is_indoor = char_meta.get("is_indoor", False)
-    is_caucasian = char_meta.get("is_caucasian", False)
-    shots = plan_choreography(style=args.style, duration=args.duration, bpm=args.bpm, char_lock_prompt=char_lock_prompt, template_id=args.template, is_rear_pose=char_meta.get("is_rear_pose", False), is_kneeling_pose=is_kneeling, is_indoor=is_indoor)
+    shots = plan_choreography(
+        style=args.style, 
+        duration=args.duration, 
+        bpm=args.bpm, 
+        char_lock_prompt=char_lock_prompt, 
+        template_id=args.template, 
+        is_rear_pose=char_meta.get("is_rear_pose", False), 
+        is_kneeling_pose=is_kneeling, 
+        is_indoor=is_indoor,
+        custom_sequence_desc=args.prompt_desc
+    )
 
     video_files = []
     current_start_url = initial_url
     end_url = initial_url
 
+    num_shots = len(shots)
     print(f"\n>>> Step 4: Generating {num_shots} Shots with Chaining & Loop Closure <<<")
     for i, shot in enumerate(shots):
         shot_id = shot["shot_id"]

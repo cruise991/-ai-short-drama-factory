@@ -1,0 +1,32 @@
+{
+  "style_id": "dark_gold_lines",
+  "name": "暗金线描",
+  "fps": 60,
+  "background": {
+    "type": "radial_gradient",
+    "color_center": "#181A20",
+    "color_edge": "#0A0B0E"
+  },
+  "typography": {
+    "title_color": "#E5C07B",
+    "body_color": "#DCDFE4",
+    "citation_color": "#7F848E",
+    "font_weight": "bold",
+    "line_height_multiplier": 1.4
+  },
+  "kinetics": {
+    "particle_count": 60,
+    "particle_color": "#E5C07B44",
+    "line_color": "#E5C07B88",
+    "line_width": 2,
+    "glow_blur": 8,
+    "easing": "ease_in_out_cubic"
+  },
+  "citation_box": {
+    "show_border": true,
+    "border_color": "#E5C07B66",
+    "bg_color": "#12141A99",
+    "border_radius": 12
+  }
+}
+

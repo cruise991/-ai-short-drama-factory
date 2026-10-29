@@ -16,6 +16,7 @@ export interface Project {
   motion_id?: string;
   hand_preset?: string;
   caption_style?: string;
+  error_message?: string;
 }
 
 export interface CreateProjectPayload {
@@ -44,6 +45,8 @@ export interface ProjectDetailResponse {
 export interface ProjectAssetsResponse {
   videos: string[];
   images: string[];
+  drafts?: string[];
+  subtitles?: string[];
 }
 
 export const projectsApi = {
@@ -86,6 +89,18 @@ export const projectsApi = {
   // Submit general user input
   submitInput: async (projectId: number, message: string): Promise<{ success: boolean }> => {
     const res = await apiClient.post(`/api/projects/${projectId}/input`, { message });
+    return res.data;
+  },
+
+  // Delete project
+  deleteProject: async (projectId: number): Promise<{ success: boolean; message?: string }> => {
+    const res = await apiClient.delete(`/api/projects/${projectId}`);
+    return res.data;
+  },
+
+  // Retry paused or failed project
+  retryProject: async (projectId: number): Promise<{ success: boolean; message?: string }> => {
+    const res = await apiClient.post(`/api/projects/${projectId}/retry`);
     return res.data;
   },
 };

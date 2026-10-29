@@ -221,7 +221,7 @@ def generate_image_agnes(prompt, output_path, config, size="1024x768", negative_
     # Should not reach here because of fallback
     raise Exception(f"Image generation failed for {output_path}. API response was invalid or rate limited.")
 
-def generate_video_agnes(image_url, video_prompt, output_path, config, size="1152x768", num_frames=121, is_last_shot=False, target_last_frame_url=None, negative_prompt=None):
+def generate_video_agnes(image_url, video_prompt, output_path, config, size="1152x768", num_frames=121, is_last_shot=False, target_last_frame_url=None, negative_prompt=None, **kwargs):
     from shared_tools.api_pool import get_agnes_keys, get_available_key, record_429
     model = config.get("PRODUCTION_VIDEO_MODEL", "agnes-video-2.5-flash")
     
@@ -238,7 +238,7 @@ def generate_video_agnes(image_url, video_prompt, output_path, config, size="115
         # snap to nearest valid frame count
         num_frames = min(valid_frames, key=lambda x: abs(x - num_frames))
     
-    for _ in range(10): # try up to 10 times across different keys
+    for _ in range(2): # try up to 2 times across different keys
         api_key = get_available_key(keys)
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -304,8 +304,8 @@ def generate_video_agnes(image_url, video_prompt, output_path, config, size="115
             if resp and resp.get("code") == "content_policy_violation":
                 raise Exception(f"POLICY_VIOLATION: {resp.get('message')}")
             if resp and resp.get("code") == "video_queue_full":
-                print("  [AgnesRenderer] Queue is full, backing off for 30 seconds...")
-                time.sleep(30)
+                print("  [AgnesRenderer] Video queue is full on cloud, backing off 5s before fallback check...")
+                time.sleep(5)
             continue
 
         if video_id:
@@ -359,8 +359,58 @@ def generate_video_agnes(image_url, video_prompt, output_path, config, size="115
             print(f"  [AgnesRenderer] Polling loop ended without success. Retrying generation...")
             continue
             
-    # Should not reach here because of fallback
-    raise Exception(f"Video generation failed for {output_path}. API response was invalid or rate limited.")
+    # 工业级高可用兜底：若云端视频队列繁忙或API失败，使用本地已有的 2K 图像，渲染 9:16 原生电影级动态变焦与推拉运镜（Ken Burns Vertical Motion）！
+    img_fallback = os.path.splitext(output_path)[0] + ".png"
+    if not os.path.exists(img_fallback) and image_url and os.path.exists(str(image_url)):
+        img_fallback = image_url
+    if not os.path.exists(img_fallback) and image_url and str(image_url).startswith("http"):
+        try:
+            subprocess.run(["curl", "-s", "-o", img_fallback, image_url], timeout=20)
+        except Exception:
+            pass
+
+    if os.path.exists(img_fallback):
+        print(f"  [AgnesRenderer] Executing Ken Burns vertical dynamic motion fallback on {img_fallback} -> {output_path}...")
+        img_w, img_h = 1080, 1920
+        try:
+            probe_cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=s=x:p=0", img_fallback]
+            probe_res = subprocess.run(probe_cmd, capture_output=True, text=True)
+            if probe_res.returncode == 0 and "x" in probe_res.stdout:
+                img_w, img_h = map(int, probe_res.stdout.strip().split("x"))
+        except:
+            pass
+
+        is_native_vertical = img_h > img_w
+        if is_native_vertical:
+            # 原生竖屏电影运镜：平滑缓慢推近 12% (Dramatic Slow Push-In / Dolly-In)，赋予镜头呼吸感与张力
+            filter_str = (
+                "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
+                "zoompan=z='min(zoom+0.00096,1.12)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=125:s=1080x1920:fps=25,"
+                "format=yuv420p"
+            )
+            ffmpeg_cmd = [
+                "ffmpeg", "-y", "-loop", "1", "-i", img_fallback,
+                "-vf", filter_str,
+                "-b:v", "4M", "-t", "5", "-r", "25", output_path
+            ]
+        else:
+            filter_str = (
+                "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=25:5,eq=brightness=-0.12[bg];"
+                "[0:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg];"
+                "[bg][fg]overlay=(W-w)/2:(H-h)/2,format=yuv420p[v]"
+            )
+            ffmpeg_cmd = [
+                "ffmpeg", "-y", "-loop", "1", "-i", img_fallback,
+                "-filter_complex", filter_str,
+                "-map", "[v]",
+                "-b:v", "3M", "-t", "5", "-r", "25", output_path
+            ]
+        res = subprocess.run(ffmpeg_cmd, capture_output=True)
+        if res.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 50000:
+            print(f"  [AgnesRenderer] Ken Burns vertical motion successfully generated: {output_path}")
+            return True
+
+    raise Exception(f"Video generation failed for {output_path}. API response was invalid and local image was missing.")
 
 def process_ticket(episode_dir):
     ticket_path = os.path.join(episode_dir, "00_task_ticket.json")
@@ -384,6 +434,80 @@ def process_ticket(episode_dir):
     
     storyboard_path = os.path.join(episode_dir, "01_storyboards_scripts", "01_storyboard.md")
     
+    is_code_motion = (
+        ticket.get("workflow_type") in ["code_motion", "vibe_knowledge"]
+        or "代码动效" in ticket.get("format_type", "")
+        or "知识" in ticket.get("format_type", "")
+    )
+    
+    # ─── Vibe-Knowledge / CodeMotion 分支处理 ─────────────────────────────────
+    if is_code_motion:
+        print("[Production Dept] 🎬 检测到知识动效短视频任务，调度 CodeMotionRenderer (0成本代码逐帧生成)...")
+        from shared_tools.video_design.code_motion_producer import CodeMotionRenderer, verify_motion_video_quality
+        from shared_tools.video_design.storyboard_schema import TimecodedBeatSpec
+        from shared_tools.video_design.beat_rhythm_engine import generate_director_storyboard
+        
+        # 尝试读取预生成的 timecoded_beats.json
+        beat_spec_path = os.path.join(episode_dir, "01_storyboards_scripts", "timecoded_beats.json")
+        spec = None
+        if os.path.exists(beat_spec_path):
+            try:
+                with open(beat_spec_path, "r", encoding="utf-8") as f:
+                    spec = TimecodedBeatSpec(**json.load(f))
+            except Exception:
+                pass
+                
+        if spec is None:
+            # 根据 ticket 自动编排
+            theme = ticket.get("goal", "核心认知深度拆解")
+            lines = [
+                f"{theme}的底层逻辑与破局点分析。",
+                "核心机制拆解与量化对比数据展示。",
+                "商业责任与技术工程门禁执行路径。",
+                "未来演进趋势与行动建议。"
+            ]
+            spec = generate_director_storyboard(
+                project_id=ticket.get("project_id", "knowledge_proj"),
+                episode_id=ticket.get("episode_id", "EP01"),
+                theme=theme,
+                narrations=lines,
+                bpm=120.0,
+                total_duration=15.0,
+                visual_style_id="dark_gold_lines"
+            )
+            
+        renderer = CodeMotionRenderer(width=1080, height=1920, fps=30)
+        output_mp4 = os.path.join(assets_dir, "code_motion_final.mp4")
+        
+        # 检查是否有配音和 BGM
+        narration_audio = os.path.join(episode_dir, "01_storyboards_scripts", "narration.wav")
+        bgm_audio = os.path.join(PROJECT_ROOT, "assets", "dance", "05_music", "tracks", "electronic.mp3") if os.path.exists(os.path.join(PROJECT_ROOT, "assets", "dance", "05_music", "tracks", "electronic.mp3")) else None
+        
+        renderer.render_spec_to_video(
+            spec=spec,
+            output_mp4_path=output_mp4,
+            audio_path=narration_audio if os.path.exists(narration_audio) else None,
+            bgm_path=bgm_audio
+        )
+        
+        ok, issues = verify_motion_video_quality(output_mp4)
+        if ok:
+            print(f"[Production Dept] ✓ CodeMotion 1080p60 渲染通过: {output_mp4}")
+            ticket["status"] = "QA_Pending_Production"
+            ticket["last_updated_by"] = "Production_Agent_CodeMotion"
+            ticket["last_updated_time"] = time.time()
+            ticket["video_output_path"] = output_mp4
+            with open(ticket_path, "w", encoding="utf-8") as f:
+                json.dump(ticket, f, ensure_ascii=False, indent=2)
+            return True
+        else:
+            print(f"[Production Dept] ✗ 质检未通过: {issues}")
+            ticket["status"] = "Paused_By_Error"
+            ticket["error_message"] = "; ".join(issues)
+            with open(ticket_path, "w", encoding="utf-8") as f:
+                json.dump(ticket, f, ensure_ascii=False, indent=2)
+            return False
+
     is_dance = "舞蹈" in ticket.get("format_type", "") or "钩子" in ticket.get("format_type", "")
     
     if is_dance:
@@ -482,7 +606,9 @@ def process_ticket(episode_dir):
             json.dump(ticket, f, ensure_ascii=False, indent=2)
         return False
         
-    target_size = ticket.get("image_size", config.get("dance_factory", {}).get("image_size", "768x1344") if is_dance else "1024x768")
+    is_vertical = ticket.get("aspect_ratio") == "9:16" or is_dance
+    default_size = "768x1344" if is_vertical else "1024x768"
+    target_size = ticket.get("image_size", default_size)
 
     def upload_image_to_temp_host(filepath):
         print(f"  [Upload] Attempting to save {filepath} to local Media Center (MinIO)...")

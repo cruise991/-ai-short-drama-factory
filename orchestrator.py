@@ -291,6 +291,48 @@ def run_orchestrator():
         print("[Auto-Mock] EOFError detected. Stopping.")
         return
 
+def safe_dispatch_agent(cmd, cwd, ticket_path, dept_name):
+    print(f" -> [调度] 派发至【{dept_name}】...")
+    try:
+        res = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+        if res.returncode != 0:
+            raw_err = (res.stderr or res.stdout or "Process exited with non-zero code").strip()
+            # Extract last 3 meaningful lines
+            err_lines = [l.strip() for l in raw_err.splitlines() if l.strip()]
+            snippet = " | ".join(err_lines[-3:]) if err_lines else raw_err[:200]
+            err_msg = f"{dept_name}执行异常: {snippet}"
+            print(f" -> [!] 🚨 {err_msg}")
+            try:
+                with open(ticket_path, "r", encoding="utf-8") as f:
+                    t_data = json.load(f)
+                t_data["status"] = "Paused_By_Error"
+                t_data["last_error"] = err_msg
+                with open(ticket_path, "w", encoding="utf-8") as f:
+                    json.dump(t_data, f, ensure_ascii=False, indent=2)
+            except Exception:
+                pass
+            return False
+        else:
+            if res.stdout:
+                last_lines = [l.strip() for l in res.stdout.strip().splitlines() if l.strip()]
+                for l in last_lines[-3:]:
+                    print(f"    [{dept_name}] {l}")
+            print(f" -> [调度] 【{dept_name}】处理完成。")
+            return True
+    except Exception as e:
+        err_msg = f"{dept_name}调度异常: {e}"
+        print(f" -> [!] 🚨 {err_msg}")
+        try:
+            with open(ticket_path, "r", encoding="utf-8") as f:
+                t_data = json.load(f)
+            t_data["status"] = "Paused_By_Error"
+            t_data["last_error"] = err_msg
+            with open(ticket_path, "w", encoding="utf-8") as f:
+                json.dump(t_data, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
+        return False
+
 def process_single_run(ticket_path, run_dir, workspace_dir):
     max_loops = 20
     loops = 0
@@ -303,54 +345,53 @@ def process_single_run(ticket_path, run_dir, workspace_dir):
         
         if status in failure_counts:
             failure_counts[status] += 1
-            if failure_counts[status] >= 3:
-                msg = f"【防死锁触发】节点 {status} 连续失败 3 次。已强制挂起任务。"
+            if failure_counts[status] > 3:
+                msg = f"【防死锁触发】节点 {status} 连续失败超 3 次。已强制挂起任务。"
                 print(f"\n[CEO Dashboard] 🚨 {msg}")
                 log_to_ceo(workspace_dir, msg)
                 with open(ticket_path, "r", encoding="utf-8") as f:
                     t_data = json.load(f)
                 t_data["status"] = "Paused_By_Error"
+                t_data["last_error"] = msg
                 with open(ticket_path, "w", encoding="utf-8") as f:
                     json.dump(t_data, f, ensure_ascii=False, indent=2)
                 break
         
         if status == "Pending":
-            print(" -> [调度] 派发至【策划部】(Planning Dept)...")
-            subprocess.run([sys.executable, "departments/02_planning/planning_agent.py", run_dir], cwd=workspace_dir)
-            print(" -> [调度] 策划部已返回。")
+            ok = safe_dispatch_agent([sys.executable, "departments/02_planning/planning_agent.py", run_dir], workspace_dir, ticket_path, "策划部")
+            if not ok: break
             
         elif status == "Requirements_Gathering":
-            print(" -> [调度] 继续与【策划部】确认需求...")
-            subprocess.run([sys.executable, "departments/02_planning/planning_agent.py", run_dir], cwd=workspace_dir)
+            ok = safe_dispatch_agent([sys.executable, "departments/02_planning/planning_agent.py", run_dir], workspace_dir, ticket_path, "策划部需求确认")
+            if not ok: break
             
         elif status == "Drafting":
-            print(" -> [调度] 策划部起草剧本 (Drafting Script)...")
-            subprocess.run([sys.executable, "departments/02_planning/planning_agent.py", run_dir], cwd=workspace_dir)
+            ok = safe_dispatch_agent([sys.executable, "departments/02_planning/planning_agent.py", run_dir], workspace_dir, ticket_path, "策划部起草")
+            if not ok: break
             
         elif status == "QA_Pending_Planning":
-            print(" -> [门禁] 触发【质检部】审查剧本与旁白...")
-            subprocess.run([sys.executable, "departments/04_qa_evolution/qa_agent.py", run_dir])
-            print(" -> [门禁] 质检部审查剧本已返回。")
+            ok = safe_dispatch_agent([sys.executable, "departments/04_qa_evolution/qa_agent.py", run_dir], workspace_dir, ticket_path, "质检部剧本审查")
+            if not ok: break
             
         elif status == "Draft_Completed":
-            print(" -> [调度] 派发至【生产部】生成视觉资产...")
-            subprocess.run([sys.executable, "departments/03_production/production_agent.py", run_dir])
+            ok = safe_dispatch_agent([sys.executable, "departments/03_production/production_agent.py", run_dir], workspace_dir, ticket_path, "生产部视觉资产")
+            if not ok: break
             
         elif status == "QA_Pending_Production":
-            print(" -> [门禁] 触发【质检部】审查多模态动作指令...")
-            subprocess.run([sys.executable, "departments/04_qa_evolution/qa_agent.py", run_dir])
+            ok = safe_dispatch_agent([sys.executable, "departments/04_qa_evolution/qa_agent.py", run_dir], workspace_dir, ticket_path, "质检部多模态审查")
+            if not ok: break
             
         elif status == "Assets_Generated":
-            print(" -> [调度] 派发至【后期部】合成...")
-            subprocess.run([sys.executable, "departments/06_post_production/post_production_agent.py", run_dir])
+            ok = safe_dispatch_agent([sys.executable, "departments/06_post_production/post_production_agent.py", run_dir], workspace_dir, ticket_path, "后期部合成剪辑")
+            if not ok: break
             
         elif status == "QA_Pending_Final":
-            print(" -> [门禁] 触发【质检部】审查终片导出...")
-            subprocess.run([sys.executable, "departments/04_qa_evolution/qa_agent.py", run_dir])
+            ok = safe_dispatch_agent([sys.executable, "departments/04_qa_evolution/qa_agent.py", run_dir], workspace_dir, ticket_path, "质检部终片审查")
+            if not ok: break
             
         elif status == "Market_Testing":
-            print(" -> [调度] 触发【第七部门: 市场反馈部】接入数据...")
-            subprocess.run([sys.executable, "departments/07_market_feedback/feedback_agent.py", run_dir])
+            ok = safe_dispatch_agent([sys.executable, "departments/07_market_feedback/feedback_agent.py", run_dir], workspace_dir, ticket_path, "市场反馈部")
+            if not ok: break
             
         elif status == "Completed":
             print(f"\n🎉 流程闭环成功！(Finished) {os.path.basename(run_dir)} 已通过所有门禁。")
@@ -380,6 +421,15 @@ def process_single_run(ticket_path, run_dir, workspace_dir):
         
     if loops >= max_loops:
         print("[Orchestrator] 死锁！达到最大重试次数 (Max loops reached).")
+        try:
+            with open(ticket_path, "r", encoding="utf-8") as f:
+                t_data = json.load(f)
+            t_data["status"] = "Paused_By_Error"
+            t_data["last_error"] = "【系统熔断】达到最大重试次数 (Max loops reached)。"
+            with open(ticket_path, "w", encoding="utf-8") as f:
+                json.dump(t_data, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
 
 def run_marketing_recap_pipeline(workspace_dir: str, run_dir: str, ticket: dict) -> str:

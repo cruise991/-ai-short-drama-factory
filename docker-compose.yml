@@ -25,10 +25,13 @@ services:
       - ./projects:/app/projects
       - ./data:/app/data # SQLite Database storage fallback
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=${DATABASE_URL:-}
       - REDIS_URL=${REDIS_URL:-}
+      - TTS_SERVICE_URL=${TTS_SERVICE_URL:-http://host.docker.internal:8028}
 
   minio:
     image: minio/minio:latest

@@ -14,6 +14,9 @@ AUTH_WHITELIST_PREFIXES = [
     "/openapi.json",
     "/media",
     "/ws",
+    "/api/v1/tts",
+    "/api/dance",
+    "/static/poses",
 ]
 
 class JWTAuthenticationMiddleware(BaseHTTPMiddleware):
@@ -25,10 +28,22 @@ class JWTAuthenticationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         path = request.url.path
 
+        # Optionally decode token if provided (e.g. for tenant-aware public routes)
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:].strip()
+            payload = decode_access_token(token)
+            if payload:
+                request.state.user = payload
+
         # 1. Allow Whitelisted endpoints
         for prefix in AUTH_WHITELIST_PREFIXES:
             if path == prefix or path.startswith(prefix + "/") or path.startswith(prefix + "?"):
                 return await call_next(request)
+
+        # Allow internal pipeline inter-process communication
+        if path.endswith("/internal_wait_input"):
+            return await call_next(request)
 
         # 2. Non-API endpoints pass through (static files, proxy, etc.)
         if not path.startswith("/api"):
@@ -38,32 +53,16 @@ class JWTAuthenticationMiddleware(BaseHTTPMiddleware):
         if request.method == "OPTIONS":
             return await call_next(request)
 
-        # 4. Enforce Bearer Token
-        auth_header = request.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
+        # 4. Enforce Bearer Token for non-whitelisted API routes
+        if not hasattr(request.state, "user"):
             return JSONResponse(
                 status_code=401,
                 content={
                     "error": "Unauthorized",
-                    "message": "未提供身份认证凭据，请登录后重试 (Bearer Token Required)",
-                    "detail": "Missing Authorization header"
+                    "message": "未提供有效身份认证凭据，请登录后重试 (Bearer Token Required)",
+                    "detail": "Missing or invalid Authorization header"
                 },
                 headers={"WWW-Authenticate": "Bearer"}
             )
 
-        token = auth_header[7:].strip()
-        payload = decode_access_token(token)
-        if not payload:
-            return JSONResponse(
-                status_code=401,
-                content={
-                    "error": "Unauthorized",
-                    "message": "Token 无效或已过期，请重新登录",
-                    "detail": "Invalid or expired JWT token"
-                },
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-
-        # Inject user payload into request.state
-        request.state.user = payload
         return await call_next(request)

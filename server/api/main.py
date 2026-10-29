@@ -1,4 +1,12 @@
 import os
+import sys
+from pathlib import Path
+
+# Ensure root workspace and server directories are accessible in sys.path
+for _p in ["/workspace", str(Path(__file__).resolve().parent.parent.parent), str(Path(__file__).resolve().parent.parent)]:
+    if os.path.exists(_p) and _p not in sys.path:
+        sys.path.insert(0, _p)
+
 import asyncio
 import uuid
 from contextlib import asynccontextmanager
@@ -111,7 +119,7 @@ os.makedirs(PROJECTS_DIR, exist_ok=True)
 # ------------------------------------------------------------------------------
 # Router Mounts: v1 Architecture & Legacy Backward Compatibility
 # ------------------------------------------------------------------------------
-from api.routes import auth, config, projects, ws, dance, avatar, product, knowledge, live
+from api.routes import auth, config, projects, ws, dance, avatar, product, knowledge, live, video_design
 from api.v1.api import api_v1_router
 
 # 1. Mount API v1 standardized routes (/api/v1/...)
@@ -127,6 +135,7 @@ legacy_router.include_router(avatar.router)
 legacy_router.include_router(product.router)
 legacy_router.include_router(knowledge.router)
 legacy_router.include_router(live.router)
+legacy_router.include_router(video_design.router)
 app.include_router(legacy_router)
 
 # 3. Mount WebSocket router
@@ -135,6 +144,12 @@ app.include_router(ws.router)
 # 4. Mount Static Media Endpoints
 app.mount("/media/out", StaticFiles(directory=OUT_DIR), name="media_out")
 app.mount("/media/projects", StaticFiles(directory=PROJECTS_DIR), name="media_projects")
+
+POSES_STATIC_DIR = os.path.join(BASE_DIR, "server", "data", "poses")
+if not os.path.exists(POSES_STATIC_DIR) and os.path.exists("/app/data/poses"):
+    POSES_STATIC_DIR = "/app/data/poses"
+os.makedirs(POSES_STATIC_DIR, exist_ok=True)
+app.mount("/static/poses", StaticFiles(directory=POSES_STATIC_DIR), name="static_poses")
 
 # ------------------------------------------------------------------------------
 # Health Check Endpoints

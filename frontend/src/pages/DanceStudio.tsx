@@ -5,15 +5,18 @@ import {
   AlertCircle, Download, RotateCcw, Clock, Layers, Sliders,
   Film, ShieldCheck, Zap, RefreshCw, Play
 } from 'lucide-react'
-import { danceApi, type DanceTemplate, type DanceTaskStatus, type MultiViewResult } from '../api/dance'
+import { danceApi, type DanceTemplate, type DanceTaskStatus, type MultiViewResult, type PoseSlot } from '../api/dance'
 import { getMediaUrl } from '../api/client'
 import { useAuthStore } from '../store/authStore'
+import { ChoreographyWorkbench } from '../components/dance/ChoreographyWorkbench'
 
 type TemplateCategory = 'all' | 'kpop' | 'fitness' | 'street' | 'luxury'
+type StudioMode = 'template' | 'choreography'
 
 export default function DanceStudio() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
+  const [studioMode, setStudioMode] = useState<StudioMode>('choreography')
   const [templates, setTemplates] = useState<DanceTemplate[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<DanceTemplate | null>(null)
   const [activeCategory, setActiveCategory] = useState<TemplateCategory>('all')
@@ -192,6 +195,42 @@ export default function DanceStudio() {
     }
   }
 
+  const handleStartChoreograph = async (
+    sequence: PoseSlot[],
+    choreoBpm: number,
+    choreoStyle: string,
+    enableJianying: boolean
+  ) => {
+    if (!imageFile) {
+      setErrorMsg(t('dance.cta.needImage'))
+      return
+    }
+    setErrorMsg(null)
+    setLoading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('image', imageFile)
+      formData.append('sequence_json', JSON.stringify(sequence))
+      formData.append('bpm', choreoBpm.toString())
+      formData.append('style', choreoStyle)
+      formData.append('enable_jianying_draft', enableJianying ? 'true' : 'false')
+      formData.append('tenant_id', user?.tenant_id || 'default')
+      formData.append('aspect_ratio', aspectRatio)
+      if (selectedViewIndex !== null) {
+        formData.append('selected_view_index', selectedViewIndex.toString())
+      }
+
+      const res = await danceApi.choreographDance(formData)
+      const taskId = res.task_id
+      window.history.replaceState(null, '', `/dance?task_id=${taskId}`)
+      pollTaskStatus(taskId)
+    } catch (err: any) {
+      setLoading(false)
+      setErrorMsg(err?.response?.data?.detail || t('dance.character.failedToSubmit'))
+    }
+  }
+
   const pollTaskStatus = (taskId: string) => {
     const interval = setInterval(async () => {
       try {
@@ -276,14 +315,57 @@ export default function DanceStudio() {
         </div>
       )}
 
-      {/* Studio Workbench: Left Control Panel (5 cols) + Right Stage (7 cols) */}
+      {/* Studio Mode Switcher: 自由动作编舞 vs 官方爆款模版 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2 bg-gray-950/80 border border-gray-800/80 rounded-2xl shadow-lg">
+        <div className="flex items-center space-x-2">
+          <button 
+            onClick={() => setStudioMode('choreography')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 shadow-sm ${
+              studioMode === 'choreography'
+                ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white shadow-purple-500/25 scale-[1.02]'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-900'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-pink-300" />
+            <span>{t('dance.mode.choreography')}</span>
+            <span className="px-1.5 py-0.2 bg-white/20 rounded-full text-[9px] font-mono">NEW</span>
+          </button>
+          
+          <button 
+            onClick={() => setStudioMode('template')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 shadow-sm ${
+              studioMode === 'template'
+                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-pink-500/25 scale-[1.02]'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-900'
+            }`}
+          >
+            <Flame className="w-3.5 h-3.5 text-amber-300" />
+            <span>{t('dance.mode.template')}</span>
+          </button>
+        </div>
+
+        <div className="text-xs text-gray-400 flex items-center space-x-2 px-3">
+          <Film className="w-3.5 h-3.5 text-purple-400" />
+          <span>{t('dance.mode.dualDelivery')}</span>
+        </div>
+      </div>
+
+      {/* Studio Workbench: Left Control Panel + Right Stage */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
         
         {/* ================= LEFT: Creation Control Studio ================= */}
-        <div className="xl:col-span-5 space-y-6">
-          
-          {/* Section 1: Template Selector */}
-          <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-4 lg:p-5 shadow-xl space-y-3">
+        <div className={`${studioMode === 'choreography' ? 'xl:col-span-7' : 'xl:col-span-5'} space-y-6`}>
+          {studioMode === 'choreography' ? (
+            <ChoreographyWorkbench
+              imageFile={imageFile}
+              imagePreview={imagePreview}
+              onStartChoreograph={handleStartChoreograph}
+              loading={loading}
+            />
+          ) : (
+            <>
+              {/* Section 1: Template Selector */}
+              <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-4 lg:p-5 shadow-xl space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Layers className="w-4 h-4 text-pink-400" />
@@ -352,7 +434,7 @@ export default function DanceStudio() {
                     </div>
 
                     <div className="pt-1.5 border-t border-gray-800/60 flex items-center justify-between text-[10px]">
-                      <span className="text-gray-500">{tpl.stats?.views || '爆款'}</span>
+                      <span className="text-gray-500">{tpl.stats?.views || '10w+'}</span>
                       <span className={`font-semibold ${isSelected ? 'text-pink-400' : 'text-gray-400'}`}>
                         {isSelected ? `✓ ${t('dance.templates.selected')}` : t('dance.templates.select')}
                       </span>
@@ -676,11 +758,13 @@ export default function DanceStudio() {
               </p>
             </div>
 
-          </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* ================= RIGHT: Interactive Hero Stage ================= */}
-        <div className="xl:col-span-7 sticky top-6">
+        <div className={`${studioMode === 'choreography' ? 'xl:col-span-5' : 'xl:col-span-7'} sticky top-6`}>
           <div className="bg-gray-950 border border-gray-800/80 rounded-2xl p-6 lg:p-8 shadow-2xl space-y-6">
             
             {/* Stage Header */}
@@ -725,11 +809,11 @@ export default function DanceStudio() {
                   {/* Character + Selected Motion Card Preview */}
                   <div className="w-full max-w-md p-4 bg-gray-900/90 border border-gray-800 rounded-2xl flex items-center space-x-4 text-left shadow-lg">
                     <div className="w-20 h-28 rounded-xl overflow-hidden border border-gray-700 flex-shrink-0 bg-black shadow-md">
-                      <img src={imagePreview} alt="Ready Character" className="w-full h-full object-cover" />
+                      <img src={imagePreview} alt="Ready Character" className="w-full h-full object-cover object-top" />
                     </div>
                     <div className="space-y-1.5 text-xs text-gray-300 flex-1 min-w-0">
                       <p className="font-bold text-white text-sm truncate">
-                        {t('dance.stage.readyTemplate', { name: selectedTemplate?.name || '热门动作' })}
+                        {t('dance.stage.readyTemplate', { name: selectedTemplate?.name || t('dance.templates.tabs.all') })}
                       </p>
                       <p className="text-gray-400">
                         {t('dance.stage.readyDuration', { duration })} · {t(`dance.params.styles.${style}`)} · {customBpm} BPM
@@ -809,7 +893,7 @@ export default function DanceStudio() {
                           <img
                             src={getMediaUrl('/media/out/test_v2_consistent_clarity_20s/ref_character.png')}
                             alt="Reference"
-                            className="w-14 h-20 object-cover rounded-lg border border-pink-500/30 flex-shrink-0"
+                            className="w-14 h-20 object-cover object-top rounded-lg border border-pink-500/30 flex-shrink-0"
                           />
                           <div className="text-[11px] space-y-1 text-gray-300 flex-1">
                             <p className="font-semibold text-white">{t('dance.stage.showcase.curvyModel')}</p>
@@ -945,14 +1029,27 @@ export default function DanceStudio() {
                     </div>
                   </div>
 
-                  <a
-                    href={getMediaUrl(currentTask.video_url)}
-                    download
-                    className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98]"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>{t('dance.stage.download')}</span>
-                  </a>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {currentTask.jianying_draft_zip && (
+                      <a
+                        href={getMediaUrl(currentTask.jianying_draft_zip)}
+                        download
+                        className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-purple-500/20 transition-all active:scale-[0.98]"
+                      >
+                        <Film className="w-4 h-4 text-purple-200" />
+                        <span>{t('dance.draftOutput.downloadZip')}</span>
+                      </a>
+                    )}
+
+                    <a
+                      href={getMediaUrl(currentTask.video_url)}
+                      download
+                      className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98]"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>{t('dance.stage.download')}</span>
+                    </a>
+                  </div>
                 </div>
 
                 {/* Hero Showcase: Video Player + Technical Metas */}
@@ -966,7 +1063,7 @@ export default function DanceStudio() {
                         controls 
                         autoPlay 
                         loop 
-                        className="w-full h-full object-cover" 
+                        className="w-full h-full object-contain bg-black" 
                       />
                     </div>
                   </div>
@@ -988,6 +1085,16 @@ export default function DanceStudio() {
                         <p>• {t('dance.stage.meta.style', { 
                           style: t(`dance.params.styles.${style}`) 
                         })}</p>
+                        {currentTask.jianying_draft_zip && (
+                          <p className="text-purple-300 font-medium">
+                            {t('dance.draftOutput.draftDesc')}
+                          </p>
+                        )}
+                        {currentTask.jianying_synced && (
+                          <p className="text-emerald-400 font-medium">
+                            {t('dance.draftOutput.synced')}
+                          </p>
+                        )}
                       </div>
                     </div>
 

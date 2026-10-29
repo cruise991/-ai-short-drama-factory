@@ -6,7 +6,7 @@ import requests
 
 logger = logging.getLogger("TTSPipeline")
 
-TTS_SERVICE_URL = os.getenv("TTS_SERVICE_URL", "http://localhost:8001")
+TTS_SERVICE_URL = os.getenv("TTS_SERVICE_URL", "http://host.docker.internal:8028")
 
 class TTSAudioClip:
     def __init__(self, text: str, file_path: str, duration_sec: float, cached: bool = False):
@@ -25,17 +25,19 @@ class TTSPipeline:
         self, 
         text: str, 
         voice: Optional[str] = None, 
+        profile_id: Optional[str] = None,
         speed: float = 1.0
     ) -> TTSAudioClip:
         """调用 TTS 微服务合成单句音频"""
         voice = voice or self.default_voice
-        cache_key = f"{text}_{voice}_{speed:.2f}"
+        cache_key = f"{text}_{voice}_{profile_id or ''}_{speed:.2f}"
         if cache_key in self._clip_cache:
             return self._clip_cache[cache_key]
 
         payload = {
             "text": text,
             "voice": voice,
+            "profile_id": profile_id,
             "speed": speed
         }
 

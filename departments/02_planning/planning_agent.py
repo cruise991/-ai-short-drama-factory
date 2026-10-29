@@ -97,18 +97,31 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 - 每个 Shot 必须精确到秒，时间线严格连续。
 - 画面描述必须是静态可执行的（人物站立/坐着/特写），严禁复杂物理交互（穿门、握手、奔跑）。
 
-【🔥 旁白演绎规范 (Strict Physics)】
-1. 极简物理约束：强制剥离非必要的物理交互，尽量采用静态中景/特写 (Static shot) 或平移，避免视频大模型生成“肢体变异”。
-2. 场景与软件具象化：严禁使用泛泛的词汇，直接指定UI细节。
-3. 提示词内嵌字卡：充分利用大模型能力生成 UI 文字标签。
-4. 光影情绪反差：在各镜头间通过光影建立强烈对比。
-5. 肢体动作与台词强绑定：**严禁复杂的空间指向交互或手部动作（如：指向屏幕、单手托举）**，只能使用绝对静态的姿态（如：产品静置、人物自然站立持握）。
-6. TTS 情绪底层控制：旁白严禁播音腔，大量使用强情绪标点。
-7. 字秒比铁律：旁白长度严格遵守每 5 秒不超过 15-18 汉字。
-8. 角色一致性：每句英文 Prompt 必须重复主角外貌特征！
-9. 【Agnes 官方提示词结构】Video Prompt (英文) 必须严格遵循官方结构：
-   [主体] + [场景 / 环境] + [风格] + [光照] + [构图] + [质量要求]
-   例如：A luminous floating city above a misty canyon at sunrise, cinematic realism, wide angle, high visual density
+【🔥 旁白演绎规范 (Strict Physics & Native Vertical 9:16)】
+0. 【3秒黄金钩子法则 (3-Second Golden Hook - 完播率生命线)】：
+   - Shot 1 必须是强穿透力的“3秒黄金钩子”，严禁任何温吞铺垫！必须在 0~3 秒内制造强冲突悬念：
+     * A 类 (视觉反常与阶级反差): 破旧外卖服与顶级豪门奢华环境对撞，或低声下气外表下展现令人胆寒的王者冷眼；
+     * B 类 (认知颠覆): 首句旁白/台词直接撕裂常理（如“身家千亿的新董事长，第一天视察就被保安扔出大门……”）；
+     * C 类 (数据连排冲击): “入职三分钟，开除销售总监，全盘清洗董事会，这就是雷霆手段！”
+   - Shot 1 的对白与视觉必须紧扣黄金钩子，立刻促使用户放弃划走！
+1. 极简物理约束：强制剥离非必要的物理交互，尽量采用静态中景/特写 (Static shot) 或电影运镜，避免视频大模型生成“肢体变异”。
+2. 【原生 9:16 竖屏视听法则 (全屏满幅，严禁横排)】：
+   - **构图禁止横排平铺**：严禁使用“人物A在左，人物B在右相隔X米”的传统横屏调度（在 9:16 画布下会被挤压或切掉半身）。
+   - **强制采用 Z 轴纵深站位**：一前一后错落排列（例如前景右下角为反派特写/半身背影，后景纵深处为主角冷峻站立），强化压迫感与阶级反差；或者使用单人特写正反打。
+   - **Y 轴垂直高低对峙**：利用低机位仰拍（Low Angle）凸显主角气场，俯拍凸显反派溃败。
+   - **发顶呼吸留白安全区**：人物头部距画面顶部必须保留 8%~12% 呼吸留白（严格遵守规约第13条，严禁切额头或顶格）。
+3. 【9:16 专属运镜指令库 (Vertical Camera Dynamics)】：每个镜头必须明确指定具体运镜动词：
+   - `Vertical Tilt-Up`：从鞋部/地面缓缓向上摇镜至冷峻面容（身份反转、战神现身专属）；
+   - `Vertical Tilt-Down`：从居高临下的轻蔑眼神向下摇镜至双手（表现反派破防与狼狈）；
+   - `Slow Dramatic Dolly-In`：向主角面部正前方缓缓推近 15%，眼神聚焦与压迫感拉满；
+   - `Vertical Over-The-Shoulder (OTS)`：带前景肩膀虚化的竖直过肩压迫镜头；
+   - `Low-Angle Vertical Hero Framing`：低机位仰拍立体特写。
+4. 场景与软件具象化：严禁使用泛泛的词汇，直接指定建筑材质、金属冷光与光影细节。
+5. TTS 情绪底层控制：旁白严禁播音腔，大量使用强情绪标点，每 5 秒不超过 15-18 汉字。
+6. 角色一致性：每句英文 Prompt 必须重复主角外貌特征！
+7. 【Agnes 官方提示词结构】Video Prompt (英文) 必须严格遵循官方结构：
+   [主体] + [场景 / 环境] + [风格] + [光照] + [原生竖屏构图与运镜] + [质量要求]
+   必须显式包含：`mobile-native vertical 9:16 composition, [Vertical Camera Motion], dramatic vertical lighting, 8k cinematic realism`，严禁使用 `wide angle, landscape composition, split screen`！
 {evolution_rules}{marketing_sop}
 以下是【爆款调研结果】：
 ---
@@ -121,6 +134,7 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 **核心目标 (Goal)**: [目标]
 **受众与风格 (Audience & Style)**: {audience} | {style}
 **形式 (Format)**: {format_type}
+**画幅比例 (Aspect Ratio)**: 9:16 (竖屏满幅)
 **时长**: 约 [总时长] 秒
 
 ## 角色设定 (Characters)
@@ -129,8 +143,12 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
 ## Shot 1: [标题]
 **时间范围**: 0:00 - 0:0{max_shot_sec} ({max_shot_sec}s)
 **场景 (Scene)**: [具体场景描述]
+**构图与运镜 (Composition & Camera)**: [Z轴纵深/高低对峙，运镜动词，发顶留白安全区]
 **图像建议 (Image Suggestion)**: [静态画面动作，确保存留安全区，不裁切头部]
 **旁白 (Voiceover)**: [情绪化、口语化台词，无AI味]
+**提示词 (Video Prompt)**: [英文画面描述，遵循 Agnes 官方结构，包含 vertical 9:16 composition 与运镜动词]
+"""
+
     elif "手绘" in format_type or "白板" in format_type or "推演" in format_type or format_type in ["Handdraw", "Handdraw_Video"]:
         system_prompt = f"""你是一个顶级的手绘口播讲解与剧情推演短剧编导。当前选择的分支是【手绘口播与剧情推演】。
 你的工作方式基于确定性手绘渲染管线：
@@ -472,7 +490,8 @@ def generate_storyboard(goal_text, audience, style, format_type, trending_resear
             print(f"[Planning Dept] ⚠️  LLM 返回为空 (attempt {_attempt})")
             continue
 
-        if not _qe_available:
+        is_dance = "舞蹈" in str(format_type) or "钩子" in str(format_type)
+        if not _qe_available or not is_dance:
             return _raw_result
 
         # 尝试解析 JSON 评估
@@ -557,7 +576,10 @@ def humanize_storyboard(storyboard_md, qa_feedback=""):
         system_prompt += f"\n🚨 质检部门(QA) 前次打回反馈:\n{qa_feedback}\n请务必在洗稿时严格规避以上违规点！\n"
 
     humanized_md = call_llm(system_prompt, f"请原样返回以下剧本结构，但彻底洗稿里面的旁白/台词：\n\n{storyboard_md}")
-    return humanized_md if humanized_md else storyboard_md
+    if not humanized_md or "FAIL:" in humanized_md or len(humanized_md.strip()) < 50:
+        print("[Planning Dept] ⚠️ 去AI味后处理未取得有效输出，安全保留原始起草剧本。")
+        return storyboard_md
+    return humanized_md
 
 import concurrent.futures
 import importlib.util
@@ -622,10 +644,14 @@ def run_requirements_gathering(ticket):
                 ports = [os.environ.get("BACKEND_PORT", ""), "8000", "8008"]
                 for p in filter(None, dict.fromkeys(ports)):
                     try:
-                        resp = requests.get(f"http://localhost:{p}/api/projects/{web_project_id}/internal_wait_input", timeout=86400)
+                        resp = requests.get(f"http://localhost:{p}/api/projects/{web_project_id}/internal_wait_input", timeout=10)
                         if resp.status_code == 200:
                             user_input = resp.json().get("text", "ok")
                             break
+                    except requests.exceptions.Timeout:
+                        print("[Auto-Advance] ⏱️ 10秒无人工介入，AI导演自动确认推荐方案并推进...")
+                        user_input = "ok"
+                        break
                     except Exception:
                         continue
 
@@ -782,9 +808,11 @@ def process_ticket(episode_dir):
         ticket.get("goal"), audience, style, format_type, trending_research, qa_feedback, previous_draft, ticket
     )
 
-    if not storyboard_content:
-        print("[Planning Dept] 🚨 LLM 接口调用失败 (可能因为 503 宕机或达到速率限制)。为防止死锁，将暂停任务。")
+    if not storyboard_content or "FAIL:" in storyboard_content or len(storyboard_content.strip()) < 50:
+        err_msg = f"策划部剧本生成异常或被限流: {storyboard_content[:150]}"
+        print(f"[Planning Dept] 🚨 {err_msg}")
         ticket["status"] = "Paused_By_Error"
+        ticket["last_error"] = err_msg
         with open(ticket_path, "w", encoding="utf-8") as f:
             json.dump(ticket, f, ensure_ascii=False, indent=2)
         return False
@@ -814,11 +842,10 @@ def process_ticket(episode_dir):
     dist_path = os.path.join(scripts_dir, "01_distribution.json")
     _dist_saved = False
     try:
-        import re
-        json_match = re.search(r'```json\s*(.*?)\s*```', storyboard_content, re.DOTALL)
-        json_content = json_match.group(1) if json_match else storyboard_content
+        from shared_tools.api_pool import extract_json_payload
+        json_content = extract_json_payload(storyboard_content)
         parsed_data = json.loads(json_content)
-        if "distribution" in parsed_data:
+        if isinstance(parsed_data, dict) and "distribution" in parsed_data:
             with open(dist_path, "w", encoding="utf-8") as df:
                 json.dump(parsed_data["distribution"], df, ensure_ascii=False, indent=2)
             print(f"  [Planning Dept] Saved distribution metadata to {dist_path}")

@@ -109,7 +109,7 @@ def load_template_actions(template_name_or_id):
         print(f"[Choreography Engine] Template load error: {e}")
         return None
 
-def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='', template_id=None, is_rear_pose=False, is_kneeling_pose=False, is_indoor=False):
+def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='', template_id=None, is_rear_pose=False, is_kneeling_pose=False, is_indoor=False, custom_sequence_desc=None):
     num_shots = max(1, duration // 5)
     tpl_data = load_template_actions(template_id) if template_id else None
     
@@ -120,7 +120,34 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
     else:
         convergence_action = "Phase Convergence (Seamless Loop Closure): During the final 1.5 seconds, the woman smoothly and gradually decelerates all dancing motion, bringing her arms, posture, body alignment, and facial expression 100% back into the exact original reference starting pose, holding perfectly steady on the final beat for a flawless seamless loop"
     
-    if tpl_data and tpl_data.get('actions'):
+    # 优先分支 1: 用户自由编排自定义动作序列 (由前端自由编舞工作台传入)
+    import re
+    custom_steps = []
+    if custom_sequence_desc and ("Sequence:" in custom_sequence_desc or "Shot " in custom_sequence_desc):
+        seq_text = custom_sequence_desc.split("Sequence:", 1)[-1].strip() if "Sequence:" in custom_sequence_desc else custom_sequence_desc
+        parts = [p.strip() for p in seq_text.split(";") if p.strip()]
+        for p in parts:
+            m = re.match(r'Shot\s*\d+\s*(?:\((.*?)\))?:\s*(.*)', p, re.IGNORECASE)
+            if m:
+                angle_tag = m.group(1) or "frontal"
+                prompt_content = m.group(2).strip()
+                custom_steps.append(f"Phase ({angle_tag} dynamic camera framing): {prompt_content}")
+            else:
+                custom_steps.append(p)
+                
+    if custom_steps:
+        print(f"  [Choreography Engine] 🎯 Loaded Custom Choreography Sequence ({len(custom_steps)} user-curated poses)")
+        selected = []
+        if len(custom_steps) > 1:
+            for step in custom_steps[:-1]:
+                selected.append(step)
+            # 最后一个动作融合收束闭环，确保最后一个定格动作不被冲掉
+            last_step = custom_steps[-1]
+            selected.append(f"{last_step}. Finishing transition: gracefully holding and freezing on the final beat for a seamless loop closure.")
+        else:
+            selected.append(custom_steps[0])
+            selected.append(convergence_action)
+    elif tpl_data and tpl_data.get('actions'):
         raw_actions = tpl_data['actions']
         print(f"  [Choreography Engine] Loaded Dance Template: {tpl_data['name']} ({len(raw_actions)} key steps)")
         selected = []
@@ -158,6 +185,7 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
             selected = [patterns[i % (len(patterns) - 1)] for i in range(num_shots - 1)] + [patterns[-1]]
 
     shots = []
+    shot_dur = max(3, int(round(duration / max(1, len(selected)))))
     for i, action in enumerate(selected):
         is_last = (i == len(selected) - 1)
         full_prompt = f'{char_lock_prompt} {action}'
@@ -166,7 +194,7 @@ def plan_choreography(style='street', duration=30, bpm=120, char_lock_prompt='',
             'is_loop_closure': is_last,
             'action': action,
             'prompt': full_prompt,
-            'duration_sec': 5
+            'duration_sec': shot_dur
         })
     return shots
 

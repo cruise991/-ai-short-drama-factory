@@ -41,11 +41,91 @@
     "approveBtn": "批准剧本并推进制作",
     "rejectPlaceholder": "请输入具体的修改意见或纠偏要求...",
     "rejectBtn": "打回并提交修改要求",
-    "noScriptYet": "剧本正在由策划部与 QA 智能体协同生成中，生成完成后将自动在此处展示。"
+    "steps": {
+      "planning": "策划与大纲",
+      "script": "分镜剧本",
+      "production": "资产生成",
+      "qa": "QA 质量纠偏",
+      "post": "后期与成片"
+    },
+    "messages": {
+      "approveSuccess": "已批准通过！流水线正在推进至资产制作阶段...",
+      "rejectSuccess": "已打回！修改反馈已注入策划与 QA 智能体重新生成。",
+      "actionFailed": "操作提交失败，请重试"
+    },
+    "dualDelivery": {
+      "title": "短剧成片与工程已就绪",
+      "badge": "双模交付 · 剪映原生草稿已就绪",
+      "desc": "已自动应用 9:16 原生竖屏慢速推拉运镜 (12% 缓推) 与空间声学微混响对白",
+      "downloadDraft": "🎬 下载剪映专业版工程 (ZIP)",
+      "downloadMp4": "下载成品 MP4",
+      "downloadSrt": "SRT 字幕"
+    }
   },
   "dance": {
     "title": "AI Dance Studio 舞蹈工坊",
     "subtitle": "单图生成 20-30s 无缝循环舞蹈 · {{count}} 款爆款热舞模版 · BPM 节拍音乐卡点 · 9头身高挑身材防压缩",
+    "mode": {
+      "choreography": "自由动作编舞工作台 (5视角 4阶段知识库)",
+      "template": "官方爆款预置模版",
+      "dualDelivery": "双模交付：支持剪映专业版工程草稿 (ZIP 一键导入)"
+    },
+    "choreo": {
+      "recipeImport": "配方一键同款",
+      "recipeImportSub": "| 输入社群或好友分享的配方 ID 即可秒级复刻动势",
+      "recipePlaceholder": "例如: rec_9a8b1c2d",
+      "btnImport": "一键同款",
+      "importSuccess": "✅ 成功导入同款配方：{{title}}",
+      "importFailed": "❌ 未找到该配方 ID，请核对",
+      "sharedLoaded": "🔥 已自动加载社群分享配方：{{title}}",
+      "galleryTitle": "动作知识库",
+      "searchPlaceholder": "搜索动作 / 标签 / 动势...",
+      "allCategories": "全部动作",
+      "cameraRig": "3D 摄影机运镜机位",
+      "cameraRigSub": "双轨解耦 · 自由指定视角",
+      "allAngles": "全部",
+      "defaultAngle": "默认:",
+      "addToTimeline": "加入时间轴",
+      "timelineTitle": "自由编舞时间轴 (Timeline)",
+      "currentPoses": "当前动作:",
+      "totalBeats": "总拍数:",
+      "estDuration": "预计成片:",
+      "emptyTimeline": "时间轴为空，请在左侧点击动作卡片的【加入时间轴】",
+      "beatsUnit": "拍",
+      "bestTransition": "动力学自然流线衔接 (Best Transition)",
+      "cutTransition": "⚡ 律动重音切点过渡 (Cut Transition)",
+      "recipeNamePlaceholder": "为本套编舞命名...",
+      "defaultRecipeTitle": "纯欲爆闪·女团 Killing Part",
+      "genRecipeCard": "生成配方挑战卡",
+      "exportJianying": "同步导出剪映专业版工程草稿 (ZIP 双模交付 · 含 12% 缓推关键帧与字幕轨)",
+      "renderBtn": "立即生成自由编舞成片 ({{seconds}}s · {{count}}个动作)",
+      "rendering": "AI 正在调度多动作连贯插帧渲染...",
+      "needDancer": "请在右侧先上传全身角色模特参考图",
+      "shareModalTitle": "🔥 AI DANCE CHOREOGRAPHY RECIPE",
+      "posesRecorded": "+ 剩余 {{count}} 个动作已收录",
+      "recipeIdLabel": "配方 ID:",
+      "scanToClone": "扫码或导入即刻同款",
+      "copied": "已复制分享挑战口令与链接！",
+      "copyCard": "复制 3:4 社交挑战卡口令",
+      "angles": {
+        "front": "正面 (0°)",
+        "oblique": "斜侧 (45°)",
+        "side": "侧面 (90°)",
+        "top": "俯视 (+30°)",
+        "low": "仰视 (-30°)"
+      },
+      "stages": {
+        "intro": "亮相起势",
+        "rhythm": "核心律动",
+        "transition": "旋转过渡",
+        "ending": "终场定格"
+      }
+    },
+    "draftOutput": {
+      "downloadZip": "🎬 下载剪映工程草稿 (ZIP)",
+      "draftDesc": "• 剪映工程：已自动生成 1080x1920 竖屏草稿与缓推运镜",
+      "synced": "• 草稿同步：✨ 已自动同步至本机剪映专业版草稿箱"
+    },
     "controlPanelTitle": "创作控制台",
     "stageTitle": "作品舞台展厅",
     "templates": {
@@ -323,6 +403,17 @@
     "sendBtn": "发送",
     "anchor": "主播小婉",
     "likeCount": "点赞数"
+  },
+  "videoDesign": {
+    "title": "超级峰视听设计与代码动效",
+    "rhythmTitle": "声画节拍与时码编排",
+    "reRollShot": "单镜头局部重编",
+    "renderCodeMotion": "生成代码动效成片 (0成本)",
+    "bpmLabel": "音乐BPM节奏网格",
+    "focusRelay": "视线焦点连续性接力",
+    "stylesTitle": "44套程序化视觉风格库",
+    "citation": "文献事实出处",
+    "aiDeclaration": "内容由AI生成 (官方合规认证)"
   }
 }
 

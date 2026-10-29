@@ -126,13 +126,25 @@ async def run_project_pipeline(project_id: int):
                     final_status = t_data.get("status", "Unknown")
                     if final_status == "Completed":
                         project.status = "Completed"
+                        project.error_message = None
                     elif final_status == "Paused_By_Error":
                         project.status = "Paused_By_Error"
+                        if "last_error" in t_data:
+                            project.error_message = t_data["last_error"]
+                    elif final_status == "Pending":
+                        # 流水线未成功推进至后续状态，熔断标记为 Paused_By_Error 阻止死锁重跑
+                        final_status = "Paused_By_Error"
+                        project.status = final_status
+                        if "last_error" in t_data:
+                            project.error_message = t_data["last_error"]
                     else:
                         project.status = final_status
+                        if "last_error" in t_data:
+                            project.error_message = t_data["last_error"]
             else:
                 final_status = "Failed"
                 project.status = final_status
+                project.error_message = "工单 ticket 文件未找到或初始化失败"
             session.commit()
             
             end_msg = f"[Pipeline] 🏁 Project #{project_id} ({project.project_slug}) finished with status: {final_status}"

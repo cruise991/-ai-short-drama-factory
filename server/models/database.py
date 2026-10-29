@@ -1,5 +1,5 @@
 from enum import Enum
-from sqlmodel import Field, SQLModel, create_engine, Session
+from sqlmodel import Field, SQLModel, create_engine, Session, select
 from typing import Optional
 from datetime import datetime
 import os
@@ -63,6 +63,7 @@ class Project(SQLModel, table=True):
     motion_id: Optional[str] = Field(default=None)
     hand_preset: Optional[str] = Field(default=None)
     caption_style: Optional[str] = Field(default=None)
+    error_message: Optional[str] = Field(default=None)
     tenant_id: str = Field(default="default", index=True)
     
 class Asset(SQLModel, table=True):
@@ -245,7 +246,7 @@ def create_db_and_tables():
                     conn.execute(text(f"ALTER TABLE {tbl} ADD COLUMN tenant_id VARCHAR DEFAULT 'default'"))
                 except Exception:
                     pass  # Column already exists
-            for col in ["costume_id", "scene_id", "motion_id", "hand_preset", "caption_style"]:
+            for col in ["costume_id", "scene_id", "motion_id", "hand_preset", "caption_style", "error_message"]:
                 try:
                     conn.execute(text(f"ALTER TABLE project ADD COLUMN {col} VARCHAR"))
                 except Exception:

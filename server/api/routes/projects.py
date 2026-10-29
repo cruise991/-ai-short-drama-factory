@@ -209,8 +209,13 @@ def get_assets(slug: str):
     images = []
     seen_videos = set()
     seen_images = set()
+    drafts = []
+    subtitles = []
     
-    # Check out_dirs for videos
+    seen_drafts = set()
+    seen_subtitles = set()
+    
+    # Check out_dirs for videos, drafts and subtitles
     for out_dir in out_dirs:
         if os.path.exists(out_dir):
             for f in glob.glob(f"{out_dir}/*.mp4"):
@@ -218,6 +223,16 @@ def get_assets(slug: str):
                 if fname not in seen_videos:
                     seen_videos.add(fname)
                     videos.append(f"/media/out/{slug}/{fname}")
+            for f in glob.glob(f"{out_dir}/*draft*.zip") + glob.glob(f"{out_dir}/*jianying*.zip"):
+                fname = os.path.basename(f)
+                if fname not in seen_drafts:
+                    seen_drafts.add(fname)
+                    drafts.append(f"/media/out/{slug}/{fname}")
+            for f in glob.glob(f"{out_dir}/*.srt"):
+                fname = os.path.basename(f)
+                if fname not in seen_subtitles:
+                    seen_subtitles.add(fname)
+                    subtitles.append(f"/media/out/{slug}/{fname}")
             
     # Check runs_dirs for images (storyboards)
     for runs_dir in runs_dirs:
@@ -236,5 +251,57 @@ def get_assets(slug: str):
                             
     return {
         "videos": videos,
-        "images": images
+        "images": images,
+        "drafts": drafts,
+        "subtitles": subtitles
     }
+
+@router.delete("/{project_id}")
+def delete_project(project_id: int, session: Session = Depends(get_session)):
+    """Delete project from database and optionally archive files."""
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+        
+    slug = project.project_slug
+    session.delete(project)
+    session.commit()
+    
+    # Try removing pending future if any
+    if project_id in PENDING_INPUTS:
+        del PENDING_INPUTS[project_id]
+        
+    manager.broadcast_sync(f"[Project] 🗑️ Project #{project_id} ({slug}) deleted by user.")
+    return {"success": True, "message": f"Project {project_id} deleted successfully"}
+
+@router.post("/{project_id}/retry")
+def retry_project(project_id: int, session: Session = Depends(get_session)):
+    """Reset a paused or failed project back to Pending so worker restarts pipeline."""
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+        
+    project.status = "Pending"
+    project.error_message = None
+    session.add(project)
+    session.commit()
+    
+    # Reset ticket if exists
+    base_dir = get_base_dir()
+    runs_dir = os.path.join(base_dir, "projects", project.project_slug, "runs")
+    if os.path.exists(runs_dir):
+        run_ids = sorted([d for d in os.listdir(runs_dir) if os.path.isdir(os.path.join(runs_dir, d))], reverse=True)
+        if run_ids:
+            t_path = os.path.join(runs_dir, run_ids[0], "00_task_ticket.json")
+            if os.path.exists(t_path):
+                try:
+                    with open(t_path, "r", encoding="utf-8") as f:
+                        t_data = json.load(f)
+                    t_data["status"] = "Pending"
+                    with open(t_path, "w", encoding="utf-8") as f:
+                        json.dump(t_data, f, ensure_ascii=False, indent=2)
+                except Exception:
+                    pass
+                    
+    manager.broadcast_sync(f"[Project] 🔄 Project #{project_id} ({project.project_slug}) manually queued for RETRY.")
+    return {"success": True, "message": f"Project {project_id} reset to Pending"}

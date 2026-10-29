@@ -100,6 +100,10 @@ server/data/
 *.sqlite3
 test_ref_character.png
 00_requirements.json
+assets/fonts/
+*.ttc
+*.ttf
+*.otf
 
 # ==============================
 # Debug & Temporary Scratch
@@ -114,3 +118,4 @@ test_agnes_vision.py
 test_classifier.py
 test_gradient_bg.py
 test_slicing.py
+services/tts/cache/
